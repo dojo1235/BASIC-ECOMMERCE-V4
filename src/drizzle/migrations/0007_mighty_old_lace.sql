@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "shippingFee" numeric(10, 2) NOT NULL;

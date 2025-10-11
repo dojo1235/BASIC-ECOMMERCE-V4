@@ -1,0 +1,26 @@
+import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
+import { Role } from 'src/common/enums/roles.enum'
+
+export class CreateAdminDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Name is required' })
+  @Length(3, 50, { message: 'Name must be between 3 and 50 characters long' })
+  name: string
+
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  @IsNotEmpty({ message: 'Email is required' })
+  email: string
+
+  @IsString()
+  @IsNotEmpty({ message: 'Password is required' })
+  @Length(8, 100, { message: 'Password must be between 8 and 100 characters long' })
+  @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
+  @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
+  @Matches(/\d/, { message: 'Password must contain at least one number' })
+  @Matches(/[\W_]/, { message: 'Password must contain at least one special character' })
+  password: string
+  
+  @IsNotEmpty({ message: 'Role is required' })
+  @IsEnum(Role, { message: `Role must be one of: ${Object.values(Role).join(', ')}` })
+  role: Role
+}
