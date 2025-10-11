@@ -33,7 +33,7 @@ export const compareToken = async (value: string, hash: string): Promise<boolean
 
 // ===== Generate access + refresh tokens =====
 export const generateTokens = async (payload: { id: number; role: string }) => {
-  const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: '30d' })
+  const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: '15m' })
   const refreshTokenRaw = jwt.sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: '7d' })
 
   const hashedToken = await hashToken(refreshTokenRaw)
