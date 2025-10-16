@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, Length, Matches } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class UpdatePasswordDto {
   @IsString()
@@ -8,6 +9,11 @@ export class UpdatePasswordDto {
   @Matches(/[a-z]/, { message: 'Old password must contain at least one lowercase letter' })
   @Matches(/\d/, { message: 'Old password must contain at least one number' })
   @Matches(/[\W_]/, { message: 'Old password must contain at least one special character' })
+  @ApiProperty({
+    description: 'Current (old) password of the user',
+    minLength: 8,
+    maxLength: 100,
+  })
   oldPassword: string
 
   @IsString()
@@ -17,5 +23,10 @@ export class UpdatePasswordDto {
   @Matches(/[a-z]/, { message: 'New password must contain at least one lowercase letter' })
   @Matches(/\d/, { message: 'New password must contain at least one number' })
   @Matches(/[\W_]/, { message: 'New password must contain at least one special character' })
+  @ApiProperty({
+    description: 'New password to replace the old one',
+    minLength: 8,
+    maxLength: 100,
+  })
   newPassword: string
 }

@@ -1,53 +1,49 @@
-import { Controller, Get, Patch, Body, Req } from '@nestjs/common'
-import { UsersService } from './users.service';
+import { Controller, Get, Patch, Body } from '@nestjs/common'
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
+import { UsersService } from './users.service'
 import { UpdateAdminDto } from './dto/update-admin.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
-import { Role } from 'src/common/enums/roles.enum'
+import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { UserResponseDto } from './dto/user-response.dto'
 
+@ApiBearerAuth()
 @Controller('admins/me')
 export class AdminsController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Fetch admin profile
-  @Get()
+  @Get() // Fetch admin profile
   @Auth(Role.ViewOnlyAdmin)
-  async findOne(@Req() req: any) {
-    return buildResponse(
-      await this.usersService.findOneAdmin(req.user.id),
-      'Profile fetched successfully',
-    )
+  @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
+  async findOne(@CurrentUser() user) {
+    return {
+      data: await this.usersService.findOneAdmin(user.id),
+      message: 'Profile fetched successfully',
+    }
   }
 
-  // Update admin profile
-  @Patch()
+  @Patch() // Update admin profile
   @Auth(Role.ViewOnlyAdmin)
-  async update(@Body() dto: UpdateAdminDto,
-    @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateAdmin(req.user.id, {
+  @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  async update(@Body() dto: UpdateAdminDto, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updateAdmin(user.id, {
         ...dto,
-        updatedBy: req.user.id,
+        updatedBy: user.id,
         updatedAt: new Date(),
       }),
-      'Profile updated successfully',
-    )
+      message: 'Profile updated successfully',
+    }
   }
-  
-  // Update password for admin
-  @Patch('password')
+
+  @Patch('password') // Update password
   @Auth(Role.ViewOnlyAdmin)
-  async updatePassword(
-    @Body() updatePasswordDto: UpdatePasswordDto,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.usersService.updatePassword(
-        req.user.id,
-        updatePasswordDto
-      ),
-      'Password updated successfully',
-    )
+  @ApiOkResponse({ description: 'Password updated successfully' })
+  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updatePassword(user.id, updatePasswordDto),
+      message: 'Password updated successfully',
+    }
   }
 }

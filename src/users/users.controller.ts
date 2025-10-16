@@ -1,65 +1,62 @@
-import { Controller, Get, Body, Patch, Delete, Req } from '@nestjs/common'
+import { Controller, Get, Patch, Delete, Body } from '@nestjs/common'
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { UserResponseDto } from './dto/user-response.dto'
 
+@ApiBearerAuth()
 @Controller('users/me')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Fetch user profile
-  @Get()
+  @Get() // Fetch user profile
   @Auth()
-  async findOne(@Req() req: any) {
-    return buildResponse(
-      await this.usersService.findOneUser(req.user.id),
-      'Profile fetched successfully',
-    )
+  @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
+  async findOne(@CurrentUser() user) {
+    return {
+      data: await this.usersService.findOneUser(user.id),
+      message: 'Profile fetched successfully',
+    }
   }
 
-  // Update user profile
-  @Patch()
+  @Patch() // Update user profile
   @Auth()
-  async update(@Body() dto: UpdateUserDto, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUser(req.user.id, {
+  @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  async update(@Body() dto: UpdateUserDto, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updateUser(user.id, {
         ...dto,
-        updatedBy: req.user.id,
+        updatedBy: user.id,
         updatedAt: new Date(),
       }),
-      'Profile updated successfully',
-    )
-  }
-  
-  // Update password for user
-  @Patch('password')
-  @Auth()
-  async updatePassword(
-    @Body() updatePasswordDto: UpdatePasswordDto,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.usersService.updatePassword(
-        req.user.id,
-        updatePasswordDto
-      ),
-      'Password updated successfully',
-    )
+      message: 'Profile updated successfully',
+    }
   }
 
-  // Soft-delete user
-  @Delete()
+  @Patch('password') // Update password
   @Auth()
-  async remove(@Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUser(req.user.id, {
+  @ApiOkResponse({ description: 'Password updated successfully' })
+  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updatePassword(user.id, updatePasswordDto),
+      message: 'Password updated successfully',
+    }
+  }
+
+  @Delete() // Soft-delete user
+  @Auth()
+  @ApiOkResponse({ description: 'Account deleted successfully', type: UserResponseDto })
+  async remove(@CurrentUser() user) {
+    return {
+      data: await this.usersService.updateUser(user.id, {
         isDeleted: true,
-        deletedBy: req.user.id,
+        deletedBy: user.id,
         deletedAt: new Date(),
       }),
-      'Account deleted successfully',
-    )
+      message: 'Account deleted successfully',
+    }
   }
 }

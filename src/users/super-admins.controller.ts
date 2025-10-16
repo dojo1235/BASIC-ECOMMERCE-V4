@@ -1,132 +1,145 @@
-import { Controller, Get, Post, Patch, Delete, Body,
-Param, ParseIntPipe, Query, Req } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { CreateAdminDto } from './dto/create-admin.dto'
 import { UpdateAdminDto } from './dto/update-admin.dto'
-import { Role } from 'src/common/enums/roles.enum'
+import { UpdateUserRoleDto } from './dto/update-user-role.dto'
+import { FindUsersDto } from './dto/find-users.dto'
+import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { User } from 'src/users/entities/user.entity'
+import { UserResponseDto } from './dto/user-response.dto'
+import { UsersListResponseDto } from './dto/users-list-response.dto'
 
+@ApiBearerAuth()
 @Controller('admins/super')
 export class SuperAdminsController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Create new admin
-  @Post()
+  @Post() // Create new admin
   @Auth(Role.SuperAdmin)
-  async create(@Body() createAdminDto: CreateAdminDto, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.createAdmin(createAdminDto, req.user.id),
-      'Admin created successfully',
-    )
+  @ApiCreatedResponse({ description: 'Admin created successfully', type: UserResponseDto })
+  async create(@Body() createAdminDto: CreateAdminDto, @CurrentUser() user) {
+    return {
+      data: await this.usersService.createAdmin(createAdminDto, user.id),
+      message: 'Admin created successfully',
+    }
   }
 
-  // Fetch all admins
-  @Get()
+  @Get() // Fetch all admins
   @Auth(Role.SuperAdmin)
-  async findAll(@Query() query: Record<string, any>) {
-    return buildResponse(
-      await this.usersService.findAllAdmins(query),
-      'Admins fetched successfully',
-    )
+  @ApiOkResponse({ description: 'Admins fetched successfully', type: UsersListResponseDto })
+  async findAll(@Query() query: FindUsersDto) {
+    return {
+      data: await this.usersService.findAllAdmins(query),
+      message: 'Admins fetched successfully',
+    }
   }
 
-  // Fetch a single admin
-  @Get(':id')
+  @Get(':adminId') // Fetch a single admin
   @Auth(Role.SuperAdmin)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return buildResponse(
-      await this.usersService.findOneAdmin(id),
-      'Admin fetched successfully',
-    )
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'Admin fetched successfully', type: UserResponseDto })
+  async findOne(@Param('adminId', ParseIntPipe) adminId: number) {
+    return {
+      data: await this.usersService.findOneAdmin(adminId),
+      message: 'Admin fetched successfully',
+    }
   }
 
-  // Update admin
-  @Patch(':id')
+  @Patch(':adminId') // Update admin
   @Auth(Role.SuperAdmin)
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'Admin updated successfully', type: UserResponseDto })
   async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateAdminDto,
-    @Req() req: any,
+    @Param('adminId', ParseIntPipe) adminId: number,
+    @Body() updateAdminDto: UpdateAdminDto,
+    @CurrentUser() user,
   ) {
-    return buildResponse(
-      await this.usersService.updateAdminForSuperAdmin(id, {
-        ...dto,
-        updatedBy: req.user.id,
+    return {
+      data: await this.usersService.updateAdminForSuperAdmin(adminId, {
+        ...updateAdminDto,
+        updatedBy: user.id,
         updatedAt: new Date(),
       }),
-      'Admin updated successfully',
-    )
+      message: 'Admin updated successfully',
+    }
   }
 
-  // Update admin role
-  @Patch(':id/role')
+  @Patch(':adminId/role') // Update admin role
   @Auth(Role.SuperAdmin)
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'Admin role updated successfully', type: UserResponseDto })
   async updateRole(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('role') role: Role,
-    @Req() req: any,
+    @Param('adminId', ParseIntPipe) adminId: number,
+    @Body() { role }: UpdateUserRoleDto,
+    @CurrentUser() user,
   ) {
-    return buildResponse(
-      await this.usersService.updateAdminForSuperAdmin(id, {
+    return {
+      data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         role,
-        updatedBy: req.user.id,
+        updatedBy: user.id,
         updatedAt: new Date(),
       }),
-      'Admin role updated successfully',
-    )
+      message: 'Admin role updated successfully',
+    }
   }
 
-  // Ban admin
-  @Patch(':id/ban')
+  @Patch(':adminId/ban') // Ban admin
   @Auth(Role.SuperAdmin)
-  async ban(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateAdminForSuperAdmin(id, {
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'Admin banned successfully', type: UserResponseDto })
+  async ban(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isBanned: true,
-        bannedBy: req.user.id,
+        bannedBy: user.id,
         bannedAt: new Date(),
       }),
-      'Admin banned successfully',
-    )
+      message: 'Admin banned successfully',
+    }
   }
 
-  // Restore admin
-  @Patch(':id/restore')
+  @Patch(':adminId/restore') // Restore admin
   @Auth(Role.SuperAdmin)
-  async restore(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateAdminForSuperAdmin(id, {
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'Admin restored successfully', type: UserResponseDto })
+  async restore(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isBanned: false,
         isDeleted: false,
-        restoredBy: req.user.id,
+        restoredBy: user.id,
         restoredAt: new Date(),
       }),
-      'Admin restored successfully',
-    )
+      message: 'Admin restored successfully',
+    }
   }
 
-  // Log out admin from all devices
-  @Patch(':id/revoke-sessions')
+  @Patch(':adminId/revoke-sessions') // Log out admin from all devices
   @Auth(Role.SuperAdmin)
-  async revokeAllSessions(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.revokeAllAdminSessions(id, req.user.id),
-      'All admin sessions revoked successfully',
-    )
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'All admin sessions revoked successfully' })
+  async revokeAllSessions(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+    return {
+      data: await this.usersService.revokeAllAdminSessions(adminId, user.id),
+      message: 'All admin sessions revoked successfully',
+    }
   }
 
-  // Soft-delete admin
-  @Delete(':id')
+  @Delete(':adminId') // Soft-delete admin
   @Auth(Role.SuperAdmin)
-  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateAdminForSuperAdmin(id, {
+  @ApiParam({ name: 'adminId', type: Number })
+  @ApiOkResponse({ description: 'Admin deleted successfully', type: UserResponseDto })
+  async remove(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+    return {
+      data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isDeleted: true,
-        deletedBy: req.user.id,
+        deletedBy: user.id,
         deletedAt: new Date(),
       }),
-      'Admin deleted successfully',
-    )
+      message: 'Admin deleted successfully',
+    }
   }
 }
