@@ -1,5 +1,6 @@
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 
@@ -15,6 +16,16 @@ async function bootstrap() {
       transform: true,            // converts payloads to DTO class types
     }),
   )
+  
+  const config = new DocumentBuilder()
+    .setTitle('E-commerce API')
+    .setDescription('API documentation for the e-commerce platform')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build()
+
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('api', app, document)
   
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   // plug in global exception filter
