@@ -4,14 +4,14 @@ import { JwtModule } from '@nestjs/jwt'
 import configuration from './config/configuration'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { dataSourceOptions } from './config/orm.config'
-import { APP_FILTER } from '@nestjs/core'
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
+import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
-import { APP_GUARD } from '@nestjs/core'
 import { ProductsModule } from './products/products.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
