@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { JwtModule } from '@nestjs/jwt'
 import configuration from './config/configuration'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { dataSourceOptions } from './config/orm.config'
@@ -21,6 +22,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
       isGlobal: true,
       load: [configuration],
     }),
+    JwtModule.register({ global: true }),
     TypeOrmModule.forRootAsync(dataSourceOptions),
     UsersModule,
     AuthModule,
