@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import configuration from './config/configuration'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { dataSourceOptions } from './config/orm.config'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { UsersModule } from './users/users.module'
@@ -19,6 +21,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
       isGlobal: true,
       load: [configuration],
     }),
+    TypeOrmModule.forRootAsync(dataSourceOptions),
     UsersModule,
     AuthModule,
     ThrottlerModule.forRoot([{
