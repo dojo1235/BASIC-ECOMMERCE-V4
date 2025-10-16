@@ -1,129 +1,136 @@
-import { Injectable, HttpStatus } from '@nestjs/common'
-import { db } from 'src/drizzle/db'
-import { users, refreshTokens } from 'src/drizzle/schema'
-import { eq, and } from 'drizzle-orm'
-import { RegisterDto } from './dto/register.dto'
-import { LoginDto } from './dto/login.dto'
+import { Injectable } from '@nestjs/common'
+import { plainToInstance } from 'class-transformer'
+import { add } from 'date-fns'
+import { JwtService } from '@nestjs/jwt'
+import { ConfigService } from '@nestjs/config'
+import { UsersRepository } from 'src/users/users.repository'
+import { AuthRepository } from './auth.repository'
+import { User } from 'src/users/entities/user.entity'
 import { hashPassword, comparePassword } from 'src/common/utils/password.util'
-import { verifyRefreshToken, compareToken, generateTokens } from 'src/common/utils/jwt.util'
-import { AppError } from 'src/common/errors/app-error'
+import { hashRefreshToken, compareRefreshToken } from 'src/common/utils/jwt.util'
+import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 @Injectable()
 export class AuthService {
-  // Register new user (both)
-  async register(registerDto: RegisterDto) {
-    registerDto.email = registerDto.email.trim().toLowerCase()
-    const password = registerDto.password.trim()
-    const existing = await db.query.users.findFirst({
-      where: eq(users.email, registerDto.email),
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly usersRepository: UsersRepository,
+    private readonly authRepository: AuthRepository,
+  ) {}
+
+  async register(data) {
+    const existing = await this.usersRepository.findUserByEmail(data.email)
+    if (existing)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
+    const hashedPassword = await hashPassword(data.password)
+    delete data.password
+    const created = await this.usersRepository.createUser({
+      ...data,
+      passwordHash: hashedPassword,
+      lastLogin: new Date(),
     })
-    if (existing) throw new AppError('Email already exists', HttpStatus.CONFLICT)
-    const hashedPassword = await hashPassword(password)
-    const [user] = await db.insert(users)
-      .values({
-        ...registerDto,
-        password: hashedPassword,
-        lastLogin: new Date(),
-      })
-      .returning({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-      }) as any[]
-    const tokens = await generateTokens({ id: user.id, role: user.role })
-    return { user, tokens }
+    const tokens = await this.generateTokens(created.id, created.role)
+    return { user: plainToInstance(User, created), tokens }
   }
 
-  // Login existing user (both)
-  async login(loginDto: LoginDto) {
-    loginDto.email = loginDto.email.trim().toLowerCase()
-    const user = await db.query.users.findFirst({
-      where: and(eq(users.email, loginDto.email), eq(users.isDeleted, false)),
-    })
-    if (!user) throw new AppError('Invalid credentials', HttpStatus.UNAUTHORIZED)
-    if (user.isBanned) throw new AppError('Account banned', HttpStatus.UNAUTHORIZED)
-    const isValid = await comparePassword(loginDto.password, user.password)
-    if (!isValid) throw new AppError('Invalid credentials', HttpStatus.UNAUTHORIZED)
-    const [updated] = await db.update(users)
-      .set({ lastLogin: new Date() })
-      .where(eq(users.id, user.id))
-      .returning({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-      }) as any[]
-    const tokens = await generateTokens({ id: user.id, role: user.role })
-    return { user: updated, tokens }
+  async login(data) {
+    const user = await this.usersRepository.findUserByEmail(data.email)
+    if (!user || user.isDeleted)
+      throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials')
+    if (user.isBanned)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Account banned')
+    const isValid = await comparePassword(data.password, user.passwordHash)
+    if (!isValid)
+      throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials')
+    const lastLogin = new Date()
+    await this.usersRepository.updateUser(user.id, { lastLogin })
+    const tokens = await this.generateTokens(user.id, user.role)
+    return { user: plainToInstance(User, { ...user, lastLogin }), tokens }
   }
 
-  // Refresh & rotate token (both)
-  async refreshToken(refreshToken: string) {
-    const decoded = verifyRefreshToken(refreshToken)
-    if (!decoded) throw new AppError('Invalid refresh token', HttpStatus.UNAUTHORIZED)
-    const tokenRecords = await db.query.refreshTokens.findMany({
-      where: and(eq(refreshTokens.userId, decoded.id), eq(refreshTokens.revoked, false)),
+  async refreshToken(refreshToken) {
+    const payload = await this.verifyRefreshToken(refreshToken)
+    if (!payload)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Invalid refresh token')
+    const record = await this.findValidTokenRecord(payload.sub, refreshToken)
+    if (!record)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Session terminated')
+    await this.authRepository.revokeToken(record.id, {
+      revoked: true,
+      revokedAt: new Date(),
     })
-    let validTokenRecord: any = null
-    for (const record of tokenRecords) {
-      if (await compareToken(refreshToken, record.token)) {
-        validTokenRecord = record
-        break
-      }
-    }
-    if (!validTokenRecord) throw new AppError('Session terminated', HttpStatus.UNAUTHORIZED)
-    await db.update(refreshTokens)
-      .set({ revoked: true, revokedAt: new Date() })
-      .where(eq(refreshTokens.id, validTokenRecord.id))
-    const user = await db.query.users.findFirst({
-      where: and(eq(users.id, decoded.id), eq(users.isDeleted, false)),
-    })
-    if (!user) throw new AppError('User not found', HttpStatus.NOT_FOUND)
-    if (user.isBanned) throw new AppError('Account banned', HttpStatus.UNAUTHORIZED)
-    const tokens = await generateTokens({ id: user.id, role: user.role })
+    const user = await this.usersRepository.findUserById(payload.sub)
+    if (!user || user.isDeleted)
+      throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
+    if (user.isBanned)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Account banned')
+    const tokens = await this.generateTokens(user.id, user.role)
     return { tokens }
   }
 
-  // Logout (both)
-  async logout(refreshToken: string) {
-    const decoded = verifyRefreshToken(refreshToken)
-    if (!decoded) throw new AppError('Invalid refresh token', HttpStatus.UNAUTHORIZED)
-    const tokenRecords = await db.query.refreshTokens.findMany({
-      where: and(eq(refreshTokens.userId, decoded.id), eq(refreshTokens.revoked, false)),
+  async logout(refreshToken) {
+    const payload = await this.verifyRefreshToken(refreshToken)
+    if (!payload)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Invalid refresh token')
+    const record = await this.findValidTokenRecord(payload.sub, refreshToken)
+    if (!record)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Already logged out or invalid session')
+    await this.authRepository.revokeToken(record.id, {
+      revoked: true,
+      revokedAt: new Date(),
     })
-    let validTokenRecord: any = null
-    for (const record of tokenRecords) {
-      if (await compareToken(refreshToken, record.token)) {
-        validTokenRecord = record
-        break
-      }
-    }
-    if (!validTokenRecord)
-      throw new AppError('Already logged out or invalid session', HttpStatus.UNAUTHORIZED)
-    await db.update(refreshTokens)
-      .set({ revoked: true, revokedAt: new Date() })
-      .where(eq(refreshTokens.id, validTokenRecord.id))
   }
 
-  // Logout from all devices (both)
-  async logoutAll(refreshToken: string) {
-    const decoded = verifyRefreshToken(refreshToken)
-    if (!decoded) throw new AppError('Invalid refresh token', HttpStatus.UNAUTHORIZED)
-    const tokenRecords = await db.query.refreshTokens.findMany({
-      where: and(eq(refreshTokens.userId, decoded.id), eq(refreshTokens.revoked, false)),
+  async logoutAll(refreshToken) {
+    const payload = await this.verifyRefreshToken(refreshToken)
+    if (!payload)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Invalid refresh token')
+    const record = await this.findValidTokenRecord(payload.sub, refreshToken)
+    if (!record)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Invalid session')
+    await this.authRepository.revokeAllTokensForUser(payload.sub, {
+      revoked: true,
+      revokedAt: new Date(),
     })
-    let validTokenRecord: any = null
-    for (const record of tokenRecords) {
-      if (await compareToken(refreshToken, record.token)) {
-        validTokenRecord = record
-        break
-      }
+  }
+
+  private async generateTokens(userId: number, role: string) {
+    const payload = { sub: userId, role }
+    const { accessSecret, refreshSecret, accessExpiresIn, refreshExpiresIn } =
+      this.configService.get('jwt')
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: accessSecret,
+      expiresIn: accessExpiresIn,
+    })
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: refreshSecret,
+      expiresIn: refreshExpiresIn,
+    })
+    const hashedToken = await hashRefreshToken(refreshToken)
+    const expiresAt = add(new Date(), { days: Number(refreshExpiresIn) })
+    await this.authRepository.createRefreshToken({
+      userId: payload.sub,
+      token: hashedToken,
+      expiresAt,
+    })
+    return { accessToken, refreshToken }
+  }
+
+  private async verifyRefreshToken(refreshToken) {
+    try {
+      const { refreshSecret } = this.configService.get('jwt')
+      return await this.jwtService.verifyAsync(refreshToken, { secret: refreshSecret })
+    } catch {
+      return null
     }
-    if (!validTokenRecord)
-      throw new AppError('Invalid session', HttpStatus.UNAUTHORIZED)
-    await db.update(refreshTokens)
-      .set({ revoked: true, revokedAt: new Date() })
-      .where(and(eq(refreshTokens.userId, decoded.id), eq(refreshTokens.revoked, false)))
+  }
+
+  private async findValidTokenRecord(userId: number, refreshToken) {
+    const tokenRecords = await this.authRepository.findActiveTokensByUserId(userId)
+    for (const record of tokenRecords) {
+      if (await compareRefreshToken(refreshToken, record.token)) return record
+    }
+    return null
   }
 }
