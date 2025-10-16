@@ -1,26 +1,30 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common'
+import { ApiParam, ApiOkResponse } from '@nestjs/swagger'
 import { ProductsService } from './products.service'
-import { buildResponse } from 'src/common/utils/response.util'
+import { FindProductsDto } from './dto/find-products.dto'
+import { ProductsListResponseDto } from './dto/products-list-response.dto'
+import { ProductResponseDto } from './dto/product-response.dto'
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  // Fetch all products
-  @Get()
-  async findAll(@Query() query: Record<string, any>) {
-    return buildResponse(
-      await this.productsService.findAllProductsForUser(query),
-      'Products fetched successfully',
-    )
+  @Get() // Fetch all products
+  @ApiOkResponse({ description: 'Products fetched successfully', type: ProductsListResponseDto })
+  async findAllProducts(@Query() query: FindProductsDto) {
+    return {
+      data: await this.productsService.findAllProducts(query),
+      message: 'Products fetched successfully',
+    }
   }
 
-  // Fetch a single product
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return buildResponse(
-      await this.productsService.findOneProductForUser(id),
-      'Product fetched successfully',
-    )
+  @Get(':productId') // Fetch a single product
+  @ApiParam({ name: 'productId', description: 'ID of the product', type: Number })
+  @ApiOkResponse({ description: 'Product fetched successfully', type: ProductResponseDto })
+  async findOneProduct(@Param('productId', ParseIntPipe) productId: number) {
+    return {
+      data: await this.productsService.findOneProduct(productId),
+      message: 'Product fetched successfully',
+    }
   }
 }
