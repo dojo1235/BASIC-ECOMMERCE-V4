@@ -1,7 +1,6 @@
-import { ValidationPipe } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common'
+import { NestFactory, Reflector } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { SanitizeInterceptor } from './common/interceptors/sanitize.interceptor'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 
 async function bootstrap() {
@@ -16,8 +15,8 @@ async function bootstrap() {
       transform: true,            // converts payloads to DTO class types
     }),
   )
-  // Globally apply sanitation
-  app.useGlobalInterceptors(new SanitizeInterceptor())
+  
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   // plug in global exception filter
   app.useGlobalFilters(new AllExceptionsFilter())
 
