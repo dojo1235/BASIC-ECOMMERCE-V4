@@ -1,81 +1,97 @@
-import { Controller, Post, Patch, Get, Delete, Param, ParseIntPipe, Body, Req } from '@nestjs/common'
+import { Controller, Post, Patch, Get, Delete, Param, ParseIntPipe, Body } from '@nestjs/common'
+import { ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
 import { CartService } from './cart.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { CartListResponseDto } from './dto/cart-list-response.dto'
+import { CartItemResponseDto } from './dto/cart-item-response.dto'
+import { QuantityDto } from './dto/quantity.dto'
 
+@ApiBearerAuth()
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  // Add product to cart
-  @Post('products/:productId')
+  @Post('products/:productId') // Add product to cart
   @Auth()
+  @ApiParam({ name: 'productId', type: Number })
+  @ApiCreatedResponse({
+    description: 'Product added to cart successfully',
+    type: CartItemResponseDto,
+  })
   async addToCart(
     @Param('productId', ParseIntPipe) productId: number,
-    @Body('quantity', ParseIntPipe) quantity: number,
-    @Req() req: any,
+    @Body() { quantity }: QuantityDto,
+    @CurrentUser() user,
   ) {
-    return buildResponse(
-      await this.cartService.addToCart(
-        req.user.id,
-        productId,
-        quantity,
-      ),
-      'Added to cart',
-    )
-  }
-  
-  // Get user cart
-  @Get()
-  @Auth()
-  async getUserCart(@Req() req: any) {
-    return buildResponse(
-      await this.cartService.findUserCart(req.user.id),
-      'Cart fetched successfully',
-    )
+    return {
+      data: await this.cartService.addToCart(user.id, productId, quantity),
+      message: 'Product added to cart successfully',
+    }
   }
 
-  // Get total cart item count
-  @Get('count')
+  @Get() // Get user cart
   @Auth()
-  async getCartCount(@Req() req: any) {
-    return buildResponse(
-      await this.cartService.countUserCartItems(req.user.id),
-      'Cart items counted successfully',
-    )
+  @ApiOkResponse({
+    description: 'Cart fetched successfully',
+    type: CartListResponseDto,
+  })
+  async getUserCart(@CurrentUser() user) {
+    return {
+      data: await this.cartService.findUserCart(user.id),
+      message: 'Cart fetched successfully',
+    }
   }
 
-  // Update cart item quantity
-  @Patch('products/:productId')
+  @Get('count') // Get total cart item count
   @Auth()
+  @ApiOkResponse({ description: 'Cart items counted successfully' })
+  async getCartCount(@CurrentUser() user) {
+    return {
+      data: await this.cartService.countUserCartItems(user.id),
+      message: 'Cart items counted successfully',
+    }
+  }
+
+  @Patch('products/:productId') // Update cart item quantity
+  @Auth()
+  @ApiParam({ name: 'productId', type: Number })
+  @ApiOkResponse({
+    description: 'Cart item updated successfully',
+    type: CartItemResponseDto,
+  })
   async updateQuantity(
     @Param('productId', ParseIntPipe) productId: number,
-    @Body('quantity', ParseIntPipe) quantity: number,
-    @Req() req: any,
+    @Body() { quantity }: QuantityDto,
+    @CurrentUser() user,
   ) {
-    return buildResponse(
-      await this.cartService.updateQuantity(
-        req.user.id,
-        productId,
-        quantity,
-      ),
-      'Cart item updated successfully',
-    )
+    return {
+      data: await this.cartService.updateQuantity(user.id, productId, quantity),
+      message: 'Cart item updated successfully',
+    }
   }
 
-  // Remove a single product from cart
-  @Delete('products/:productId')
+  @Delete('products/:productId') // Remove a single product from cart
   @Auth()
-  async removeFromCart(@Param('productId') productId: number, @Req() req: any) {
-    await this.cartService.removeFromCart(req.user.id, Number(productId))
-    return buildResponse(null, 'Removed from cart')
+  @ApiParam({ name: 'productId', type: Number })
+  @ApiOkResponse({ description: 'Product removed from cart successfully' })
+  async removeFromCart(
+    @Param('productId', ParseIntPipe) productId: number,
+    @CurrentUser() user,
+  ) {
+    return {
+      data: await this.cartService.removeFromCart(user.id, productId),
+      message: 'Product removed from cart successfully',
+    }
   }
 
-  // Clear all items in user cart
-  @Delete('clear')
+  @Delete('clear') // Clear all items in user cart
   @Auth()
-  async clearCart(@Req() req: any) {
-    await this.cartService.clearCart(req.user.id)
-    return buildResponse(null, 'Cart cleared successfully')
+  @ApiOkResponse({ description: 'Cart cleared successfully' })
+  async clearCart(@CurrentUser() user) {
+    return {
+      data: await this.cartService.clearCart(user.id),
+      message: 'Cart cleared successfully',
+    }
   }
 }
