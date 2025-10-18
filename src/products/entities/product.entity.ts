@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne,
-CreateDateColumn, JoinColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
 import { User } from 'src/users/entities/user.entity'
 
 export enum ProductStatus {
@@ -8,7 +7,7 @@ export enum ProductStatus {
   OutOfStock = 'outOfStock',
 }
 
-@Entity('products')
+@Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   id: number
@@ -39,28 +38,28 @@ export class Product {
   isDeleted: boolean
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'createdBy' })
+  @JoinColumn()
   createdBy: User
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'updatedBy' })
+  @JoinColumn()
   updatedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'deletedBy' })
+  @JoinColumn()
   deletedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'restoredBy' })
+  @JoinColumn()
   restoredBy: User
 
   @Column({ type: 'timestamp', nullable: true })

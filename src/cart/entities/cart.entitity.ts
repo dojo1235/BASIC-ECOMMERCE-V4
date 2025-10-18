@@ -1,19 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne,
-CreateDateColumn, JoinColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
 import { User } from 'src/users/entities/user.entity'
 import { Product } from 'src/products/entities/product.entity'
 
-@Entity('cart')
+@Entity()
 export class Cart {
   @PrimaryGeneratedColumn()
   id: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'productId' })
+  @JoinColumn()
   product: Product
 
   @Column({ type: 'int' })

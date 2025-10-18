@@ -11,7 +11,7 @@ export enum Role {
   User = 'user',
 }
 
-@Entity('users')
+@Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number
@@ -21,16 +21,12 @@ export class User {
 
   @Column({ type: 'varchar', length: 100, unique: true })
   email: string
-  
+
   @Exclude()
   @Column({ type: 'varchar', length: 255 })
   passwordHash: string
 
-  @Column({
-    type: 'enum',
-    enum: Role,
-    default: Role.User,
-  })
+  @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role
 
   @Column({ type: 'tinyint', default: 0 })
@@ -43,35 +39,35 @@ export class User {
   lastLogin: Date | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'createdBy' })
+  @JoinColumn()
   createdBy: User
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'updatedBy' })
+  @JoinColumn()
   updatedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'bannedBy' })
+  @JoinColumn()
   bannedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   bannedAt: Date | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'deletedBy' })
+  @JoinColumn()
   deletedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'restoredBy' })
+  @JoinColumn()
   restoredBy: User
 
   @Column({ type: 'timestamp', nullable: true })

@@ -1,5 +1,6 @@
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
+import { NamingStrategy } from '../database/naming.strategy'
 
 export const dataSourceOptions: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],
@@ -13,5 +14,6 @@ export const dataSourceOptions: TypeOrmModuleAsyncOptions = {
     entities: [],
     synchronize: true,
     logging: true,
+    namingStrategy: new NamingStrategy(),
   }),
 }

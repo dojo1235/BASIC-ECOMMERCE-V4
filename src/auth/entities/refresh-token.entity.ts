@@ -1,14 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
 import { User } from 'src/users/entities/user.entity'
 
-@Entity('refreshTokens')
+@Entity()
 export class RefreshToken {
   @PrimaryGeneratedColumn()
   id: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
-  userId: User
+  @JoinColumn()
+  user: User
 
   @Column({ type: 'varchar', length: 255 })
   token: string
@@ -23,7 +23,7 @@ export class RefreshToken {
   createdAt: Date
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'revokedBy' })
+  @JoinColumn()
   revokedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
