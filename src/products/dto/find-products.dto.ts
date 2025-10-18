@@ -1,7 +1,8 @@
 import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator'
-import { Type, Transform } from 'class-transformer'
+import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { ProductStatus } from '../entities/product.entity'
+import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
 import { SortOrder } from 'src/common/enums/sort-order.enum'
 
 export class FindProductsDto {
@@ -28,7 +29,7 @@ export class FindProductsDto {
   maxPrice?: number
 
   @IsOptional()
-  @Transform(({ value }) => (value === undefined ? undefined : value === 'true'))
+  @QueryBoolean()
   @IsBoolean()
   @ApiPropertyOptional({ description: 'Include deleted products' })
   isDeleted?: boolean
