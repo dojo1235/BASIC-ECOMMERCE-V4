@@ -82,6 +82,5 @@ export class CartService {
     if (!cart.length)
       throw new AppError(ErrorCode.NOT_FOUND, 'Cart is already empty')
     await this.cartRepository.clearCart(userId)
-    return { cart }
   }
 }
