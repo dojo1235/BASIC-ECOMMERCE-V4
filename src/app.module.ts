@@ -4,9 +4,8 @@ import { JwtModule } from '@nestjs/jwt'
 import configuration from './config/configuration'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { dataSourceOptions } from './config/orm.config'
-import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core'
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
 import { ResponseInterceptor } from './common/interceptors/response.interceptor'
-import { AllExceptionsFilter } from 'src/common/filters/all-exceptions.filter'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { UsersModule } from './users/users.module'
@@ -48,10 +47,6 @@ import { WishlistModule } from './wishlist/wishlist.module';
     {
     provide: APP_GUARD,
     useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
     },
     AppService,
   ],
