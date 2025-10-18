@@ -16,7 +16,7 @@ export class CartRepository {
   }
   
   async findCart(userId) {
-    return this.repository.find({
+    return await this.repository.find({
       where: { userId },
       order: { createdAt: 'DESC' },
       relations: ['product'],
@@ -24,7 +24,7 @@ export class CartRepository {
   }
 
   async findCartItem(userId, productId) {
-    return this.repository.findOne({ where: { userId, productId } })
+    return await this.repository.findOne({ where: { userId, productId } })
   }
 
   async countCartItems(userId) {
@@ -33,14 +33,14 @@ export class CartRepository {
   }
 
   async updateCartItem(cartItemId, quantity) {
-    return this.repository.update({ id: cartItemId }, { quantity })
+    return await this.repository.update({ id: cartItemId }, { quantity })
   }
 
   async removeFromCart(userId, productId) {
-    return this.repository.delete({ userId, productId })
+    return await this.repository.delete({ userId, productId })
   }
 
   async clearCart(userId) {
-    return this.repository.delete({ userId })
+    return await this.repository.delete({ userId })
   }
 }
