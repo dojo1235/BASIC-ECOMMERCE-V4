@@ -38,12 +38,18 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   lastLogin: Date | null
 
+  @Column({ nullable: true })
+  createdById: number | null
+
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   createdBy: User
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
+
+  @Column({ nullable: true })
+  updatedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
@@ -52,6 +58,9 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
+  @Column({ nullable: true })
+  bannedById: number | null
+
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   bannedBy: User
@@ -59,12 +68,18 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   bannedAt: Date | null
 
+  @Column({ nullable: true })
+  deletedById: number | null
+
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   deletedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
+
+  @Column({ nullable: true })
+  restoredById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()

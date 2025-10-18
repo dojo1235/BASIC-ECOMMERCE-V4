@@ -6,6 +6,9 @@ export class RefreshToken {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Column()
+  userId: number
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User

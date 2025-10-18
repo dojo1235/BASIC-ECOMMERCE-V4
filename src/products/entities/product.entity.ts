@@ -27,15 +27,14 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   stock: number
 
-  @Column({
-    type: 'enum',
-    enum: ProductStatus,
-    default: ProductStatus.InStock,
-  })
+  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.InStock })
   status: ProductStatus
 
   @Column({ type: 'tinyint', default: false })
   isDeleted: boolean
+
+  @Column({ nullable: true })
+  createdById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
@@ -44,6 +43,9 @@ export class Product {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
+  @Column({ nullable: true })
+  updatedById: number | null
+
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   updatedBy: User
@@ -51,12 +53,18 @@ export class Product {
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
+  @Column({ nullable: true })
+  deletedById: number | null
+
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   deletedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
+
+  @Column({ nullable: true })
+  restoredById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
