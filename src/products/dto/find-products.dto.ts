@@ -2,6 +2,7 @@ import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validat
 import { Type, Transform } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { ProductStatus } from '../entities/product.entity'
+import { SortOrder } from 'src/common/enums/sort-order.enum'
 
 export class FindProductsDto {
   @IsOptional()
@@ -45,7 +46,7 @@ export class FindProductsDto {
   limit?: number
 
   @IsOptional()
-  @IsString()
-  @ApiPropertyOptional({ description: 'Sort order', enum: ['asc', 'desc'] })
-  orderBy?: 'asc' | 'desc'
+  @IsEnum(SortOrder)
+  @ApiPropertyOptional({ description: 'Sort order', enum: SortOrder })
+  orderBy?: SortOrder
 }
