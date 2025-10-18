@@ -52,7 +52,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK) // Logout from all
   @Post('logout-all')
-  @ApiOkResponse({ description: 'Logged out from all devices successfully' })
+  @ApiOkResponse({ description: 'Logout from all devices' })
   async logoutAll(@Body() refreshTokenDto: RefreshTokenDto) {
     return {
       data: await this.authService.logoutAll(refreshTokenDto.refreshToken),
