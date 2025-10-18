@@ -19,12 +19,11 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
   ) {}
 
-  async register(data) {
+  async register({ password, ...data }) {
     const existing = await this.usersRepository.findUserByEmail(data.email)
     if (existing)
       throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
-    const hashedPassword = await hashPassword(data.password)
-    delete data.password
+    const hashedPassword = await hashPassword(password)
     const created = await this.usersRepository.createUser({
       ...data,
       passwordHash: hashedPassword,
@@ -33,7 +32,7 @@ export class AuthService {
     const tokens = await this.generateTokens(created.id, created.role)
     return { user: plainToInstance(User, created), tokens }
   }
-
+  
   async login(data) {
     const user = await this.usersRepository.findUserByEmail(data.email)
     if (!user || user.isDeleted)
