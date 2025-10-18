@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm'
 import { User } from 'src/users/entities/user.entity'
 import { Product } from 'src/products/entities/product.entity'
 
@@ -27,6 +27,6 @@ export class Cart {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @Column({ type: 'timestamp', nullable: true })
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 }
