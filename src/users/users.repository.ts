@@ -11,12 +11,12 @@ export class UsersRepository {
     @InjectRepository(User)
     private readonly repository: Repository<User>
   ) {}
-  
+
   async createUser(data: Partial<User>) {
     const entity = this.repository.create(data)
-    return this.repository.save(entity)
+    return await this.repository.save(entity)
   }
-  
+
   async findAllAdmins(query) {
     const where: FindOptionsWhere<User> = {}
     if (query.search) where.name = ILike(`%${query.search}%`)
@@ -28,7 +28,7 @@ export class UsersRepository {
     const result = await paginate(this.repository, query, { where })
     return { users: result.items, meta: result.meta }
   }
-  
+
   async findAllUsers(query) {
     const where: FindOptionsWhere<User> = { role: Role.User }
     if (query.search) where.name = ILike(`%${query.search}%`)
@@ -40,14 +40,14 @@ export class UsersRepository {
   }
 
   async findUserById(userId) {
-    return this.repository.findOne({ where: { id: userId } })
+    return await this.repository.findOne({ where: { id: userId } })
   }
 
   async findUserByEmail(email) {
-    return this.repository.findOne({ where: { email } })
+    return await this.repository.findOne({ where: { email } })
   }
 
-  updateUser(userId, data) {
-    return this.repository.update({ id: userId }, data)
+  async updateUser(userId, data) {
+    return await this.repository.update({ id: userId }, data)
   }
 }
