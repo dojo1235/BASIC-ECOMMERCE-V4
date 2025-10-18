@@ -6,27 +6,29 @@ import { AppError } from '../exceptions/app-error'
 export class AllExceptionsFilter implements ExceptionFilter {
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
+  private getExceptionInfo(exception: unknown): { status: number; message: string } {
+    if (exception instanceof AppError) {
+      return { status: exception.toHttpCode(), message: exception.message }
+    }
+    if (exception instanceof HttpException) {
+      const response = exception.getResponse()
+      return {
+        status: exception.getStatus(),
+        message: typeof response === 'string' ? response : (response as any)?.message || exception.message,
+      }
+    }
+    if (exception instanceof Error) {
+      return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: exception.message }
+    }
+    return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: 'Internal server error' }
+  }
+
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost
     const ctx = host.switchToHttp()
     const request = ctx.getRequest()
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR
-    let message = 'Internal server error'
-
-    if (exception instanceof AppError) {
-      status = exception.toHttpCode()
-      message = exception.message
-    } else if (exception instanceof HttpException) {
-      status = exception.getStatus()
-      const response = exception.getResponse()
-      message =
-        typeof response === 'string'
-          ? response
-          : (response as any)?.message || exception.message
-    } else if (exception instanceof Error) {
-      message = exception.message
-    }
+    const { status, message } = this.getExceptionInfo(exception)
 
     const responseBody = {
       success: false,
