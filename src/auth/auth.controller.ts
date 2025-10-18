@@ -1,5 +1,5 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common'
-import { Throttle } from  '@nestjs/throttler'
+import { Throttle } from '@nestjs/throttler'
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger'
 import { AuthService } from './auth.service'
 import { RegisterDto } from './dto/register.dto'
@@ -18,7 +18,7 @@ export class AuthController {
       message: 'Registration successful',
     }
   }
-  
+
   @Throttle({ short: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.OK) // Login user
   @Post('login')

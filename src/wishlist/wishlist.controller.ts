@@ -6,11 +6,11 @@ import { buildResponse } from 'src/common/utils/response.util'
 @Controller('wishlist')
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
-  
+
   // Add product to wishlist
   @Post('products/:productId')
   @Auth()
-  async addProduct( @Param('productId', ParseIntPipe) productId: number, @Req() req: any) {
+  async addProduct(@Param('productId', ParseIntPipe) productId: number, @Req() req: any) {
     return buildResponse(
       await this.wishlistService.addProductToWishlist(req.user.id, productId),
       'Product added to wishlist successfully',
@@ -26,7 +26,7 @@ export class WishlistController {
       'Wishlist fetched successfully',
     )
   }
-  
+
   // Count wishlist items
   @Get('count')
   @Auth()

@@ -11,11 +11,11 @@ import { AppService } from './app.service'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
-import { ProductsModule } from './products/products.module';
-import { CartModule } from './cart/cart.module';
-import { OrdersModule } from './orders/orders.module';
-import { ReviewsModule } from './reviews/reviews.module';
-import { WishlistModule } from './wishlist/wishlist.module';
+import { ProductsModule } from './products/products.module'
+import { CartModule } from './cart/cart.module'
+import { OrdersModule } from './orders/orders.module'
+import { ReviewsModule } from './reviews/reviews.module'
+import { WishlistModule } from './wishlist/wishlist.module'
 
 @Module({
   imports: [
@@ -27,15 +27,18 @@ import { WishlistModule } from './wishlist/wishlist.module';
     TypeOrmModule.forRootAsync(dataSourceOptions),
     UsersModule,
     AuthModule,
-    ThrottlerModule.forRoot([{
-      name: 'short',
-      ttl: 60000,
-      limit: 100,
-    },{
-      name: 'long',
-      ttl: 60000,
-      limit: 300,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 60000,
+        limit: 100,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 300,
+      },
+    ]),
     ProductsModule,
     CartModule,
     OrdersModule,
@@ -45,8 +48,8 @@ import { WishlistModule } from './wishlist/wishlist.module';
   controllers: [AppController],
   providers: [
     {
-    provide: APP_GUARD,
-    useClass: ThrottlerGuard,
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
     AppService,
   ],

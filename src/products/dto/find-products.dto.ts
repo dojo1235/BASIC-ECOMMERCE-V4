@@ -27,7 +27,7 @@ export class FindProductsDto {
   maxPrice?: number
 
   @IsOptional()
-  @Transform(({ value }) => value === undefined ? undefined : value === 'true')
+  @Transform(({ value }) => (value === undefined ? undefined : value === 'true'))
   @IsBoolean()
   @ApiPropertyOptional({ description: 'Include deleted products' })
   isDeleted?: boolean

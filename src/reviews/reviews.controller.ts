@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Patch, Param,
-Body, Req, ParseIntPipe, Query } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Param, Body, Req, ParseIntPipe, Query } from '@nestjs/common'
 import { ReviewsService } from './reviews.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { buildResponse } from 'src/common/utils/response.util'
@@ -38,10 +37,7 @@ export class ReviewsController {
   // Get user review for a product
   @Get('product/:productId/me')
   @Auth()
-  async findOne(
-    @Req() req: any,
-    @Param('productId', ParseIntPipe) productId: number,
-  ) {
+  async findOne(@Req() req: any, @Param('productId', ParseIntPipe) productId: number) {
     return buildResponse(
       await this.reviewsService.findUserReview(productId, req.user.id),
       'Review fetched successfully',

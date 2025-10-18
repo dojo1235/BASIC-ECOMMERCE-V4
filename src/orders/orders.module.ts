@@ -5,10 +5,7 @@ import { OrdersController } from './orders.controller'
 
 @Module({
   imports: [],
-  controllers: [
-    AdminsOrdersController,
-    OrdersController,
-  ],
+  controllers: [AdminsOrdersController, OrdersController],
   providers: [OrdersService],
 })
 export class OrdersModule {}

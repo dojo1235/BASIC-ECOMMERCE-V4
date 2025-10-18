@@ -19,7 +19,7 @@ export class WishlistService {
     if (existing) return
     await db.insert(wishlist).values({ userId, productId })
   }
-  
+
   // Get all wishlist items (user)
   async findWishlist(userId: number, query: Record<string, any>) {
     const whereConditions: any[] = [eq(wishlist.userId, userId)]
@@ -31,16 +31,10 @@ export class WishlistService {
         },
       },
     }
-    const result = await paginate(
-      db.query.wishlist,
-      wishlist,
-      whereConditions,
-      query,
-      extras,
-    )
+    const result = await paginate(db.query.wishlist, wishlist, whereConditions, query, extras)
     return { wishlist: result.items, meta: result.meta }
   }
-  
+
   // Count wishlist items (user)
   async countWishlistItems(userId: number) {
     const result = await db.query.wishlist.findMany({
@@ -55,7 +49,8 @@ export class WishlistService {
       where: and(eq(wishlist.userId, userId), eq(wishlist.productId, productId)),
     })
     if (!existing) throw new AppError('Item not found in wishlist', HttpStatus.NOT_FOUND)
-    await db.delete(wishlist)
+    await db
+      .delete(wishlist)
       .where(and(eq(wishlist.userId, userId), eq(wishlist.productId, productId)))
   }
 }

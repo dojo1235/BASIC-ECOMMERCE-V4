@@ -7,14 +7,14 @@ import { Cart } from './entities/cart.entity'
 export class CartRepository {
   constructor(
     @InjectRepository(Cart)
-    private readonly repository: Repository<Cart>
+    private readonly repository: Repository<Cart>,
   ) {}
 
   async addToCart(userId, productId, quantity) {
     const cartItem = this.repository.create({ userId, productId, quantity })
     await this.repository.save(cartItem)
   }
-  
+
   async findCart(userId) {
     return await this.repository.find({
       where: { userId },

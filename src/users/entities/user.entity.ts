@@ -1,5 +1,12 @@
 import { Exclude } from 'class-transformer'
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, JoinColumn } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm'
 
 export enum Role {
   SuperAdmin = 'superAdmin',

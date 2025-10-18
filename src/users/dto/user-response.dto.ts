@@ -26,10 +26,16 @@ export class UserResponseDto {
   @ApiPropertyOptional({ description: 'Date and time when the user was created' })
   createdAt: Date
 
-  @ApiPropertyOptional({ description: 'ID of the user who last updated this record', nullable: true })
+  @ApiPropertyOptional({
+    description: 'ID of the user who last updated this record',
+    nullable: true,
+  })
   updatedBy?: number
 
-  @ApiPropertyOptional({ description: 'Date and time when the user was last updated', nullable: true })
+  @ApiPropertyOptional({
+    description: 'Date and time when the user was last updated',
+    nullable: true,
+  })
   updatedAt?: Date
 
   @ApiPropertyOptional({ description: 'ID of the user who deleted this record', nullable: true })

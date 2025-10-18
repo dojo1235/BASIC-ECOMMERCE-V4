@@ -44,7 +44,7 @@ export class AdminsReviewsController {
       'Review hidden successfully',
     )
   }
-  
+
   // restore review
   @Patch(':reviewId/restore')
   @Auth(Role.ProductManager)

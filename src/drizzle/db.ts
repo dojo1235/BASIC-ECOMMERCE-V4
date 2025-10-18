@@ -11,7 +11,7 @@ let db: NeonDatabase<typeof schema>
 
 const MAX_RETRIES = 5
 const RETRY_DELAY = 3000
-const sleep = (ms: number) => new Promise(res => setTimeout(res, ms))
+const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms))
 
 async function createConnection(): Promise<NeonDatabase<typeof schema>> {
   pool = new Pool({ connectionString: dbUrl })
@@ -31,7 +31,9 @@ async function initDb(retries = 0): Promise<void> {
       String(err).includes('timeout')
 
     if (isConnectionErr && retries < MAX_RETRIES) {
-      console.warn(`⚠️ Neon connection failed. Retrying (${retries + 1}/${MAX_RETRIES}) in ${RETRY_DELAY / 1000}s...`)
+      console.warn(
+        `⚠️ Neon connection failed. Retrying (${retries + 1}/${MAX_RETRIES}) in ${RETRY_DELAY / 1000}s...`,
+      )
       await sleep(RETRY_DELAY)
       return initDb(retries + 1)
     }
@@ -41,9 +43,9 @@ async function initDb(retries = 0): Promise<void> {
 }
 
 // Immediately start connection (non-blocking)
-initDb().catch(err => console.error('❌ Neon init failed:', err))
+initDb().catch((err) => console.error('❌ Neon init failed:', err))
 
-process.on('unhandledRejection', reason => {
+process.on('unhandledRejection', (reason) => {
   if (String(reason).includes('Connection terminated')) {
     console.warn('⚠️ Neon connection lost — attempting auto-reconnect...')
     initDb()
@@ -52,7 +54,7 @@ process.on('unhandledRejection', reason => {
   }
 })
 
-process.on('uncaughtException', error => {
+process.on('uncaughtException', (error) => {
   if (String(error).includes('Connection terminated')) {
     console.warn('⚠️ Neon connection lost — attempting auto-reconnect...')
     initDb()
@@ -62,8 +64,6 @@ process.on('uncaughtException', error => {
 })
 
 export { db }
-
-
 
 /*import 'dotenv/config'
 import { drizzle, NeonDatabase } from 'drizzle-orm/neon-serverless'

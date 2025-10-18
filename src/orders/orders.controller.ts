@@ -6,14 +6,11 @@ import { buildResponse } from 'src/common/utils/response.util'
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
-  
+
   // Place new order
   @Post()
   @Auth()
-  async placeOrder(
-    @Body() payload: { contact: string; shippingAddress: string },
-    @Req() req: any,
-  ) {
+  async placeOrder(@Body() payload: { contact: string; shippingAddress: string }, @Req() req: any) {
     return buildResponse(
       await this.ordersService.placeOrder(req.user.id, payload),
       'Order placed successfully',
@@ -33,10 +30,7 @@ export class OrdersController {
   // Get a single order for user
   @Get(':orderId')
   @Auth()
-  async findMyOrder(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Req() req: any,
-  ) {
+  async findMyOrder(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: any) {
     return buildResponse(
       await this.ordersService.findOne(req.user.id, orderId),
       'Order fetched successfully',
@@ -46,10 +40,7 @@ export class OrdersController {
   // Cancel an order
   @Patch(':orderId/cancel')
   @Auth()
-  async cancelOrder(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Req() req: any,
-  ) {
+  async cancelOrder(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: any) {
     return buildResponse(
       await this.ordersService.cancelOrder(req.user.id, orderId),
       'Order cancelled successfully',

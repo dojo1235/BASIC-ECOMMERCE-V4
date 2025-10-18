@@ -11,28 +11,28 @@ export enum ErrorCode {
 export class AppError extends Error {
   constructor(
     public readonly code: ErrorCode,
-    public readonly message: string
+    public readonly message: string,
   ) {
-    super(message);
-    this.name = 'AppError';
+    super(message)
+    this.name = 'AppError'
   }
 
   public toHttpCode(): number {
     switch (this.code) {
       case ErrorCode.NOT_ENOUGH_PERMISSIONS:
-        return 403;
+        return 403
       case ErrorCode.INVALID_CREDENTIALS:
-        return 401;
+        return 401
       case ErrorCode.NOT_FOUND:
-        return 404;
+        return 404
       case ErrorCode.INVALID_STATE:
       case ErrorCode.VALIDATION_ERROR:
-        return 400;
+        return 400
       case ErrorCode.TOO_MANY_REQUESTS:
-        return 429;
+        return 429
       case ErrorCode.INTERNAL_SERVER_ERROR:
       default:
-        return 500;
+        return 500
     }
   }
 }

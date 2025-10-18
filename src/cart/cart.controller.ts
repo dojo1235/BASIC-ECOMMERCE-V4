@@ -75,10 +75,7 @@ export class CartController {
   @Auth()
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product removed from cart successfully' })
-  async removeFromCart(
-    @Param('productId', ParseIntPipe) productId: number,
-    @CurrentUser() user,
-  ) {
+  async removeFromCart(@Param('productId', ParseIntPipe) productId: number, @CurrentUser() user) {
     return {
       data: await this.cartService.removeFromCart(user.id, productId),
       message: 'Product removed from cart successfully',

@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, ILike, Between, MoreThanOrEqual, LessThanOrEqual, FindOptionsWhere } from 'typeorm'
+import {
+  Repository,
+  ILike,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  FindOptionsWhere,
+} from 'typeorm'
 import { Product } from 'src/products/entities/product.entity'
 import { paginate } from 'src/common/utils/pagination.util'
 
@@ -8,7 +15,7 @@ import { paginate } from 'src/common/utils/pagination.util'
 export class ProductsRepository {
   constructor(
     @InjectRepository(Product)
-    private readonly repository: Repository<Product>
+    private readonly repository: Repository<Product>,
   ) {}
 
   async findAllProducts(query) {

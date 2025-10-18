@@ -14,7 +14,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const response = exception.getResponse()
       return {
         status: exception.getStatus(),
-        message: typeof response === 'string' ? response : (response as any)?.message || exception.message,
+        message:
+          typeof response === 'string' ? response : (response as any)?.message || exception.message,
       }
     }
     if (exception instanceof Error) {

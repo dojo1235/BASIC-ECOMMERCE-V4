@@ -14,7 +14,8 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
     const accessToken = this.extractTokenFromHeader(request)
-    if (!accessToken) throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Authentication required')
+    if (!accessToken)
+      throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Authentication required')
 
     try {
       const { accessSecret } = this.config.get('jwt')

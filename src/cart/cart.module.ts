@@ -6,7 +6,6 @@ import { CartController } from './cart.controller'
 import { CartRepository } from './cart.repository'
 import { Cart } from './entities/cart.entity'
 
-
 @Module({
   imports: [TypeOrmModule.forFeature([Cart]), ProductsModule],
   controllers: [CartController],

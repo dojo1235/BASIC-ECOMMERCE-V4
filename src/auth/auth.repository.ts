@@ -7,13 +7,13 @@ import { RefreshToken } from './entities/refresh-token.entity'
 export class AuthRepository {
   constructor(
     @InjectRepository(RefreshToken)
-    private readonly repository: Repository<RefreshToken>
+    private readonly repository: Repository<RefreshToken>,
   ) {}
-  
+
   createRefreshToken(data) {
     return this.repository.save(this.repository.create(data))
   }
-  
+
   findActiveTokensByUserId(userId) {
     return this.repository.find({ where: { userId, revoked: false } })
   }
@@ -21,7 +21,7 @@ export class AuthRepository {
   revokeToken(refreshTokenId, data) {
     return this.repository.update({ id: refreshTokenId, revoked: false }, data)
   }
-  
+
   revokeAllTokensForUser(userId, data) {
     return this.repository.update({ userId, revoked: false }, data)
   }

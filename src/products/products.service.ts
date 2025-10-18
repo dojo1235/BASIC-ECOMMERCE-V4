@@ -35,8 +35,7 @@ export class ProductsService {
   // Find one product (user)
   async findOneProduct(productId) {
     const product = await this.productsRepository.findProductById(productId)
-    if (!product || product.isDeleted)
-      throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
     return { product }
   }
 

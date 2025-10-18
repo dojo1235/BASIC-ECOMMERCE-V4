@@ -11,12 +11,12 @@ async function bootstrap() {
   // enable global validation/transformation
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,            // strips properties not in DTOs
+      whitelist: true, // strips properties not in DTOs
       forbidNonWhitelisted: true, // throws if extra props are sent
-      transform: true,            // converts payloads to DTO class types
+      transform: true, // converts payloads to DTO class types
     }),
   )
-  
+
   const config = new DocumentBuilder()
     .setTitle('E-commerce API')
     .setDescription('API documentation for the e-commerce platform')
@@ -26,7 +26,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('api', app, document)
-  
+
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
   app.useGlobalFilters(new AllExceptionsFilter())
 

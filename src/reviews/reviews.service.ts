@@ -17,7 +17,8 @@ export class ReviewsService {
       where: and(eq(reviews.productId, productId), eq(reviews.userId, userId)),
     })
     if (existing) throw new AppError('Review already exists', HttpStatus.CONFLICT)
-    const [created] = await db.insert(reviews)
+    const [created] = (await db
+      .insert(reviews)
       .values({ userId, productId, rating, comment })
       .returning({
         id: reviews.id,
@@ -25,7 +26,7 @@ export class ReviewsService {
         productId: reviews.productId,
         rating: reviews.rating,
         comment: reviews.comment,
-      }) as any[]
+      })) as any[]
     return { review: created }
   }
 
@@ -33,17 +34,15 @@ export class ReviewsService {
   async findProductReviewsForAdmin(productId: number, query: Record<string, any>) {
     const whereConditions: any[] = [eq(reviews.productId, productId)]
     if (query.rating) whereConditions.push(eq(reviews.rating, Number(query.rating)))
-    if ('isVisible' in query) whereConditions.push(eq(reviews.isVisible, query.isVisible === 'true'))
+    if ('isVisible' in query)
+      whereConditions.push(eq(reviews.isVisible, query.isVisible === 'true'))
     const result = await paginate(db.query.reviews, reviews, whereConditions, query)
     return { reviews: result.items, meta: result.meta }
   }
 
   // Find all product reviews (user)
   async findProductReviews(productId: number, query: Record<string, any>) {
-    const whereConditions: any[] = [
-      eq(reviews.productId, productId),
-      eq(reviews.isVisible, true),
-    ]
+    const whereConditions: any[] = [eq(reviews.productId, productId), eq(reviews.isVisible, true)]
     const result = await paginate(db.query.reviews, reviews, whereConditions, query)
     return { reviews: result.items, meta: result.meta }
   }
@@ -76,10 +75,11 @@ export class ReviewsService {
       where: eq(reviews.id, reviewId),
     })
     if (!existing) throw new AppError('Review not found', HttpStatus.NOT_FOUND)
-    const [updated] = await db.update(reviews)
+    const [updated] = (await db
+      .update(reviews)
       .set(dto)
       .where(eq(reviews.id, reviewId))
-      .returning() as any[]
+      .returning()) as any[]
     return { review: updated }
   }
 
@@ -93,24 +93,27 @@ export class ReviewsService {
       ),
     })
     if (!existing) throw new AppError('Review not found', HttpStatus.NOT_FOUND)
-    const [updated] = await db.update(reviews)
+    const [updated] = (await db
+      .update(reviews)
       .set({
         rating,
         comment,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(reviews.productId, productId),
-        eq(reviews.userId, userId),
-        eq(reviews.isVisible, true),
-      ))
+      .where(
+        and(
+          eq(reviews.productId, productId),
+          eq(reviews.userId, userId),
+          eq(reviews.isVisible, true),
+        ),
+      )
       .returning({
         id: reviews.id,
         userId: reviews.userId,
         productId: reviews.productId,
         rating: reviews.rating,
         comment: reviews.comment,
-      }) as any[]
+      })) as any[]
     return { review: updated }
   }
 }

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, Query } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common'
 import { ApiParam, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth } from '@nestjs/swagger'
 import { ProductsService } from './products.service'
 import { CreateProductDto } from './dto/create-product.dto'
@@ -73,7 +83,7 @@ export class AdminsProductsController {
   async updateStatus(
     @Param('productId', ParseIntPipe) productId: number,
     @Body() { status }: UpdateProductStatusDto,
-    @CurrentUser() user
+    @CurrentUser() user,
   ) {
     return {
       data: await this.productsService.updateProduct(productId, {

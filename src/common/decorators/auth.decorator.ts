@@ -14,7 +14,4 @@ const Roles = (role: Role) => SetMetadata('roles', role)
  * - Optionally enforces a specific role
  */
 export const Auth = (role?: Role) =>
-  applyDecorators(
-    UseGuards(JwtAuthGuard, RolesGuard),
-    ...(role ? [Roles(role)] : []),
-  )
+  applyDecorators(UseGuards(JwtAuthGuard, RolesGuard), ...(role ? [Roles(role)] : []))

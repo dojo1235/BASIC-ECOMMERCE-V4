@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Req, ParseIntPipe, Query } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Req,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { Role } from 'src/common/enums/roles.enum'
@@ -58,7 +69,7 @@ export class AdminsOrdersController {
       'Order status updated successfully',
     )
   }
-  
+
   // restore order
   @Patch(':orderId/restore')
   @Auth(Role.OrderManager)
@@ -72,7 +83,7 @@ export class AdminsOrdersController {
       'Order restored successfully',
     )
   }
-  
+
   // Soft-Delete order
   @Delete(':orderId')
   @Auth(Role.OrderManager)

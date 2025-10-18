@@ -9,7 +9,7 @@ import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
-  
+
   // Create admin (super admin)
   async createAdmin(data, superAdminId) {
     if (data.role === Role.User)
@@ -53,7 +53,7 @@ export class UsersService {
     this.ensureIsUser(user)
     return { user: plainToInstance(User, user) }
   }
-  
+
   // Update admin (super admin)
   async updateAdminForSuperAdmin(userId, data) {
     const admin = await this.usersRepository.findUserById(userId)
@@ -85,7 +85,7 @@ export class UsersService {
     const updated = await this.usersRepository.findUserById(userId)
     return { user: plainToInstance(User, updated) }
   }
-  
+
   // Update user (admin)
   async updateUserForAdmin(userId, data) {
     const user = await this.usersRepository.findUserById(userId)
@@ -102,7 +102,7 @@ export class UsersService {
     const updated = await this.usersRepository.findUserById(userId)
     return { user: plainToInstance(User, updated) }
   }
-  
+
   // Update user (user)
   async updateUser(userId, data) {
     if (data.password)
@@ -117,7 +117,7 @@ export class UsersService {
     const updated = await this.usersRepository.findUserById(userId)
     return { user: plainToInstance(User, updated) }
   }
-  
+
   // Update password (both)
   async updatePassword(userId, data) {
     if (data.newPassword === data.oldPassword)
@@ -125,12 +125,11 @@ export class UsersService {
     const user = await this.usersRepository.findUserById(userId)
     if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
     const isValid = await comparePassword(data.oldPassword, user.passwordHash)
-    if (!isValid)
-      throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Old password is incorrect')
+    if (!isValid) throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Old password is incorrect')
     const newHashed = await hashPassword(data.newPassword)
     await this.usersRepository.updateUser(userId, {
       passwordHash: newHashed,
-      updatedAt: new Date,
+      updatedAt: new Date(),
     })
   }
 
@@ -163,19 +162,16 @@ export class UsersService {
       })
       .where(and(eq(refreshTokens.userId, id), eq(refreshTokens.revoked, false)))
   }*/
-  
+
   // Helper: Ensure is admin
   private ensureIsAdmin(admin) {
     if (!admin) throw new AppError(ErrorCode.NOT_FOUND, 'Admin not found')
-    if (admin.role === Role.User)
-      throw new AppError(ErrorCode.INVALID_STATE, 'Not an admin')
+    if (admin.role === Role.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not an admin')
   }
 
   // Helper: Ensure is user
   private ensureIsUser(user) {
     if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
-    if (user.role !== Role.User)
-      throw new AppError(ErrorCode.INVALID_STATE, 'Not a user')
+    if (user.role !== Role.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not a user')
   }
-  
 }

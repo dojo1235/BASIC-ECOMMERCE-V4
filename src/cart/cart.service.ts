@@ -9,14 +9,12 @@ export class CartService {
     private readonly cartRepository: CartRepository,
     private readonly productsRepository: ProductsRepository,
   ) {}
-  
+
   // Add product to cart (user)
   async addToCart(userId, productId, quantity) {
     const product = await this.productsRepository.findProductById(productId)
-    if (!product || product.isDeleted)
-      throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
-    if (quantity > product.stock)
-      throw new AppError(ErrorCode.BAD_REQUEST, 'Insufficient stock')
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    if (quantity > product.stock) throw new AppError(ErrorCode.BAD_REQUEST, 'Insufficient stock')
     const existing = await this.cartRepository.findCartItem(userId, productId)
     if (existing) {
       const newQuantity = existing.quantity + quantity
@@ -29,7 +27,7 @@ export class CartService {
     const cartItem = await this.cartRepository.findCartItem(userId, productId)
     return { cartItem }
   }
-  
+
   // Find user cart (user)
   async findUserCart(userId) {
     const cart = await this.cartRepository.findCart(userId)
@@ -40,47 +38,39 @@ export class CartService {
     )
     return { cart, count: totalQuantity, total: totalPrice.toFixed(2) }
   }
-  
+
   // Count total items in cart (user)
   async countUserCartItems(userId) {
     const count = await this.cartRepository.countCartItems(userId)
     const cart = await this.cartRepository.findCart(userId)
-    const total = cart.reduce(
-      (sum, item) => sum + item.quantity * (item.product?.price ?? 0),
-      0,
-    )
+    const total = cart.reduce((sum, item) => sum + item.quantity * (item.product?.price ?? 0), 0)
     return { count, total: total.toFixed(2) }
   }
-  
-    // Update quantity of an existing cart item (user)
+
+  // Update quantity of an existing cart item (user)
   async updateQuantity(userId, productId, quantity) {
     const existing = await this.cartRepository.findCartItem(userId, productId)
-    if (!existing)
-      throw new AppError(ErrorCode.NOT_FOUND, 'Cart item not found')
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Cart item not found')
     const product = await this.productsRepository.findProductById(productId)
-    if (!product || product.isDeleted)
-      throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
-    if (quantity > product.stock)
-      throw new AppError(ErrorCode.BAD_REQUEST, 'Insufficient stock')
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    if (quantity > product.stock) throw new AppError(ErrorCode.BAD_REQUEST, 'Insufficient stock')
     await this.cartRepository.updateCartItem(existing.id, quantity)
     const updated = await this.cartRepository.findCartItem(userId, productId)
     return { cartItem: updated }
   }
-  
+
   // Remove a single product from cart (user)
   async removeFromCart(userId, productId) {
     const existing = await this.cartRepository.findCartItem(userId, productId)
-    if (!existing)
-      throw new AppError(ErrorCode.NOT_FOUND, 'Cart item not found')
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Cart item not found')
     await this.cartRepository.removeFromCart(userId, productId)
     return { cartItem: existing }
   }
-  
+
   // Clear all items in cart (user)
   async clearCart(userId) {
     const cart = await this.cartRepository.findCart(userId)
-    if (!cart.length)
-      throw new AppError(ErrorCode.NOT_FOUND, 'Cart is already empty')
+    if (!cart.length) throw new AppError(ErrorCode.NOT_FOUND, 'Cart is already empty')
     await this.cartRepository.clearCart(userId)
   }
 }
