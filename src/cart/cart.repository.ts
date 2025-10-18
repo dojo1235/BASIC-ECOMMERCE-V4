@@ -28,8 +28,12 @@ export class CartRepository {
   }
 
   async countCartItems(userId) {
-    const items = await this.repository.find({ where: { userId } })
-    return items.reduce((total, item) => total + item.quantity, 0)
+    const { sum } = await this.repository
+      .createQueryBuilder('cart')
+      .select('SUM(cart.quantity)', 'sum')
+      .where('cart.userId = :userId', { userId })
+      .getRawOne()
+    return Number(sum) || 0
   }
 
   async updateCartItem(cartItemId, quantity) {
