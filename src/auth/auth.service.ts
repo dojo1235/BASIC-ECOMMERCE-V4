@@ -6,8 +6,7 @@ import { ConfigService } from '@nestjs/config'
 import { UsersRepository } from 'src/users/users.repository'
 import { AuthRepository } from './auth.repository'
 import { User } from 'src/users/entities/user.entity'
-import { hashPassword, comparePassword } from 'src/common/utils/password.util'
-import { hashRefreshToken, compareRefreshToken } from 'src/common/utils/jwt.util'
+import { hash, compare } from 'src/common/utils/crypto.util'
 import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 @Injectable()
@@ -22,7 +21,7 @@ export class AuthService {
   async register({ password, ...data }) {
     const existing = await this.usersRepository.findUserByEmail(data.email)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
-    const hashedPassword = await hashPassword(password)
+    const hashedPassword = await hash(password)
     const created = await this.usersRepository.createUser({
       ...data,
       passwordHash: hashedPassword,
@@ -37,7 +36,7 @@ export class AuthService {
     if (!user || user.isDeleted)
       throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials')
     if (user.isBanned) throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Account banned')
-    const isValid = await comparePassword(data.password, user.passwordHash)
+    const isValid = await compare(data.password, user.passwordHash)
     if (!isValid) throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials')
     const lastLogin = new Date()
     await this.usersRepository.updateUser(user.id, { lastLogin })
@@ -96,7 +95,7 @@ export class AuthService {
       secret: refreshSecret,
       expiresIn: refreshExpiresIn,
     })
-    const hashedToken = await hashRefreshToken(refreshToken)
+    const hashedToken = await hash(refreshToken)
     const expiresAt = add(new Date(), { days: Number(refreshExpiresIn) })
     await this.authRepository.createRefreshToken({
       userId: payload.sub,
@@ -118,7 +117,7 @@ export class AuthService {
   private async findValidTokenRecord(userId: number, refreshToken) {
     const tokenRecords = await this.authRepository.findActiveTokensByUserId(userId)
     for (const record of tokenRecords) {
-      if (await compareRefreshToken(refreshToken, record.token)) return record
+      if (await compare(refreshToken, record.token)) return record
     }
     return null
   }
