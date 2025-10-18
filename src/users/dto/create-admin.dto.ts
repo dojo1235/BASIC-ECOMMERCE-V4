@@ -1,6 +1,6 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { Role } from 'src/common/enums/roles.enum'
+import { Role } from '../entities/user.entity'
 
 export class CreateAdminDto {
   @IsString()

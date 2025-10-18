@@ -13,6 +13,6 @@ import { Product } from 'src/products/entities/product.entity'
     ProductsController,
   ],
   providers: [ProductsService, ProductsRepository],
-  exports: [ProductsService],
+  exports: [ProductsRepository],
 })
 export class ProductsModule {}
