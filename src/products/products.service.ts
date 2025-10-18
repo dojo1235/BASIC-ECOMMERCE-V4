@@ -16,15 +16,13 @@ export class ProductsService {
 
   // Find all products (admin)
   async findAllProductsForAdmin(query) {
-    const { products, meta } = await this.productsRepository.findAllProducts(query)
-    return { products, meta }
+    return await this.productsRepository.findAllProducts(query)
   }
 
   // Find all products (user)
   async findAllProducts(query) {
     query.isDeleted = false
-    const { products, meta } = await this.productsRepository.findAllProducts(query)
-    return { products, meta }
+    return await this.productsRepository.findAllProducts(query)
   }
 
   // Find one product (admin)
