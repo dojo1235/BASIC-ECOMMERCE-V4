@@ -10,23 +10,23 @@ export class AuthRepository {
     private readonly repository: Repository<RefreshToken>,
   ) {}
 
-  createRefreshToken(data: { userId: number; token: string; expiresAt: Date }) {
+  async createRefreshToken(data: { userId: number; token: string; expiresAt: Date }) {
     return await this.repository.save(this.repository.create(data))
   }
 
-  findActiveTokensByUserId(userId) {
+  async findActiveTokensByUserId(userId: number) {
     return await this.repository.find({ where: { userId, revoked: false } })
   }
 
-  revokeToken(refreshTokenId, data) {
+  async revokeToken(refreshTokenId: number, data: Partial<RefreshToken>) {
     return await this.repository.update({ id: refreshTokenId, revoked: false }, data)
   }
 
-  revokeAllTokensForUser(userId, data) {
+  async revokeAllTokensForUser(userId: number, data: Partial<RefreshToken>) {
     return await this.repository.update({ userId, revoked: false }, data)
   }
 
-  deleteTokensByUserId(userId) {
+  async deleteTokensByUserId(userId: number) {
     return await this.repository.delete({ userId })
   }
 }
