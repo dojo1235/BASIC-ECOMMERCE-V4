@@ -14,19 +14,22 @@ export class RolesGuard implements CanActivate {
     ])
     if (!requiredRole) return true
 
-    const request = context.switchToHttp().getRequest()
+    const request = context.switchToHttp().getRequest<{ user: { role: Role } }>()
     const user = request.user
     if (!user) throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'User not authenticated')
+
     if (user.role === Role.SuperAdmin) return true
 
     const allowedRoles = this.RoleHierarchy[user.role] ?? []
-    if (!allowedRoles.includes(requiredRole))
+
+    if (!allowedRoles.includes(requiredRole)) {
       throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Access denied!! Route forbidden')
+    }
 
     return true
   }
 
-  private readonly RoleHierarchy: Partial<Record<Role, Role[]>> = {
+  private readonly RoleHierarchy: Record<Exclude<Role, Role.SuperAdmin>, Role[]> = {
     [Role.GeneralAdmin]: [
       Role.GeneralAdmin,
       Role.ProductManager,
@@ -38,5 +41,6 @@ export class RolesGuard implements CanActivate {
     [Role.OrderManager]: [Role.OrderManager, Role.ViewOnlyAdmin],
     [Role.UserManager]: [Role.UserManager, Role.ViewOnlyAdmin],
     [Role.ViewOnlyAdmin]: [Role.ViewOnlyAdmin],
+    [Role.User]: [],
   }
 }
