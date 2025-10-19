@@ -5,15 +5,15 @@ export class CartListResponseDto {
     description: 'List of cart items belonging to the user',
     type: [CartItemResponseDto],
   })
-  cart: CartItemResponseDto[]
+  cart!: CartItemResponseDto[]
 
   @ApiProperty({
     description: 'Total number of all items (sum of quantities) in the cart',
   })
-  count: number
+  count!: number
 
   @ApiProperty({
     description: 'Total price of all items combined in the cart',
   })
-  total: string
+  total!: string
 }

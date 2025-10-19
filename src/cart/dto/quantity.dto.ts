@@ -8,5 +8,5 @@ export class QuantityDto {
   @ApiProperty({
     description: 'The quantity of the product to add or update',
   })
-  quantity: number
+  quantity!: number
 }
