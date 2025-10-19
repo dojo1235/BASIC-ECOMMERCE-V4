@@ -17,66 +17,66 @@ export enum ProductStatus {
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn()
-  id: number
+  id!: number
 
   @Column({ type: 'varchar', length: 150 })
-  name: string
+  name!: string
 
   @Column({ type: 'text', nullable: true })
-  description: string | null
+  description!: string | null
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
-  price: number
+  price!: number
 
   @Column({ type: 'varchar', length: 255 })
-  image: string
+  image!: string
 
   @Column({ type: 'int', default: 0 })
-  stock: number
+  stock!: number
 
   @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.InStock })
-  status: ProductStatus
+  status!: ProductStatus
 
   @Column({ type: 'tinyint', default: false })
-  isDeleted: boolean
+  isDeleted!: boolean
 
   @Column({ nullable: true })
-  createdById: number | null
+  createdById!: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  createdBy: User
+  createdBy!: User
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date
+  createdAt!: Date
 
   @Column({ nullable: true })
-  updatedById: number | null
+  updatedById!: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  updatedBy: User
+  updatedBy!: User
 
   @Column({ type: 'timestamp', nullable: true })
-  updatedAt: Date | null
+  updatedAt!: Date | null
 
   @Column({ nullable: true })
-  deletedById: number | null
+  deletedById!: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  deletedBy: User
+  deletedBy!: User
 
   @Column({ type: 'timestamp', nullable: true })
-  deletedAt: Date | null
+  deletedAt!: Date | null
 
   @Column({ nullable: true })
-  restoredById: number | null
+  restoredById!: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  restoredBy: User
+  restoredBy!: User
 
   @Column({ type: 'timestamp', nullable: true })
-  restoredAt: Date | null
+  restoredAt!: Date | null
 }
