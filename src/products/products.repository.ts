@@ -10,6 +10,7 @@ import {
 } from 'typeorm'
 import { Product } from 'src/products/entities/product.entity'
 import { paginate } from 'src/common/utils/pagination.util'
+import { FindProductsDto } from './dto/find-products.dto'
 
 @Injectable()
 export class ProductsRepository {
@@ -18,7 +19,7 @@ export class ProductsRepository {
     private readonly repository: Repository<Product>,
   ) {}
 
-  async findAllProducts(query) {
+  async findAllProducts(query: FindProductsDto) {
     const where: FindOptionsWhere<Product> = {}
     if (query.search) where.name = ILike(`%${query.search}%`)
     if (query.status) where.status = query.status
@@ -34,15 +35,15 @@ export class ProductsRepository {
     return { products: result.items, meta: result.meta }
   }
 
-  findProductById(productId) {
+  findProductById(productId: number) {
     return this.repository.findOne({ where: { id: productId } })
   }
 
-  createProduct(data) {
+  createProduct(data: Partial<Product>) {
     return this.repository.save(this.repository.create(data))
   }
 
-  updateProduct(productId, data) {
+  updateProduct(productId: number, data: Partial<Product>) {
     return this.repository.update({ id: productId }, data)
   }
 }
