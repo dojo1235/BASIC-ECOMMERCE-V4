@@ -5,5 +5,5 @@ export class ProductIdParamDto {
   @ApiProperty({ description: 'ID of the product' })
   @IsInt()
   @Min(1)
-  productId: number
+  productId!: number
 }

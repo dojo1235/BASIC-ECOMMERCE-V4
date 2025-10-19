@@ -2,17 +2,17 @@ import { ApiProperty } from '@nestjs/swagger'
 
 export class PaginationMetaDto {
   @ApiProperty({ description: 'Current page number' })
-  page: number
+  page!: number
 
   @ApiProperty({ description: 'Number of items per page' })
-  limit: number
+  limit!: number
 
   @ApiProperty({ description: 'Number of items in current page' })
-  count: number
+  count!: number
 
   @ApiProperty({ description: 'Total number of items' })
-  total: number
+  total!: number
 
   @ApiProperty({ description: 'Total number of pages' })
-  totalPages: number
+  totalPages!: number
 }

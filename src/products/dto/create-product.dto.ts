@@ -6,27 +6,27 @@ export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'Product name' })
-  name: string
+  name!: string
 
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'Product description' })
-  description: string
+  description!: string
 
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
   @ApiProperty({ description: 'Product price' })
-  price: number
+  price!: number
 
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'Product image URL' })
-  image: string
+  image!: string
 
   @IsNotEmpty()
   @Type(() => Number)
   @IsNumber()
   @ApiProperty({ description: 'Available stock quantity' })
-  stock: number
+  stock!: number
 }

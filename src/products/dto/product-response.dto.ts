@@ -3,50 +3,50 @@ import { ProductStatus } from '../entities/product.entity'
 
 export class ProductResponseDto {
   @ApiProperty({ description: 'Product ID' })
-  id: number
+  id!: number
 
   @ApiProperty({ description: 'Product name' })
-  name: string
+  name!: string
 
   @ApiProperty({ description: 'Product description' })
-  description: string
+  description!: string
 
   @ApiProperty({ description: 'Price of the product' })
-  price: string
+  price!: string
 
   @ApiProperty({ description: 'Product image URL' })
-  image: string
+  image!: string
 
   @ApiProperty({ description: 'Stock quantity' })
-  stock: number
+  stock!: number
 
   @ApiPropertyOptional({ description: 'Product status', enum: ProductStatus })
-  status: ProductStatus
+  status?: ProductStatus
 
   @ApiPropertyOptional({ description: 'Indicates whether the product has been soft-deleted' })
-  isDeleted: boolean
+  isDeleted?: boolean
 
   @ApiPropertyOptional({ description: 'User ID of the creator' })
-  createdBy: number
+  createdBy?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was created' })
-  createdAt: Date
+  createdAt?: Date
 
   @ApiPropertyOptional({ description: 'User ID of the last updater' })
-  updatedBy: number
+  updatedBy?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was last updated' })
-  updatedAt: Date
+  updatedAt?: Date
 
   @ApiPropertyOptional({ description: 'User ID of the deleter' })
-  deletedBy: number
+  deletedBy?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was deleted' })
-  deletedAt: Date
+  deletedAt?: Date
 
   @ApiPropertyOptional({ description: 'User ID of the restorer' })
-  restoredBy: number
+  restoredBy?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was restored' })
-  restoredAt: Date
+  restoredAt?: Date
 }
