@@ -1,11 +1,12 @@
 import { Controller, Post, Patch, Get, Delete, Param, ParseIntPipe, Body } from '@nestjs/common'
 import { ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
 import { CartService } from './cart.service'
-import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { Auth } from '../common/decorators/auth.decorator'
+import { CurrentUser } from '../common/decorators/current-user.decorator'
 import { CartListResponseDto } from './dto/cart-list-response.dto'
 import { CartItemResponseDto } from './dto/cart-item-response.dto'
 import { QuantityDto } from './dto/quantity.dto'
+import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
 
 @ApiBearerAuth()
 @Controller('cart')
@@ -14,13 +15,12 @@ export class CartController {
 
   @Post('products/:productId') // Add product to cart
   @Auth()
-  @ApiParam({ name: 'productId', type: Number })
   @ApiCreatedResponse({
     description: 'Product added to cart successfully',
     type: CartItemResponseDto,
   })
   async addToCart(
-    @Param('productId', ParseIntPipe) productId: number,
+    @Param() { productId }: ProductIdParamDto,
     @Body() { quantity }: QuantityDto,
     @CurrentUser() user,
   ) {
@@ -55,13 +55,12 @@ export class CartController {
 
   @Patch('products/:productId') // Update cart item quantity
   @Auth()
-  @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({
     description: 'Cart item updated successfully',
     type: CartItemResponseDto,
   })
   async updateQuantity(
-    @Param('productId', ParseIntPipe) productId: number,
+    @Param() { productId }: ProductIdParamDto,
     @Body() { quantity }: QuantityDto,
     @CurrentUser() user,
   ) {
@@ -73,9 +72,8 @@ export class CartController {
 
   @Delete('products/:productId') // Remove a single product from cart
   @Auth()
-  @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product removed from cart successfully' })
-  async removeFromCart(@Param('productId', ParseIntPipe) productId: number, @CurrentUser() user) {
+  async removeFromCart(@Param() { productId }: ProductIdParamDto, @CurrentUser() user) {
     return {
       data: await this.cartService.removeFromCart(user.id, productId),
       message: 'Product removed from cart successfully',
