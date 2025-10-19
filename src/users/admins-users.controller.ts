@@ -15,7 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 import { FindUsersDto } from './dto/find-users.dto'
 import { Role, User } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UsersListResponseDto } from './dto/users-list-response.dto'
 import { UserResponseDto } from './dto/user-response.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
@@ -53,7 +53,7 @@ export class AdminsUsersController {
   async update(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() updateUserDto: UpdateUserDto,
-    @CurrentUser() user,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
@@ -72,7 +72,7 @@ export class AdminsUsersController {
   async updateRole(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() { role }: UpdateUserRoleDto,
-    @CurrentUser() user,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
@@ -88,7 +88,10 @@ export class AdminsUsersController {
   @Auth(Role.UserManager)
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User banned successfully', type: UserResponseDto })
-  async ban(@Param('userId', ParseIntPipe) userId: number, @CurrentUser() user) {
+  async ban(
+    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         isBanned: true,
@@ -103,7 +106,10 @@ export class AdminsUsersController {
   @Auth(Role.UserManager)
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User restored successfully', type: UserResponseDto })
-  async restore(@Param('userId', ParseIntPipe) userId: number, @CurrentUser() user) {
+  async restore(
+    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         isBanned: false,
@@ -119,7 +125,10 @@ export class AdminsUsersController {
   @Auth(Role.UserManager)
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'All user sessions revoked successfully' })
-  async revokeAllSessions(@Param('userId', ParseIntPipe) userId: number, @CurrentUser() user) {
+  async revokeAllSessions(
+    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.revokeAllUserSessions(userId, user.id),
       message: 'All user sessions revoked successfully',
@@ -130,7 +139,10 @@ export class AdminsUsersController {
   @Auth(Role.UserManager)
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User deleted successfully', type: UserResponseDto })
-  async remove(@Param('userId', ParseIntPipe) userId: number, @CurrentUser() user) {
+  async remove(
+    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         isDeleted: true,

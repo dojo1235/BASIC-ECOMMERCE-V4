@@ -4,7 +4,7 @@ import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UserResponseDto } from './dto/user-response.dto'
 
 @ApiBearerAuth()
@@ -15,7 +15,7 @@ export class UsersController {
   @Get() // Fetch user profile
   @Auth()
   @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
-  async findOne(@CurrentUser() user) {
+  async findOne(@CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.usersService.findOneUser(user.id),
       message: 'Profile fetched successfully',
@@ -25,7 +25,7 @@ export class UsersController {
   @Patch() // Update user profile
   @Auth()
   @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
-  async update(@Body() dto: UpdateUserDto, @CurrentUser() user) {
+  async update(@Body() dto: UpdateUserDto, @CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.usersService.updateUser(user.id, {
         ...dto,
@@ -39,7 +39,10 @@ export class UsersController {
   @Patch('password') // Update password
   @Auth()
   @ApiOkResponse({ description: 'Password updated successfully' })
-  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto, @CurrentUser() user) {
+  async updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updatePassword(user.id, updatePasswordDto),
       message: 'Password updated successfully',
@@ -49,7 +52,7 @@ export class UsersController {
   @Delete() // Soft-delete user
   @Auth()
   @ApiOkResponse({ description: 'Account deleted successfully', type: UserResponseDto })
-  async remove(@CurrentUser() user) {
+  async remove(@CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.usersService.updateUser(user.id, {
         isDeleted: true,

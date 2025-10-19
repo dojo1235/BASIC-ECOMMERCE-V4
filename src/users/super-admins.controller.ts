@@ -17,8 +17,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { FindUsersDto } from './dto/find-users.dto'
 import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser } from 'src/common/decorators/current-user.decorator'
-import { User } from 'src/users/entities/user.entity'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UserResponseDto } from './dto/user-response.dto'
 import { UsersListResponseDto } from './dto/users-list-response.dto'
 
@@ -30,7 +29,7 @@ export class SuperAdminsController {
   @Post() // Create new admin
   @Auth(Role.SuperAdmin)
   @ApiCreatedResponse({ description: 'Admin created successfully', type: UserResponseDto })
-  async create(@Body() createAdminDto: CreateAdminDto, @CurrentUser() user) {
+  async create(@Body() createAdminDto: CreateAdminDto, @CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.usersService.createAdmin(createAdminDto, user.id),
       message: 'Admin created successfully',
@@ -65,7 +64,7 @@ export class SuperAdminsController {
   async update(
     @Param('adminId', ParseIntPipe) adminId: number,
     @Body() updateAdminDto: UpdateAdminDto,
-    @CurrentUser() user,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
@@ -84,7 +83,7 @@ export class SuperAdminsController {
   async updateRole(
     @Param('adminId', ParseIntPipe) adminId: number,
     @Body() { role }: UpdateUserRoleDto,
-    @CurrentUser() user,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
@@ -100,7 +99,10 @@ export class SuperAdminsController {
   @Auth(Role.SuperAdmin)
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin banned successfully', type: UserResponseDto })
-  async ban(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+  async ban(
+    @Param('adminId', ParseIntPipe) adminId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isBanned: true,
@@ -115,7 +117,10 @@ export class SuperAdminsController {
   @Auth(Role.SuperAdmin)
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin restored successfully', type: UserResponseDto })
-  async restore(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+  async restore(
+    @Param('adminId', ParseIntPipe) adminId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isBanned: false,
@@ -131,7 +136,10 @@ export class SuperAdminsController {
   @Auth(Role.SuperAdmin)
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'All admin sessions revoked successfully' })
-  async revokeAllSessions(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+  async revokeAllSessions(
+    @Param('adminId', ParseIntPipe) adminId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.revokeAllAdminSessions(adminId, user.id),
       message: 'All admin sessions revoked successfully',
@@ -142,7 +150,10 @@ export class SuperAdminsController {
   @Auth(Role.SuperAdmin)
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin deleted successfully', type: UserResponseDto })
-  async remove(@Param('adminId', ParseIntPipe) adminId: number, @CurrentUser() user) {
+  async remove(
+    @Param('adminId', ParseIntPipe) adminId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isDeleted: true,

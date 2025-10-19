@@ -5,7 +5,7 @@ import { UpdateAdminDto } from './dto/update-admin.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UserResponseDto } from './dto/user-response.dto'
 
 @ApiBearerAuth()
@@ -16,7 +16,7 @@ export class AdminsController {
   @Get() // Fetch admin profile
   @Auth(Role.ViewOnlyAdmin)
   @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
-  async findOne(@CurrentUser() user) {
+  async findOne(@CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.usersService.findOneAdmin(user.id),
       message: 'Profile fetched successfully',
@@ -26,7 +26,7 @@ export class AdminsController {
   @Patch() // Update admin profile
   @Auth(Role.ViewOnlyAdmin)
   @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
-  async update(@Body() dto: UpdateAdminDto, @CurrentUser() user) {
+  async update(@Body() dto: UpdateAdminDto, @CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.usersService.updateAdmin(user.id, {
         ...dto,
@@ -40,7 +40,10 @@ export class AdminsController {
   @Patch('password') // Update password
   @Auth(Role.ViewOnlyAdmin)
   @ApiOkResponse({ description: 'Password updated successfully' })
-  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto, @CurrentUser() user) {
+  async updatePassword(
+    @Body() updatePasswordDto: UpdatePasswordDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.usersService.updatePassword(user.id, updatePasswordDto),
       message: 'Password updated successfully',
