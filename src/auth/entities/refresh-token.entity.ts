@@ -14,24 +14,24 @@ import { User } from 'src/users/entities/user.entity'
 export class RefreshToken {
   @ApiProperty({ example: 1, description: 'Unique identifier of the refresh token' })
   @PrimaryGeneratedColumn()
-  id: number
+  id!: number
 
   @ApiProperty({ example: 42, description: 'ID of the user this token belongs to' })
   @Column()
-  userId: number
+  userId!: number
 
   @ApiProperty({ type: () => User, description: 'User entity associated with this token' })
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user: User
+  user!: User
 
   @Exclude()
   @Column({ type: 'varchar', length: 255 })
-  token: string
+  token!: string
 
   @ApiProperty({ example: false, description: 'Whether this token has been revoked' })
   @Column({ type: 'tinyint', default: false })
-  revoked: boolean
+  revoked!: boolean
 
   @ApiProperty({
     example: '2025-12-31T23:59:59.000Z',
@@ -39,7 +39,7 @@ export class RefreshToken {
   })
   @Transform(({ value }) => value?.toISOString())
   @Column({ type: 'timestamp' })
-  expiresAt: Date
+  expiresAt!: Date
 
   @ApiProperty({
     example: '2025-10-19T15:30:00.000Z',
@@ -47,7 +47,7 @@ export class RefreshToken {
   })
   @Transform(({ value }) => value?.toISOString())
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date
+  createdAt!: Date
 
   @ApiProperty({
     type: () => User,
@@ -56,7 +56,7 @@ export class RefreshToken {
   })
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  revokedBy: User
+  revokedBy!: User
 
   @ApiProperty({
     example: null,
@@ -65,5 +65,5 @@ export class RefreshToken {
   })
   @Transform(({ value }) => value?.toISOString() ?? null)
   @Column({ type: 'timestamp', nullable: true })
-  revokedAt: Date | null
+  revokedAt!: Date | null
 }
