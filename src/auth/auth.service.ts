@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { plainToInstance } from 'class-transformer'
 import { add } from 'date-fns'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
@@ -28,7 +27,7 @@ export class AuthService {
       lastLogin: new Date(),
     })
     const tokens = await this.generateTokens(created.id, created.role)
-    return { user: plainToInstance(User, created), tokens }
+    return { user: created, tokens }
   }
 
   async login(data) {
@@ -41,7 +40,7 @@ export class AuthService {
     const lastLogin = new Date()
     await this.usersRepository.updateUser(user.id, { lastLogin })
     const tokens = await this.generateTokens(user.id, user.role)
-    return { user: plainToInstance(User, { ...user, lastLogin }), tokens }
+    return { user: { ...user, lastLogin }, tokens }
   }
 
   async refreshToken(refreshToken) {
