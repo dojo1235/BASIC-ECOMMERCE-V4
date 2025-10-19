@@ -4,6 +4,7 @@ import { Repository, Not, ILike, FindOptionsWhere } from 'typeorm'
 import { User } from './entities/user.entity'
 import { Role } from './entities/user.entity'
 import { paginate } from 'src/common/utils/pagination.util'
+import { FindUsersDto } from './dto/find-users.dto'
 
 @Injectable()
 export class UsersRepository {
@@ -14,10 +15,10 @@ export class UsersRepository {
 
   async createUser(data: Partial<User>) {
     const entity = this.repository.create(data)
-    return await this.repository.save(entity)
+    return this.repository.save(entity)
   }
 
-  async findAllAdmins(query) {
+  async findAllAdmins(query: FindUsersDto) {
     const where: FindOptionsWhere<User> = {}
     if (query.search) where.name = ILike(`%${query.search}%`)
     if (query.email) where.email = ILike(`%${query.email}%`)
@@ -29,7 +30,7 @@ export class UsersRepository {
     return { users: result.items, meta: result.meta }
   }
 
-  async findAllUsers(query) {
+  async findAllUsers(query: FindUsersDto) {
     const where: FindOptionsWhere<User> = { role: Role.User }
     if (query.search) where.name = ILike(`%${query.search}%`)
     if (query.email) where.email = ILike(`%${query.email}%`)
@@ -39,15 +40,15 @@ export class UsersRepository {
     return { users: result.items, meta: result.meta }
   }
 
-  async findUserById(userId) {
-    return await this.repository.findOne({ where: { id: userId } })
+  async findUserById(userId: number) {
+    return this.repository.findOne({ where: { id: userId } })
   }
 
-  async findUserByEmail(email) {
-    return await this.repository.findOne({ where: { email } })
+  async findUserByEmail(email: string) {
+    return this.repository.findOne({ where: { email } })
   }
 
-  async updateUser(userId, data) {
-    return await this.repository.update({ id: userId }, data)
+  async updateUser(userId: number, data: Partial<User>) {
+    return this.repository.update({ id: userId }, data)
   }
 }
