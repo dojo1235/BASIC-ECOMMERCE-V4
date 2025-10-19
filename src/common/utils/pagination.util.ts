@@ -1,16 +1,28 @@
-export const paginate = async (
-  modelQuery,
-  query,
-  options?: {
-    where?
-    select?
-    relations?
-  },
+import { FindManyOptions, Repository, ObjectLiteral, FindOptionsOrder } from 'typeorm'
+
+interface PaginationQuery {
+  page?: number
+  limit?: number
+  orderBy?: 'asc' | 'desc'
+}
+
+interface PaginateOptions<Entity extends ObjectLiteral> {
+  where?: FindManyOptions<Entity>['where']
+  select?: FindManyOptions<Entity>['select']
+  relations?: FindManyOptions<Entity>['relations']
+}
+
+export const paginate = async <Entity extends ObjectLiteral>(
+  modelQuery: Repository<Entity>,
+  query: PaginationQuery,
+  options?: PaginateOptions<Entity>,
 ) => {
   const page = query.page || 1
   const limit = query.limit || 10
   const offset = (page - 1) * limit
-  const sortOrder = { createdAt: query.orderBy === 'asc' ? 'ASC' : 'DESC' }
+  const sortOrder = {
+    createdAt: query.orderBy === 'asc' ? 'ASC' : 'DESC',
+  } as unknown as FindOptionsOrder<Entity>
 
   const [items, totalCount] = await Promise.all([
     modelQuery.find({
