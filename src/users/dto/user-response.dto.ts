@@ -3,28 +3,28 @@ import { Role } from 'src/users/entities/user.entity'
 
 export class UserResponseDto {
   @ApiProperty({ description: 'Unique identifier of the user' })
-  id: number
+  id!: number
 
   @ApiProperty({ description: 'Full name of the user' })
-  name: string
+  name!: string
 
   @ApiProperty({ description: 'Email address of the user' })
-  email: string
+  email!: string
 
   @ApiPropertyOptional({ description: 'Role assigned to the user', enum: Role })
-  role: Role
+  role?: Role
 
   @ApiPropertyOptional({ description: 'Indicates if the user is currently banned' })
-  isBanned: boolean
+  isBanned?: boolean
 
   @ApiPropertyOptional({ description: 'Indicates if the user has been soft-deleted' })
-  isDeleted: boolean
+  isDeleted?: boolean
 
   @ApiPropertyOptional({ description: 'ID of the user who created this record', nullable: true })
   createdBy?: number
 
   @ApiPropertyOptional({ description: 'Date and time when the user was created' })
-  createdAt: Date
+  createdAt?: Date
 
   @ApiPropertyOptional({
     description: 'ID of the user who last updated this record',
