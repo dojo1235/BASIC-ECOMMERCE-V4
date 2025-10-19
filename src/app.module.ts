@@ -1,16 +1,14 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { JwtModule } from '@nestjs/jwt'
 import configuration from './config/configuration'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { dataSourceOptions } from './config/orm.config'
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
-import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { UsersModule } from './users/users.module'
-import { AuthModule } from './auth/auth.module'
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
+import { APP_GUARD } from '@nestjs/core'
+import { AuthModule } from './auth/auth.module'
+import { UsersModule } from './users/users.module'
 import { ProductsModule } from './products/products.module'
 import { CartModule } from './cart/cart.module'
 import { OrdersModule } from './orders/orders.module'
@@ -23,10 +21,7 @@ import { WishlistModule } from './wishlist/wishlist.module'
       isGlobal: true,
       load: [configuration],
     }),
-    JwtModule.register({ global: true }),
     TypeOrmModule.forRootAsync(dataSourceOptions),
-    UsersModule,
-    AuthModule,
     ThrottlerModule.forRoot([
       {
         name: 'short',
@@ -39,6 +34,8 @@ import { WishlistModule } from './wishlist/wishlist.module'
         limit: 300,
       },
     ]),
+    AuthModule,
+    UsersModule,
     ProductsModule,
     CartModule,
     OrdersModule,
