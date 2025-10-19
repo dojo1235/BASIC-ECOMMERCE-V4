@@ -10,12 +10,12 @@ export class CartRepository {
     private readonly repository: Repository<Cart>,
   ) {}
 
-  async addToCart(userId, productId, quantity) {
+  async addToCart(userId: number, productId: number, quantity: number) {
     const cartItem = this.repository.create({ userId, productId, quantity })
     await this.repository.save(cartItem)
   }
 
-  async findCart(userId) {
+  async findCart(userId: number) {
     return await this.repository.find({
       where: { userId },
       order: { createdAt: 'DESC' },
@@ -23,11 +23,11 @@ export class CartRepository {
     })
   }
 
-  async findCartItem(userId, productId) {
+  async findCartItem(userId: number, productId: number) {
     return await this.repository.findOne({ where: { userId, productId } })
   }
 
-  async countCartItems(userId) {
+  async countCartItems(userId: number) {
     const { sum } = await this.repository
       .createQueryBuilder('cart')
       .select('SUM(cart.quantity)', 'sum')
@@ -36,15 +36,15 @@ export class CartRepository {
     return Number(sum) || 0
   }
 
-  async updateCartItem(cartItemId, quantity) {
-    return await this.repository.update({ id: cartItemId }, { quantity })
+  async updateCartItem(cartItemId: number, quantity: number) {
+    await this.repository.update({ id: cartItemId }, { quantity })
   }
 
-  async removeFromCart(userId, productId) {
-    return await this.repository.delete({ userId, productId })
+  async removeFromCart(userId: number, productId: number) {
+    await this.repository.delete({ userId, productId })
   }
 
-  async clearCart(userId) {
-    return await this.repository.delete({ userId })
+  async clearCart(userId: number) {
+    await this.repository.delete({ userId })
   }
 }
