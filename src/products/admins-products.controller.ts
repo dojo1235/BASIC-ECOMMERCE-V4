@@ -19,7 +19,7 @@ import { ProductsListResponseDto } from './dto/products-list-response.dto'
 import { ProductResponseDto } from './dto/product-response.dto'
 import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser } from 'src/common/decorators/current-user.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 
 @ApiBearerAuth()
 @Controller('admins/products')
@@ -29,7 +29,10 @@ export class AdminsProductsController {
   @Post() // Create new product
   @Auth(Role.ProductManager)
   @ApiCreatedResponse({ description: 'Product created successfully', type: ProductResponseDto })
-  async createProduct(@Body() createProductDto: CreateProductDto, @CurrentUser() user) {
+  async createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.productsService.createProduct(createProductDto, user.id),
       message: 'Product created successfully',
@@ -64,7 +67,7 @@ export class AdminsProductsController {
   async update(
     @Param('productId', ParseIntPipe) productId: number,
     @Body() updateProductDto: UpdateProductDto,
-    @CurrentUser() user,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return {
       data: await this.productsService.updateProduct(productId, {
@@ -83,7 +86,7 @@ export class AdminsProductsController {
   async updateStatus(
     @Param('productId', ParseIntPipe) productId: number,
     @Body() { status }: UpdateProductStatusDto,
-    @CurrentUser() user,
+    @CurrentUser() user: CurrentUserPayload,
   ) {
     return {
       data: await this.productsService.updateProduct(productId, {
@@ -99,7 +102,10 @@ export class AdminsProductsController {
   @Auth(Role.ProductManager)
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product restored successfully', type: ProductResponseDto })
-  async restore(@Param('productId', ParseIntPipe) productId: number, @CurrentUser() user) {
+  async restore(
+    @Param('productId', ParseIntPipe) productId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.productsService.updateProduct(productId, {
         isDeleted: false,
@@ -114,7 +120,10 @@ export class AdminsProductsController {
   @Auth(Role.SuperAdmin)
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product deleted successfully', type: ProductResponseDto })
-  async remove(@Param('productId', ParseIntPipe) productId: number, @CurrentUser() user) {
+  async remove(
+    @Param('productId', ParseIntPipe) productId: number,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
     return {
       data: await this.productsService.updateProduct(productId, {
         isDeleted: true,
