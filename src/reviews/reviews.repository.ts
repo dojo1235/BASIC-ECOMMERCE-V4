@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, FindOptionsWhere } from 'typeorm'
 import { Review } from './entities/review.entity'
 import { FindReviewsDto } from './dto/find-reviews.dto'
-import { ReviewDto } from './dto/review.dto'
 import { paginate } from 'src/common/utils/pagination.util'
 
 @Injectable()
@@ -36,7 +35,7 @@ export class ReviewsRepository {
     })
   }
 
-  async updateReview(reviewId: number, data: ReviewDto) {
+  async updateReview(reviewId: number, data: Partial<Review>) {
     return await this.repository.update({ id: reviewId }, data)
   }
 }
