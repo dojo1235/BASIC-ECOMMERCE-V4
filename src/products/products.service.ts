@@ -13,7 +13,7 @@ export class ProductsService {
   async createProduct(data: CreateProductDto, adminId: number) {
     const created = await this.productsRepository.createProduct({
       ...data,
-      createdBy: adminId,
+      createdById: adminId,
     })
     return { product: created }
   }

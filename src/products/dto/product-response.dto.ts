@@ -27,25 +27,25 @@ export class ProductResponseDto {
   isDeleted?: boolean
 
   @ApiPropertyOptional({ description: 'User ID of the creator' })
-  createdBy?: number
+  createdById?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was created' })
   createdAt?: Date
 
   @ApiPropertyOptional({ description: 'User ID of the last updater' })
-  updatedBy?: number
+  updatedById?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was last updated' })
   updatedAt?: Date
 
   @ApiPropertyOptional({ description: 'User ID of the deleter' })
-  deletedBy?: number
+  deletedById?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was deleted' })
   deletedAt?: Date
 
   @ApiPropertyOptional({ description: 'User ID of the restorer' })
-  restoredBy?: number
+  restoredById?: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the record was restored' })
   restoredAt?: Date

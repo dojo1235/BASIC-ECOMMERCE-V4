@@ -72,7 +72,7 @@ export class AdminsProductsController {
     return {
       data: await this.productsService.updateProduct(productId, {
         ...updateProductDto,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Product updated successfully',
@@ -91,7 +91,7 @@ export class AdminsProductsController {
     return {
       data: await this.productsService.updateProduct(productId, {
         status,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Product status updated successfully',
@@ -109,7 +109,7 @@ export class AdminsProductsController {
     return {
       data: await this.productsService.updateProduct(productId, {
         isDeleted: false,
-        restoredBy: user.id,
+        restoredById: user.id,
         restoredAt: new Date(),
       }),
       message: 'Product restored successfully',
@@ -127,7 +127,7 @@ export class AdminsProductsController {
     return {
       data: await this.productsService.updateProduct(productId, {
         isDeleted: true,
-        deletedBy: user.id,
+        deletedById: user.id,
         deletedAt: new Date(),
       }),
       message: 'Product deleted successfully',
