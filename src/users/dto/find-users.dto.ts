@@ -1,6 +1,7 @@
 import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator'
-import { Type, Transform } from 'class-transformer'
+import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
+import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
 import { Role } from '../entities/user.entity'
 import { SortOrder } from 'src/common/enums/sort-order.enum'
 
@@ -21,13 +22,13 @@ export class FindUsersDto {
   role?: Role
 
   @IsOptional()
-  @Transform(({ value }) => (value === undefined ? undefined : value === 'true'))
+  @QueryBoolean()
   @IsBoolean()
   @ApiPropertyOptional({ description: 'Filter by banned status (true or false)' })
   isBanned?: boolean
 
   @IsOptional()
-  @Transform(({ value }) => (value === undefined ? undefined : value === 'true'))
+  @QueryBoolean()
   @IsBoolean()
   @ApiPropertyOptional({ description: 'Filter by deleted status (true or false)' })
   isDeleted?: boolean
