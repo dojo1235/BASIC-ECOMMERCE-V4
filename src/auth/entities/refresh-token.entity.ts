@@ -22,7 +22,7 @@ export class RefreshToken {
 
   @ApiProperty({ type: () => User, description: 'User entity associated with this token' })
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user!: User
 
   @Exclude()
@@ -49,13 +49,18 @@ export class RefreshToken {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date
 
+  // Separate revokedById column
+  @ApiProperty({ example: 1, description: 'ID of the user who revoked this token', nullable: true })
+  @Column({ type: 'int', nullable: true })
+  revokedById!: number | null
+
   @ApiProperty({
     type: () => User,
     description: 'User who revoked this token (if applicable)',
     nullable: true,
   })
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn()
+  @JoinColumn({ name: 'revokedById' })
   revokedBy!: User
 
   @ApiProperty({

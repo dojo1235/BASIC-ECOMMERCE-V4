@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { User } from './entities/user.entity'
+import { AuthRepository } from '../auth/auth.repository'
 import { UsersRepository } from './users.repository'
 import { hash, compare } from 'src/common/utils/crypto.util'
 import { Role } from './entities/user.entity'
@@ -13,7 +14,10 @@ type UpdateUserInput = Partial<User> & { password?: string }
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   // Create admin (super admin)
   async createAdmin({ password, ...data }: CreateAdminDto, superAdminId: number) {
@@ -132,34 +136,26 @@ export class UsersService {
   }
 
   // Revoke all admin sessions (super admin)
-  /*async revokeAllAdminSessions(id: number, superAdminId: number) {
-    const admin = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async revokeAllAdminSessions(userId: number, superAdminId: number) {
+    const admin = await this.usersRepository.findUserById(userId)
     this.ensureIsAdmin(admin)
-    await db.update(refreshTokens)
-      .set({
-        revoked: true,
-        revokedBy: superAdminId,
-        revokedAt: new Date(),
-      })
-      .where(and(eq(refreshTokens.userId, id), eq(refreshTokens.revoked, false)))
+    await this.authRepository.revokeAllTokensForUser(userId, {
+      revoked: true,
+      revokedById: superAdminId,
+      revokedAt: new Date(),
+    })
   }
 
   // Revoke all user sessions (admin)
-  async revokeAllUserSessions(id: number, adminId: number) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async revokeAllUserSessions(userId: number, adminId: number) {
+    const user = await this.usersRepository.findUserById(userId)
     this.ensureIsUser(user)
-    await db.update(refreshTokens)
-      .set({
-        revoked: true,
-        revokedBy: adminId,
-        revokedAt: new Date(),
-      })
-      .where(and(eq(refreshTokens.userId, id), eq(refreshTokens.revoked, false)))
-  }*/
+    await this.authRepository.revokeAllTokensForUser(userId, {
+      revoked: true,
+      revokedById: adminId,
+      revokedAt: new Date(),
+    })
+  }
 
   private ensureIsAdmin(admin: User | null) {
     if (!admin) throw new AppError(ErrorCode.NOT_FOUND, 'Admin not found')
