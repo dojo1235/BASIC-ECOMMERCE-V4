@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
-  DataSource,
   Repository,
   EntityManager,
   ILike,
@@ -17,7 +16,6 @@ import { FindProductsDto } from './dto/find-products.dto'
 @Injectable()
 export class ProductsRepository {
   constructor(
-    private readonly dataSource: DataSource,
     @InjectRepository(Product)
     private readonly repository: Repository<Product>,
   ) {}
@@ -52,10 +50,6 @@ export class ProductsRepository {
   async updateProduct(productId: number, data: Partial<Product>, manager?: EntityManager) {
     const repo = this.repo(manager)
     return await repo.update({ id: productId }, data)
-  }
-
-  async transaction<T>(work: (manager: EntityManager) => Promise<T>) {
-    return await this.dataSource.transaction(work)
   }
 
   private repo(manager?: EntityManager) {
