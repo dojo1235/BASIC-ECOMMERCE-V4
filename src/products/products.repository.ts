@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
+  DataSource,
   Repository,
+  EntityManager,
   ILike,
   Between,
   MoreThanOrEqual,
@@ -15,11 +17,13 @@ import { FindProductsDto } from './dto/find-products.dto'
 @Injectable()
 export class ProductsRepository {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(Product)
     private readonly repository: Repository<Product>,
   ) {}
 
-  async findAllProducts(query: FindProductsDto) {
+  async findAllProducts(query: FindProductsDto, manager?: EntityManager) {
+    const repo = this.repo(manager)
     const where: FindOptionsWhere<Product> = {}
     if (query.search) where.name = ILike(`%${query.search}%`)
     if (query.status) where.status = query.status
@@ -31,19 +35,30 @@ export class ProductsRepository {
       where.price = LessThanOrEqual(query.maxPrice)
     }
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
-    const result = await paginate(this.repository, query, { where })
+    const result = await paginate(repo, query, { where })
     return { products: result.items, meta: result.meta }
   }
 
-  findProductById(productId: number) {
-    return this.repository.findOne({ where: { id: productId } })
+  async findProductById(productId: number, manager?: EntityManager) {
+    const repo = this.repo(manager)
+    return await repo.findOne({ where: { id: productId } })
   }
 
-  createProduct(data: Partial<Product>) {
-    return this.repository.save(this.repository.create(data))
+  async createProduct(data: Partial<Product>, manager?: EntityManager) {
+    const repo = this.repo(manager)
+    return await repo.save(repo.create(data))
   }
 
-  updateProduct(productId: number, data: Partial<Product>) {
-    return this.repository.update({ id: productId }, data)
+  async updateProduct(productId: number, data: Partial<Product>, manager?: EntityManager) {
+    const repo = this.repo(manager)
+    return await repo.update({ id: productId }, data)
+  }
+
+  async transaction<T>(work: (manager: EntityManager) => Promise<T>) {
+    return await this.dataSource.transaction(work)
+  }
+
+  private repo(manager?: EntityManager) {
+    return manager ? manager.getRepository(Product) : this.repository
   }
 }
