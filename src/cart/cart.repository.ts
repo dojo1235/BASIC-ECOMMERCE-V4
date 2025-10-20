@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { DataSource, Repository, EntityManager } from 'typeorm'
+import { Repository, EntityManager } from 'typeorm'
 import { Cart } from './entities/cart.entity'
 
 @Injectable()
 export class CartRepository {
   constructor(
-    private readonly dataSource: DataSource,
     @InjectRepository(Cart)
     private readonly repository: Repository<Cart>,
   ) {}
@@ -54,10 +53,6 @@ export class CartRepository {
   async clearCart(userId: number, manager?: EntityManager) {
     const repo = this.repo(manager)
     await repo.delete({ userId })
-  }
-
-  async transaction<T>(work: (manager: EntityManager) => Promise<T>) {
-    return await this.dataSource.transaction(work)
   }
 
   private repo(manager?: EntityManager) {
