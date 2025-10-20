@@ -41,10 +41,10 @@ export class OrdersRepository {
     })
   }
 
-  async findOrderById(userId: number, orderId: number, manager?: EntityManager) {
+  async findOrderById(orderId: number, manager?: EntityManager) {
     const repo = this.repo(manager)
     return await repo.findOne({
-      where: { id: orderId, userId, isDeleted: false },
+      where: { id: orderId, isDeleted: false },
       relations: ['orderItems'],
     })
   }
