@@ -5,5 +5,5 @@ import { IsEnum } from 'class-validator'
 export class UpdateUserRoleDto {
   @ApiProperty({ description: 'New role to assign to the user', enum: Role })
   @IsEnum(Role)
-  role: Role
+  role!: Role
 }

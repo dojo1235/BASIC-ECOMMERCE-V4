@@ -58,7 +58,7 @@ export class AdminsUsersController {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         ...updateUserDto,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'User updated successfully',
@@ -77,7 +77,7 @@ export class AdminsUsersController {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         role,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'User role updated successfully',
@@ -95,7 +95,7 @@ export class AdminsUsersController {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         isBanned: true,
-        bannedBy: user.id,
+        bannedById: user.id,
         bannedAt: new Date(),
       }),
       message: 'User banned successfully',
@@ -114,7 +114,7 @@ export class AdminsUsersController {
       data: await this.usersService.updateUserForAdmin(userId, {
         isBanned: false,
         isDeleted: false,
-        restoredBy: user.id,
+        restoredById: user.id,
         restoredAt: new Date(),
       }),
       message: 'User restored successfully',
@@ -146,7 +146,7 @@ export class AdminsUsersController {
     return {
       data: await this.usersService.updateUserForAdmin(userId, {
         isDeleted: true,
-        deletedBy: user.id,
+        deletedById: user.id,
         deletedAt: new Date(),
       }),
       message: 'User deleted successfully',

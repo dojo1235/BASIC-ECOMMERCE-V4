@@ -69,7 +69,7 @@ export class SuperAdminsController {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         ...updateAdminDto,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Admin updated successfully',
@@ -88,7 +88,7 @@ export class SuperAdminsController {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         role,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Admin role updated successfully',
@@ -106,7 +106,7 @@ export class SuperAdminsController {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isBanned: true,
-        bannedBy: user.id,
+        bannedById: user.id,
         bannedAt: new Date(),
       }),
       message: 'Admin banned successfully',
@@ -125,7 +125,7 @@ export class SuperAdminsController {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isBanned: false,
         isDeleted: false,
-        restoredBy: user.id,
+        restoredById: user.id,
         restoredAt: new Date(),
       }),
       message: 'Admin restored successfully',
@@ -157,7 +157,7 @@ export class SuperAdminsController {
     return {
       data: await this.usersService.updateAdminForSuperAdmin(adminId, {
         isDeleted: true,
-        deletedBy: user.id,
+        deletedById: user.id,
         deletedAt: new Date(),
       }),
       message: 'Admin deleted successfully',

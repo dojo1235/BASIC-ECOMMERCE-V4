@@ -21,7 +21,7 @@ export class UserResponseDto {
   isDeleted?: boolean
 
   @ApiPropertyOptional({ description: 'ID of the user who created this record', nullable: true })
-  createdBy?: number
+  createdById?: number
 
   @ApiPropertyOptional({ description: 'Date and time when the user was created' })
   createdAt?: Date
@@ -30,7 +30,7 @@ export class UserResponseDto {
     description: 'ID of the user who last updated this record',
     nullable: true,
   })
-  updatedBy?: number
+  updatedById?: number
 
   @ApiPropertyOptional({
     description: 'Date and time when the user was last updated',
@@ -39,13 +39,13 @@ export class UserResponseDto {
   updatedAt?: Date
 
   @ApiPropertyOptional({ description: 'ID of the user who deleted this record', nullable: true })
-  deletedBy?: number
+  deletedById?: number
 
   @ApiPropertyOptional({ description: 'Date and time when the user was deleted', nullable: true })
   deletedAt?: Date
 
   @ApiPropertyOptional({ description: 'ID of the user who restored this record', nullable: true })
-  restoredBy?: number
+  restoredById?: number
 
   @ApiPropertyOptional({ description: 'Date and time when the user was restored', nullable: true })
   restoredAt?: Date

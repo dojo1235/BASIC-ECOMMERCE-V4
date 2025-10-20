@@ -30,7 +30,7 @@ export class AdminsController {
     return {
       data: await this.usersService.updateAdmin(user.id, {
         ...dto,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Profile updated successfully',

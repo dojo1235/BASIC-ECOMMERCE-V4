@@ -29,7 +29,7 @@ export class UsersController {
     return {
       data: await this.usersService.updateUser(user.id, {
         ...dto,
-        updatedBy: user.id,
+        updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Profile updated successfully',
@@ -56,7 +56,7 @@ export class UsersController {
     return {
       data: await this.usersService.updateUser(user.id, {
         isDeleted: true,
-        deletedBy: user.id,
+        deletedById: user.id,
         deletedAt: new Date(),
       }),
       message: 'Account deleted successfully',

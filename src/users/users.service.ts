@@ -25,7 +25,7 @@ export class UsersService {
     const created = await this.usersRepository.createUser({
       ...data,
       passwordHash: hashedPassword,
-      createdBy: superAdminId,
+      createdById: superAdminId,
     })
     return { user: plainToInstance(User, created) }
   }
