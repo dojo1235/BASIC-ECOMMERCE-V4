@@ -1,5 +1,5 @@
 import { Controller, Post, Patch, Get, Delete, Param, Body } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
 import { CartService } from './cart.service'
 import { Auth } from '../common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
@@ -13,8 +13,9 @@ import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Post('products/:productId') // Add product to cart
+  @Post('products/:productId')
   @Auth()
+  @ApiOperation({ summary: 'Add product to cart' })
   @ApiCreatedResponse({
     description: 'Product added to cart successfully',
     type: CartItemResponseDto,
@@ -30,8 +31,9 @@ export class CartController {
     }
   }
 
-  @Get() // Get user cart
+  @Get()
   @Auth()
+  @ApiOperation({ summary: 'Get user cart' })
   @ApiOkResponse({
     description: 'Cart fetched successfully',
     type: CartListResponseDto,
@@ -43,8 +45,9 @@ export class CartController {
     }
   }
 
-  @Get('count') // Get total cart item count
+  @Get('count')
   @Auth()
+  @ApiOperation({ summary: 'Get total cart item count' })
   @ApiOkResponse({ description: 'Cart items counted successfully' })
   async getCartCount(@CurrentUser() user: CurrentUserPayload) {
     return {
@@ -53,8 +56,9 @@ export class CartController {
     }
   }
 
-  @Patch('products/:productId') // Update cart item quantity
+  @Patch('products/:productId')
   @Auth()
+  @ApiOperation({ summary: 'Update cart item quantity' })
   @ApiOkResponse({
     description: 'Cart item updated successfully',
     type: CartItemResponseDto,
@@ -70,8 +74,9 @@ export class CartController {
     }
   }
 
-  @Delete('products/:productId') // Remove a single product from cart
+  @Delete('products/:productId')
   @Auth()
+  @ApiOperation({ summary: 'Remove a single product from cart' })
   @ApiOkResponse({ description: 'Product removed from cart successfully' })
   async removeFromCart(
     @Param() { productId }: ProductIdParamDto,
@@ -83,8 +88,9 @@ export class CartController {
     }
   }
 
-  @Delete('clear') // Clear all items in user cart
+  @Delete('clear')
   @Auth()
+  @ApiOperation({ summary: 'Clear all items in user cart' })
   @ApiOkResponse({ description: 'Cart cleared successfully' })
   async clearCart(@CurrentUser() user: CurrentUserPayload) {
     return {
