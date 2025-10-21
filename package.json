@@ -1,8 +1,8 @@
 {
-  "name": "basic_ecommerce_v4",
+  "name": "BASIC_ECOMMERCE_V4",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "E-commerce backend with multiple admin tier and all core e-commerce flows built with NestJs, MYSQL and TypeORM",
+  "author": "BRIGGS DIVINE TOBIN",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -77,10 +77,11 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
+  "eslintConfig": {
+    "extends": ["plugin:@typescript-eslint/recommended", "prettier"]
+  },
   "lint-staged": {
-    "*.ts": [
-      "prettier --write"
-    ]
+    "*.ts": ["prettier --write"]
   },
   "jest": {
     "moduleFileExtensions": [

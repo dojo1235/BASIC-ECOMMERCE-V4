@@ -110,13 +110,13 @@ export class OrdersService {
 
   // Cancel order (user)
   async cancelOrder(userId: number, orderId: number) {
-    return this.ordersRepository.transaction(async (manager) => {
+    return await this.ordersRepository.transaction(async (manager) => {
       const order = await this.ordersRepository.findOrderById(orderId, manager)
       if (!order || order.userId !== userId)
         throw new AppError(ErrorCode.NOT_FOUND, 'Order not found')
-      if (order.status === 'cancelled')
+      if (order.status === OrderStatus.Cancelled)
         throw new AppError(ErrorCode.INVALID_STATE, 'Order already cancelled')
-      if (!['pending', 'processing'].includes(order.status))
+      if (![OrderStatus.Pending, OrderStatus.Processing].includes(order.status))
         throw new AppError(ErrorCode.INVALID_STATE, 'Order cannot be cancelled')
       for (const item of order.orderItems) {
         const product = await this.productsRepository.findProductById(item.productId)

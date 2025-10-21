@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { CartRepository } from './cart.repository'
 import { ProductsRepository } from 'src/products/products.repository'
 import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
-import { Cart } from './entities/cart.entity'
 
 @Injectable()
 export class CartService {

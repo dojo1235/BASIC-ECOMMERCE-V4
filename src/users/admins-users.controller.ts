@@ -1,21 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Body,
-  Param,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common'
-import {
-  ApiBearerAuth,
-  ApiParam,
-  ApiOkResponse,
-  ApiCreatedResponse,
-  ApiOperation,
-} from '@nestjs/swagger'
+import { Controller, Get, Patch, Delete, Body, Param, ParseIntPipe, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiParam, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { FindUsersDto } from './dto/find-users.dto'
