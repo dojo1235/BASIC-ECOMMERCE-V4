@@ -9,7 +9,13 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common'
-import { ApiParam, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth } from '@nestjs/swagger'
+import {
+  ApiParam,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiBearerAuth,
+  ApiOperation,
+} from '@nestjs/swagger'
 import { ProductsService } from './products.service'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
@@ -26,8 +32,9 @@ import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/curr
 export class AdminsProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post() // Create new product
+  @Post()
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Create new product' })
   @ApiCreatedResponse({ description: 'Product created successfully', type: ProductResponseDto })
   async createProduct(
     @Body() createProductDto: CreateProductDto,
@@ -39,8 +46,9 @@ export class AdminsProductsController {
     }
   }
 
-  @Get() // Fetch all products
+  @Get()
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch all products' })
   @ApiOkResponse({ description: 'Products fetched successfully', type: ProductsListResponseDto })
   async findAll(@Query() query: FindProductsDto) {
     return {
@@ -49,8 +57,9 @@ export class AdminsProductsController {
     }
   }
 
-  @Get(':productId') // Fetch a single product
+  @Get(':productId')
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch a single product' })
   @ApiParam({ name: 'productId', description: 'ID of the product', type: Number })
   @ApiOkResponse({ description: 'Product fetched successfully', type: ProductResponseDto })
   async findOne(@Param('productId', ParseIntPipe) productId: number) {
@@ -60,8 +69,9 @@ export class AdminsProductsController {
     }
   }
 
-  @Patch(':productId') // Update product
+  @Patch(':productId')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Update product details' })
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product updated successfully', type: ProductResponseDto })
   async update(
@@ -79,8 +89,9 @@ export class AdminsProductsController {
     }
   }
 
-  @Patch(':productId/status') // Update product status
+  @Patch(':productId/status')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Update product status' })
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product status updated successfully', type: ProductResponseDto })
   async updateStatus(
@@ -98,8 +109,9 @@ export class AdminsProductsController {
     }
   }
 
-  @Patch(':productId/restore') // Restore product
+  @Patch(':productId/restore')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Restore product' })
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product restored successfully', type: ProductResponseDto })
   async restore(
@@ -116,8 +128,9 @@ export class AdminsProductsController {
     }
   }
 
-  @Delete(':productId') // Soft-delete product
+  @Delete(':productId')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Soft-delete product' })
   @ApiParam({ name: 'productId', type: Number })
   @ApiOkResponse({ description: 'Product deleted successfully', type: ProductResponseDto })
   async remove(
