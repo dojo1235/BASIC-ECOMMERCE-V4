@@ -9,11 +9,17 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiParam,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+} from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { FindUsersDto } from './dto/find-users.dto'
-import { Role, User } from 'src/users/entities/user.entity'
+import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UsersListResponseDto } from './dto/users-list-response.dto'
@@ -25,8 +31,9 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 export class AdminsUsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get() // Fetch all users
+  @Get()
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch all users' })
   @ApiOkResponse({ description: 'Users fetched successfully', type: UsersListResponseDto })
   async findAll(@Query() query: FindUsersDto) {
     return {
@@ -35,8 +42,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Get(':userId') // Fetch a single user
+  @Get(':userId')
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch a single user' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User fetched successfully', type: UserResponseDto })
   async findOne(@Param('userId', ParseIntPipe) userId: number) {
@@ -46,8 +54,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Patch(':userId') // Update user
+  @Patch(':userId')
   @Auth(Role.UserManager)
+  @ApiOperation({ summary: 'Update user details' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User updated successfully', type: UserResponseDto })
   async update(
@@ -65,8 +74,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Patch(':userId/role') // Update user role
+  @Patch(':userId/role')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Update user role' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User role updated successfully', type: UserResponseDto })
   async updateRole(
@@ -84,8 +94,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Patch(':userId/ban') // Ban user
+  @Patch(':userId/ban')
   @Auth(Role.UserManager)
+  @ApiOperation({ summary: 'Ban user' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User banned successfully', type: UserResponseDto })
   async ban(
@@ -102,8 +113,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Patch(':userId/restore') // Restore user
+  @Patch(':userId/restore')
   @Auth(Role.UserManager)
+  @ApiOperation({ summary: 'Restore user' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User restored successfully', type: UserResponseDto })
   async restore(
@@ -121,8 +133,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Patch(':userId/revoke-sessions') // Revoke all sessions
+  @Patch(':userId/revoke-sessions')
   @Auth(Role.UserManager)
+  @ApiOperation({ summary: 'Revoke all user sessions' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'All user sessions revoked successfully' })
   async revokeAllSessions(
@@ -135,8 +148,9 @@ export class AdminsUsersController {
     }
   }
 
-  @Delete(':userId') // Soft-delete user
+  @Delete(':userId')
   @Auth(Role.UserManager)
+  @ApiOperation({ summary: 'Soft-delete user' })
   @ApiParam({ name: 'userId', type: Number })
   @ApiOkResponse({ description: 'User deleted successfully', type: UserResponseDto })
   async remove(

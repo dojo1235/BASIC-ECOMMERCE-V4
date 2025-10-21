@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Delete, Body } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
@@ -12,8 +12,9 @@ import { UserResponseDto } from './dto/user-response.dto'
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get() // Fetch user profile
+  @Get()
   @Auth()
+  @ApiOperation({ summary: 'Fetch user profile' })
   @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
   async findOne(@CurrentUser() user: CurrentUserPayload) {
     return {
@@ -22,8 +23,9 @@ export class UsersController {
     }
   }
 
-  @Patch() // Update user profile
+  @Patch()
   @Auth()
+  @ApiOperation({ summary: 'Update user profile' })
   @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
   async update(@Body() dto: UpdateUserDto, @CurrentUser() user: CurrentUserPayload) {
     return {
@@ -36,8 +38,9 @@ export class UsersController {
     }
   }
 
-  @Patch('password') // Update password
+  @Patch('password')
   @Auth()
+  @ApiOperation({ summary: 'Update user password' })
   @ApiOkResponse({ description: 'Password updated successfully' })
   async updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,
@@ -49,8 +52,9 @@ export class UsersController {
     }
   }
 
-  @Delete() // Soft-delete user
+  @Delete()
   @Auth()
+  @ApiOperation({ summary: 'Soft-delete user account' })
   @ApiOkResponse({ description: 'Account deleted successfully', type: UserResponseDto })
   async remove(@CurrentUser() user: CurrentUserPayload) {
     return {

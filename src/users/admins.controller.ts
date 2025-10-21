@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Body } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateAdminDto } from './dto/update-admin.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
@@ -13,8 +13,9 @@ import { UserResponseDto } from './dto/user-response.dto'
 export class AdminsController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get() // Fetch admin profile
+  @Get()
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch admin profile' })
   @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
   async findOne(@CurrentUser() user: CurrentUserPayload) {
     return {
@@ -23,8 +24,9 @@ export class AdminsController {
     }
   }
 
-  @Patch() // Update admin profile
+  @Patch()
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Update admin profile' })
   @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
   async update(@Body() dto: UpdateAdminDto, @CurrentUser() user: CurrentUserPayload) {
     return {
@@ -37,8 +39,9 @@ export class AdminsController {
     }
   }
 
-  @Patch('password') // Update password
+  @Patch('password')
   @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Update admin password' })
   @ApiOkResponse({ description: 'Password updated successfully' })
   async updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,

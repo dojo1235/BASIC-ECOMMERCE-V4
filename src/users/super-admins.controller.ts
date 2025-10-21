@@ -9,7 +9,13 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiParam, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
+import {
+  ApiBearerAuth,
+  ApiParam,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+} from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { CreateAdminDto } from './dto/create-admin.dto'
 import { UpdateAdminDto } from './dto/update-admin.dto'
@@ -26,8 +32,9 @@ import { UsersListResponseDto } from './dto/users-list-response.dto'
 export class SuperAdminsController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post() // Create new admin
+  @Post()
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Create new admin' })
   @ApiCreatedResponse({ description: 'Admin created successfully', type: UserResponseDto })
   async create(@Body() createAdminDto: CreateAdminDto, @CurrentUser() user: CurrentUserPayload) {
     return {
@@ -36,8 +43,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Get() // Fetch all admins
+  @Get()
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Fetch all admins' })
   @ApiOkResponse({ description: 'Admins fetched successfully', type: UsersListResponseDto })
   async findAll(@Query() query: FindUsersDto) {
     return {
@@ -46,8 +54,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Get(':adminId') // Fetch a single admin
+  @Get(':adminId')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Fetch a single admin' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin fetched successfully', type: UserResponseDto })
   async findOne(@Param('adminId', ParseIntPipe) adminId: number) {
@@ -57,8 +66,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Patch(':adminId') // Update admin
+  @Patch(':adminId')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Update admin details' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin updated successfully', type: UserResponseDto })
   async update(
@@ -76,8 +86,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Patch(':adminId/role') // Update admin role
+  @Patch(':adminId/role')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Update admin role' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin role updated successfully', type: UserResponseDto })
   async updateRole(
@@ -95,8 +106,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Patch(':adminId/ban') // Ban admin
+  @Patch(':adminId/ban')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Ban admin' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin banned successfully', type: UserResponseDto })
   async ban(
@@ -113,8 +125,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Patch(':adminId/restore') // Restore admin
+  @Patch(':adminId/restore')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Restore admin' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin restored successfully', type: UserResponseDto })
   async restore(
@@ -132,8 +145,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Patch(':adminId/revoke-sessions') // Log out admin from all devices
+  @Patch(':adminId/revoke-sessions')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Log out admin from all devices' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'All admin sessions revoked successfully' })
   async revokeAllSessions(
@@ -146,8 +160,9 @@ export class SuperAdminsController {
     }
   }
 
-  @Delete(':adminId') // Soft-delete admin
+  @Delete(':adminId')
   @Auth(Role.SuperAdmin)
+  @ApiOperation({ summary: 'Soft-delete admin' })
   @ApiParam({ name: 'adminId', type: Number })
   @ApiOkResponse({ description: 'Admin deleted successfully', type: UserResponseDto })
   async remove(
