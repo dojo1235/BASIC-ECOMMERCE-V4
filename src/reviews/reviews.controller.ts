@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Body, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { ReviewsService } from './reviews.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { ReviewDto } from './dto/review.dto'
@@ -14,8 +14,9 @@ import { ReviewsListResponseDto } from './dto/reviews-list-response.dto'
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Post('products/:productId') // Create a review
+  @Post('products/:productId')
   @Auth()
+  @ApiOperation({ summary: 'Create a review' })
   @ApiCreatedResponse({ description: 'Review created successfully', type: ReviewResponseDto })
   async create(
     @Param() { productId }: ProductIdParamDto,
@@ -28,7 +29,8 @@ export class ReviewsController {
     }
   }
 
-  @Get('products/:productId') // Get all reviews for a product
+  @Get('products/:productId')
+  @ApiOperation({ summary: 'Get all reviews for a product' })
   @ApiOkResponse({
     description: 'Product reviews fetched successfully',
     type: ReviewsListResponseDto,
@@ -40,8 +42,9 @@ export class ReviewsController {
     }
   }
 
-  @Get('products/:productId/me') // Get the logged-in user's review for a product
+  @Get('products/:productId/me')
   @Auth()
+  @ApiOperation({ summary: "Get the logged-in user's review for a product" })
   @ApiOkResponse({ description: 'User review fetched successfully', type: ReviewResponseDto })
   async findOne(
     @Param() { productId }: ProductIdParamDto,
@@ -53,8 +56,9 @@ export class ReviewsController {
     }
   }
 
-  @Patch('products/:productId') // Update user review
+  @Patch('products/:productId')
   @Auth()
+  @ApiOperation({ summary: 'Update user review' })
   @ApiOkResponse({ description: 'Review updated successfully', type: ReviewResponseDto })
   async update(
     @Param() { productId }: ProductIdParamDto,

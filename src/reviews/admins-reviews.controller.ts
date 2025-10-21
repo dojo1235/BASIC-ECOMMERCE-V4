@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Param, Body, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { ReviewsService } from './reviews.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { Role } from 'src/users/entities/user.entity'
@@ -15,8 +15,9 @@ import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/curr
 export class AdminsReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  @Get('products/:productId') // Fetch all reviews for a product
+  @Get('products/:productId')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Fetch all reviews for a product' })
   @ApiOkResponse({
     description: 'Product reviews fetched successfully',
     type: ReviewsListResponseDto,
@@ -28,8 +29,9 @@ export class AdminsReviewsController {
     }
   }
 
-  @Get(':reviewId') // Fetch a single review
+  @Get(':reviewId')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Fetch a single review' })
   @ApiOkResponse({ description: 'Review fetched successfully', type: ReviewResponseDto })
   async findOne(@Param() { reviewId }: ReviewIdParamDto) {
     return {
@@ -38,8 +40,9 @@ export class AdminsReviewsController {
     }
   }
 
-  @Patch(':reviewId/hide') // Hide a review
+  @Patch(':reviewId/hide')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Hide a review' })
   @ApiOkResponse({ description: 'Review hidden successfully', type: ReviewResponseDto })
   async hide(@Param() { reviewId }: ReviewIdParamDto, @CurrentUser() user: CurrentUserPayload) {
     return {
@@ -52,8 +55,9 @@ export class AdminsReviewsController {
     }
   }
 
-  @Patch(':reviewId/restore') // Restore a review
+  @Patch(':reviewId/restore')
   @Auth(Role.ProductManager)
+  @ApiOperation({ summary: 'Restore a review' })
   @ApiOkResponse({ description: 'Review restored successfully', type: ReviewResponseDto })
   async restore(@Param() { reviewId }: ReviewIdParamDto, @CurrentUser() user: CurrentUserPayload) {
     return {
