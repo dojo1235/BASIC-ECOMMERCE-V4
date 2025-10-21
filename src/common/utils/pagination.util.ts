@@ -26,7 +26,6 @@ export const paginate = async <Entity extends ObjectLiteral>(
 
   const [items, totalCount] = await Promise.all([
     modelQuery.find({
-      loadRelationIds: true,
       where: options?.where || {},
       select: options?.select || [],
       relations: options?.relations || [],

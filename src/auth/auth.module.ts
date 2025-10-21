@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, forwardRef } from '@nestjs/common'
 import { JwtModule } from '@nestjs/jwt'
 import { PassportModule } from '@nestjs/passport'
 import { JwtStrategy } from '../common/strategies/jwt.strategy'
@@ -22,7 +22,7 @@ import { RefreshToken } from './entities/refresh-token.entity'
       }),
     }),
     TypeOrmModule.forFeature([RefreshToken]),
-    UsersModule,
+    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
   providers: [JwtStrategy, AuthService, AuthRepository],
