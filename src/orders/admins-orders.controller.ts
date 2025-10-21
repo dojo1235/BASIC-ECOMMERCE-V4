@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger'
+import { Controller, Get, Patch, Delete, Param, Body, Query } from '@nestjs/common'
+import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { Role } from 'src/users/entities/user.entity'
@@ -16,8 +16,9 @@ import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 export class AdminsOrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @Get() // Fetch all orders
+  @Get()
   @Auth(Role.OrderManager)
+  @ApiOperation({ summary: 'Fetch all orders' })
   @ApiOkResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
   async findAll(@Query() query: FindOrdersDto) {
     return {
@@ -26,8 +27,9 @@ export class AdminsOrdersController {
     }
   }
 
-  @Get('users/:userId') // Fetch all orders for a specific user
+  @Get('users/:userId')
   @Auth(Role.OrderManager)
+  @ApiOperation({ summary: 'Fetch all orders for a specific user' })
   @ApiOkResponse({ description: 'User orders fetched successfully', type: OrdersListResponseDto })
   async findUserOrdersForAdmin(@Param() { userId }: UserIdParamDto, @Query() query: FindOrdersDto) {
     return {
@@ -36,8 +38,9 @@ export class AdminsOrdersController {
     }
   }
 
-  @Get(':orderId') // Fetch a single order
+  @Get(':orderId')
   @Auth(Role.OrderManager)
+  @ApiOperation({ summary: 'Fetch a single order' })
   @ApiOkResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
   async findOneForAdmin(@Param() { orderId }: OrderIdParamDto) {
     return {
@@ -46,8 +49,9 @@ export class AdminsOrdersController {
     }
   }
 
-  @Patch(':orderId/status') // Update order status
+  @Patch(':orderId/status')
   @Auth(Role.OrderManager)
+  @ApiOperation({ summary: 'Update order status' })
   @ApiOkResponse({ description: 'Order status updated successfully', type: OrderResponseDto })
   async updateStatus(
     @Param() { orderId }: OrderIdParamDto,
@@ -64,8 +68,9 @@ export class AdminsOrdersController {
     }
   }
 
-  @Patch(':orderId/restore') // Restore order
+  @Patch(':orderId/restore')
   @Auth(Role.OrderManager)
+  @ApiOperation({ summary: 'Restore order' })
   @ApiOkResponse({ description: 'Order restored successfully', type: OrderResponseDto })
   async restore(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
     return {
@@ -78,8 +83,9 @@ export class AdminsOrdersController {
     }
   }
 
-  @Delete(':orderId') // Soft-delete order
+  @Delete(':orderId')
   @Auth(Role.OrderManager)
+  @ApiOperation({ summary: 'Soft-delete order' })
   @ApiOkResponse({ description: 'Order deleted successfully', type: OrderResponseDto })
   async remove(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
     return {
