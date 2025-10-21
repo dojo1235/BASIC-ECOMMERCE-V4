@@ -4,48 +4,48 @@ import { ProductResponseDto } from 'src/products/dto/product-response.dto'
 
 export class OrderItemResponseDto {
   @ApiProperty({ description: 'Order item ID' })
-  id!: number
+  id: number
 
   @ApiProperty({ description: 'Order ID this item belongs to' })
-  orderId!: number
+  orderId: number
 
   @ApiProperty({ description: 'Product ID of the ordered item' })
-  productId!: number
+  productId: number
 
   @ApiProperty({ description: 'Quantity of this product in the order' })
-  quantity!: number
+  quantity: number
 
   @ApiProperty({ description: 'Price per unit of the product' })
-  price!: string
+  price: string
 
   @ApiProperty({ description: 'Timestamp when the order item was created' })
-  createdAt!: Date
+  createdAt: Date
 
   @ApiProperty({
     type: () => ProductResponseDto,
     description: 'Product details for this order item',
   })
-  product!: ProductResponseDto
+  product: ProductResponseDto
 }
 
 export class OrderResponseDto {
   @ApiProperty({ description: 'Order ID' })
-  id!: number
+  id: number
 
   @ApiProperty({ description: 'User ID who placed the order' })
-  userId!: number
+  userId: number
 
   @ApiProperty({ description: 'Total amount of the order' })
-  total!: string
+  total: string
 
   @ApiProperty({ description: 'Contact information of the customer' })
-  contact!: string
+  contact: string
 
   @ApiProperty({ description: 'Shipping address for the order' })
-  shippingAddress!: string
+  shippingAddress: string
 
   @ApiProperty({ description: 'Shipping fee for the order' })
-  shippingFee!: string
+  shippingFee: string
 
   @ApiPropertyOptional({ description: 'Order status', enum: OrderStatus })
   status?: OrderStatus
@@ -78,5 +78,5 @@ export class OrderResponseDto {
     description: 'List of order items included in this order',
     type: () => [OrderItemResponseDto],
   })
-  orderItems!: OrderItemResponseDto[]
+  orderItems: OrderItemResponseDto[]
 }

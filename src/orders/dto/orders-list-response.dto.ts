@@ -4,8 +4,8 @@ import { MetaResponseDto } from 'src/common/dto/meta-response.dto'
 
 export class OrdersListResponseDto {
   @ApiProperty({ description: 'List of orders', type: [OrderResponseDto] })
-  orders!: OrderResponseDto[]
+  orders: OrderResponseDto[]
 
   @ApiProperty({ description: 'Pagination metadata', type: MetaResponseDto })
-  meta!: MetaResponseDto
+  meta: MetaResponseDto
 }

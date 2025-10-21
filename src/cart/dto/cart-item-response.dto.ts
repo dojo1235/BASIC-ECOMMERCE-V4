@@ -3,16 +3,16 @@ import { ProductResponseDto } from 'src/products/dto/product-response.dto'
 
 export class CartItemResponseDto {
   @ApiProperty({ description: 'Unique identifier for the cart item' })
-  id!: number
+  id: number
 
   @ApiProperty({ description: 'ID of the user who owns this cart item' })
-  userId!: number
+  userId: number
 
   @ApiProperty({ description: 'ID of the product added to the cart' })
-  productId!: number
+  productId: number
 
   @ApiProperty({ description: 'Quantity of this product in the user’s cart' })
-  quantity!: number
+  quantity: number
 
   @ApiPropertyOptional({ description: 'Timestamp when the cart item was created' })
   createdAt?: Date

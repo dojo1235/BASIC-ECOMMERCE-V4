@@ -6,5 +6,5 @@ export class UpdateOrderStatusDto {
   @IsEnum(OrderStatus)
   @IsNotEmpty()
   @ApiProperty({ description: 'New status of the order', enum: OrderStatus })
-  status!: OrderStatus
+  status: OrderStatus
 }

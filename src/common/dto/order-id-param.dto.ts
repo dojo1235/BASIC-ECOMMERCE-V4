@@ -5,5 +5,5 @@ export class OrderIdParamDto {
   @ApiProperty({ description: 'ID of the order' })
   @IsInt()
   @Min(1)
-  orderId!: number
+  orderId: number
 }

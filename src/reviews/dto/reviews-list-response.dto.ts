@@ -4,8 +4,8 @@ import { MetaResponseDto } from 'src/common/dto/meta-response.dto'
 
 export class ReviewsListResponseDto {
   @ApiProperty({ description: 'List of product reviews', type: [ReviewResponseDto] })
-  reviews!: ReviewResponseDto[]
+  reviews: ReviewResponseDto[]
 
   @ApiProperty({ description: 'Pagination metadata', type: MetaResponseDto })
-  meta!: MetaResponseDto
+  meta: MetaResponseDto
 }

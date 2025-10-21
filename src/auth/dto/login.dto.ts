@@ -5,7 +5,7 @@ export class LoginDto {
   @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @ApiProperty({ description: 'Email address of the user' })
-  email!: string
+  email: string
 
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
@@ -15,5 +15,5 @@ export class LoginDto {
   @Matches(/\d/, { message: 'Password must contain at least one number' })
   @Matches(/[\W_]/, { message: 'Password must contain at least one special character' })
   @ApiProperty({ description: 'Password of the user', minLength: 8, maxLength: 100 })
-  password!: string
+  password: string
 }

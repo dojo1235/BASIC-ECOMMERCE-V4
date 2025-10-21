@@ -5,5 +5,5 @@ export class UserIdParamDto {
   @ApiProperty({ description: 'ID of the user' })
   @IsInt()
   @Min(1)
-  userId!: number
+  userId: number
 }

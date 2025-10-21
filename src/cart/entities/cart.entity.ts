@@ -13,28 +13,28 @@ import { Product } from 'src/products/entities/product.entity'
 @Entity()
 export class Cart {
   @PrimaryGeneratedColumn()
-  id!: number
+  id: number
 
   @Column()
-  userId!: number
+  userId: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user!: User
+  user: User
 
   @Column()
-  productId!: number
+  productId: number
 
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn()
-  product!: Product
+  product: Product
 
   @Column({ type: 'int' })
-  quantity!: number
+  quantity: number
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date
+  createdAt: Date
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
-  updatedAt!: Date | null
+  updatedAt: Date | null
 }

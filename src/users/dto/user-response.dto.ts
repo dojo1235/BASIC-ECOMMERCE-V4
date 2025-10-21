@@ -3,13 +3,13 @@ import { Role } from 'src/users/entities/user.entity'
 
 export class UserResponseDto {
   @ApiProperty({ description: 'Unique identifier of the user' })
-  id!: number
+  id: number
 
   @ApiProperty({ description: 'Full name of the user' })
-  name!: string
+  name: string
 
   @ApiProperty({ description: 'Email address of the user' })
-  email!: string
+  email: string
 
   @ApiPropertyOptional({ description: 'Role assigned to the user', enum: Role })
   role?: Role

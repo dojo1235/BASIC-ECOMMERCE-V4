@@ -21,95 +21,95 @@ export enum OrderStatus {
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
-  id!: number
+  id: number
 
   @Column()
-  userId!: number
+  userId: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user!: User
+  user: User
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
-  total!: number
+  total: number
 
   @Column({ type: 'varchar', length: 100 })
-  contact!: string
+  contact: string
 
   @Column({ type: 'varchar', length: 255 })
-  shippingAddress!: string
+  shippingAddress: string
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
-  shippingFee!: number
+  shippingFee: number
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.Pending })
-  status!: OrderStatus
+  status: OrderStatus
 
   @Column({ type: 'tinyint', default: false })
-  isDeleted!: boolean
+  isDeleted: boolean
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date
+  createdAt: Date
 
   @Column({ nullable: true })
-  updatedById!: number | null
+  updatedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  updatedBy!: User
+  updatedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  updatedAt!: Date | null
+  updatedAt: Date | null
 
   @Column({ nullable: true })
-  deletedById!: number | null
+  deletedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  deletedBy!: User
+  deletedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  deletedAt!: Date | null
+  deletedAt: Date | null
 
   @Column({ nullable: true })
-  restoredById!: number | null
+  restoredById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  restoredBy!: User
+  restoredBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  restoredAt!: Date | null
+  restoredAt: Date | null
 
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
-  orderItems!: OrderItem[]
+  orderItems: OrderItem[]
 }
 
 @Entity()
 export class OrderItem {
   @PrimaryGeneratedColumn()
-  id!: number
+  id: number
 
   @Column()
-  orderId!: number
+  orderId: number
 
   @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   @JoinColumn()
-  order!: Order
+  order: Order
 
   @Column()
-  productId!: number
+  productId: number
 
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn()
-  product!: Product
+  product: Product
 
   @Column({ type: 'int', default: 1 })
-  quantity!: number
+  quantity: number
 
   @Column({ type: 'numeric', precision: 10, scale: 2 })
-  price!: number
+  price: number
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date
+  createdAt: Date
 }

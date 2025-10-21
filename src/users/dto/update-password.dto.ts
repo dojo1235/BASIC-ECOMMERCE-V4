@@ -14,7 +14,7 @@ export class UpdatePasswordDto {
     minLength: 8,
     maxLength: 100,
   })
-  oldPassword!: string
+  oldPassword: string
 
   @IsString()
   @IsNotEmpty({ message: 'New password is required' })
@@ -28,5 +28,5 @@ export class UpdatePasswordDto {
     minLength: 8,
     maxLength: 100,
   })
-  newPassword!: string
+  newPassword: string
 }

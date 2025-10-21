@@ -2,19 +2,19 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class ReviewResponseDto {
   @ApiProperty({ description: 'Review ID' })
-  id!: number
+  id: number
 
   @ApiProperty({ description: 'User ID who wrote the review' })
-  userId!: number
+  userId: number
 
   @ApiProperty({ description: 'Product ID being reviewed' })
-  productId!: number
+  productId: number
 
   @ApiProperty({ description: 'Rating given by the user (1–5)' })
-  rating!: number
+  rating: number
 
   @ApiProperty({ description: 'User comment for the review' })
-  comment!: string
+  comment: string
 
   @ApiPropertyOptional({ description: 'Visibility status of the review (true if visible)' })
   isVisible?: boolean

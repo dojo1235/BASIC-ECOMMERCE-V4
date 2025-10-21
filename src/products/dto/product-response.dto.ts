@@ -3,22 +3,22 @@ import { ProductStatus } from '../entities/product.entity'
 
 export class ProductResponseDto {
   @ApiProperty({ description: 'Product ID' })
-  id!: number
+  id: number
 
   @ApiProperty({ description: 'Product name' })
-  name!: string
+  name: string
 
   @ApiProperty({ description: 'Product description' })
-  description!: string
+  description: string
 
   @ApiProperty({ description: 'Price of the product' })
-  price!: string
+  price: string
 
   @ApiProperty({ description: 'Product image URL' })
-  image!: string
+  image: string
 
   @ApiProperty({ description: 'Stock quantity' })
-  stock!: number
+  stock: number
 
   @ApiPropertyOptional({ description: 'Product status', enum: ProductStatus })
   status?: ProductStatus

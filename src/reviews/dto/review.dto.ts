@@ -7,10 +7,10 @@ export class ReviewDto {
   @Min(1)
   @Max(5)
   @IsNotEmpty()
-  rating!: number
+  rating: number
 
   @ApiProperty({ description: 'Comment about the product' })
   @IsString()
   @IsNotEmpty()
-  comment!: string
+  comment: string
 }

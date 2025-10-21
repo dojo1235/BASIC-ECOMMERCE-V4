@@ -21,77 +21,77 @@ export enum Role {
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  id!: number
+  id: number
 
   @Column({ type: 'varchar', length: 50 })
-  name!: string
+  name: string
 
   @Column({ type: 'varchar', length: 100, unique: true })
-  email!: string
+  email: string
 
   @Exclude()
   @Column({ type: 'varchar', length: 255 })
-  passwordHash!: string
+  passwordHash: string
 
   @Column({ type: 'enum', enum: Role, default: Role.User })
-  role!: Role
+  role: Role
 
   @Column({ type: 'tinyint', default: 0 })
-  isBanned!: boolean
+  isBanned: boolean
 
   @Column({ type: 'tinyint', default: 0 })
-  isDeleted!: boolean
+  isDeleted: boolean
 
   @Column({ type: 'timestamp', nullable: true })
-  lastLogin!: Date | null
+  lastLogin: Date | null
 
   @Column({ nullable: true })
-  createdById!: number | null
+  createdById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  createdBy!: User
+  createdBy: User
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date
+  createdAt: Date
 
   @Column({ nullable: true })
-  updatedById!: number | null
+  updatedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  updatedBy!: User
+  updatedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  updatedAt!: Date | null
+  updatedAt: Date | null
 
   @Column({ nullable: true })
-  bannedById!: number | null
+  bannedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  bannedBy!: User
+  bannedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  bannedAt!: Date | null
+  bannedAt: Date | null
 
   @Column({ nullable: true })
-  deletedById!: number | null
+  deletedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  deletedBy!: User
+  deletedBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  deletedAt!: Date | null
+  deletedAt: Date | null
 
   @Column({ nullable: true })
-  restoredById!: number | null
+  restoredById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  restoredBy!: User
+  restoredBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  restoredAt!: Date | null
+  restoredAt: Date | null
 }

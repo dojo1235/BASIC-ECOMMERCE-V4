@@ -5,5 +5,5 @@ export class ReviewIdParamDto {
   @ApiProperty({ description: 'ID of the review' })
   @IsInt()
   @Min(1)
-  reviewId!: number
+  reviewId: number
 }

@@ -16,54 +16,54 @@ import { Product } from 'src/products/entities/product.entity'
 @Check(`"rating" >= 1 AND "rating" <= 5`)
 export class Review {
   @PrimaryGeneratedColumn()
-  id!: number
+  id: number
 
   @Column()
-  userId!: number
+  userId: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user!: User
+  user: User
 
   @Column()
-  productId!: number
+  productId: number
 
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn()
-  product!: Product
+  product: Product
 
   @Column({ type: 'int' })
-  rating!: number
+  rating: number
 
   @Column({ type: 'text' })
-  comment!: string
+  comment: string
 
   @Column({ type: 'tinyint', default: true })
-  isVisible!: boolean
+  isVisible: boolean
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date
+  createdAt: Date
 
   @Column({ type: 'timestamp', nullable: true })
-  updatedAt!: Date | null
+  updatedAt: Date | null
 
   @Column({ nullable: true })
-  hiddenById!: number | null
+  hiddenById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  hiddenBy!: User
+  hiddenBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  hiddenAt!: Date | null
+  hiddenAt: Date | null
 
   @Column({ nullable: true })
-  restoredById!: number | null
+  restoredById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  restoredBy!: User
+  restoredBy: User
 
   @Column({ type: 'timestamp', nullable: true })
-  restoredAt!: Date | null
+  restoredAt: Date | null
 }
