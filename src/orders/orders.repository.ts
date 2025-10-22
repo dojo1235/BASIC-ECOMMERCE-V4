@@ -20,7 +20,8 @@ export class OrdersRepository {
     const where: FindOptionsWhere<Order> = {}
     if (query.status) where.status = query.status
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
-    const result = await paginate(repo, query, { where })
+    const relations = ['orderItems', 'orderItems.product']
+    const result = await paginate(repo, query, { where, relations })
     return { orders: result.items, meta: result.meta }
   }
 
@@ -29,7 +30,8 @@ export class OrdersRepository {
     const where: FindOptionsWhere<Order> = { userId }
     if (query.status) where.status = query.status
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
-    const result = await paginate(repo, query, { where })
+    const relations = ['orderItems', 'orderItems.product']
+    const result = await paginate(repo, query, { where, relations })
     return { orders: result.items, meta: result.meta }
   }
 
@@ -37,7 +39,7 @@ export class OrdersRepository {
     const repo = this.repo(manager)
     return await repo.findOne({
       where: { id: orderId },
-      relations: ['orderItems'],
+      relations: ['orderItems', 'orderItems.product'],
     })
   }
 
@@ -45,7 +47,7 @@ export class OrdersRepository {
     const repo = this.repo(manager)
     return await repo.findOne({
       where: { id: orderId, isDeleted: false },
-      relations: ['orderItems'],
+      relations: ['orderItems', 'orderItems.product'],
     })
   }
 
