@@ -18,7 +18,7 @@ export class RefreshToken {
   userId: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   user: User
 
   @Exclude()
@@ -38,7 +38,7 @@ export class RefreshToken {
   revokedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'revokedById' })
+  @JoinColumn()
   revokedBy: User
 
   @Column({ type: 'timestamp', nullable: true })

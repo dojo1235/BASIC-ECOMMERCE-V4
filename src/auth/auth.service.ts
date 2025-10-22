@@ -102,7 +102,7 @@ export class AuthService {
       expiresIn: refreshExpiresIn,
     })
     const hashedToken = await hash(refreshToken)
-    const expiresAt = add(new Date(), { days: Number(refreshExpiresIn) })
+    const expiresAt = add(new Date(), { days: parseInt(refreshExpiresIn, 10) })
     await this.authRepository.createRefreshToken({
       userId: payload.sub,
       token: hashedToken,
