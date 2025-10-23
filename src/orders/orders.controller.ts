@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Body, Param, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
@@ -10,13 +10,12 @@ import { plainToInstance } from 'class-transformer'
 import { OrderResponseDto } from './dto/order-response.dto'
 import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 
-@ApiBearerAuth()
+@Auth()
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  @Auth()
   @ApiOperation({ summary: 'Place new order' })
   @ApiCreatedResponse({
     description: 'Order placed successfully',
@@ -31,7 +30,6 @@ export class OrdersController {
   }
 
   @Get()
-  @Auth()
   @ApiOperation({ summary: 'Fetch all orders of the logged-in user' })
   @ApiOkResponse({
     description: 'Orders fetched successfully',
@@ -46,7 +44,6 @@ export class OrdersController {
   }
 
   @Get(':orderId')
-  @Auth()
   @ApiOperation({ summary: 'Fetch a single order of the logged-in user' })
   @ApiOkResponse({
     description: 'Order fetched successfully',
@@ -64,7 +61,6 @@ export class OrdersController {
   }
 
   @Patch(':orderId/cancel')
-  @Auth()
   @ApiOperation({ summary: 'Cancel an order of the logged-in user' })
   @ApiOkResponse({
     description: 'Order cancelled successfully',

@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Delete, Param, Body, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { Role } from 'src/users/entities/user.entity'
@@ -12,13 +12,12 @@ import { OrderResponseDto } from './dto/order-response.dto'
 import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 import { plainToInstance } from 'class-transformer'
 
-@ApiBearerAuth()
+@Auth(Role.OrderManager)
 @Controller('admins/orders')
 export class AdminsOrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Fetch all orders' })
   @ApiOkResponse({
     description: 'Orders fetched successfully',
@@ -33,7 +32,6 @@ export class AdminsOrdersController {
   }
 
   @Get('users/:userId')
-  @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Fetch all orders for a specific user' })
   @ApiOkResponse({
     description: 'User orders fetched successfully',
@@ -48,7 +46,6 @@ export class AdminsOrdersController {
   }
 
   @Get(':orderId')
-  @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Fetch a single order' })
   @ApiOkResponse({
     description: 'Order fetched successfully',
@@ -63,7 +60,6 @@ export class AdminsOrdersController {
   }
 
   @Patch(':orderId/status')
-  @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Update order status' })
   @ApiOkResponse({
     description: 'Order status updated successfully',
@@ -86,7 +82,6 @@ export class AdminsOrdersController {
   }
 
   @Patch(':orderId/restore')
-  @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Restore order' })
   @ApiOkResponse({
     description: 'Order restored successfully',
@@ -105,7 +100,6 @@ export class AdminsOrdersController {
   }
 
   @Delete(':orderId')
-  @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Soft-delete order' })
   @ApiOkResponse({
     description: 'Order deleted successfully',
