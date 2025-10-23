@@ -39,7 +39,7 @@ export class RefreshToken {
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  revokedBy: User
+  revokedBy: User | null
 
   @Column({ type: 'timestamp', nullable: true })
   revokedAt: Date | null
