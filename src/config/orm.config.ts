@@ -1,5 +1,7 @@
 import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm'
 import { ConfigService } from '@nestjs/config'
+import { DataSource } from 'typeorm'
+import { addTransactionalDataSource } from 'typeorm-transactional'
 import { NamingStrategy } from '../database/naming.strategy'
 import { RefreshToken } from 'src/auth/entities/refresh-token.entity'
 import { User } from 'src/users/entities/user.entity'
@@ -23,4 +25,9 @@ export const dataSourceOptions: TypeOrmModuleAsyncOptions = {
     logging: true,
     namingStrategy: new NamingStrategy(),
   }),
+  async dataSourceFactory(options) {
+    if (!options) throw new Error('Invalid TypeORM options')
+    const dataSource = new DataSource(options)
+    return addTransactionalDataSource(dataSource)
+  },
 }

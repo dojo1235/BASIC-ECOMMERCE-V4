@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import {
   Repository,
-  EntityManager,
   ILike,
   Between,
   MoreThanOrEqual,
@@ -20,8 +19,7 @@ export class ProductsRepository {
     private readonly repository: Repository<Product>,
   ) {}
 
-  async findAllProducts(query: FindProductsDto, manager?: EntityManager) {
-    const repo = this.repo(manager)
+  async findAllProducts(query: FindProductsDto) {
     const where: FindOptionsWhere<Product> = {}
     if (query.search) where.name = ILike(`%${query.search}%`)
     if (query.status) where.status = query.status
@@ -33,26 +31,19 @@ export class ProductsRepository {
       where.price = LessThanOrEqual(query.maxPrice)
     }
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
-    const result = await paginate(repo, query, { where })
+    const result = await paginate(this.repository, query, { where })
     return { products: result.items, meta: result.meta }
   }
 
-  async findProductById(productId: number, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.findOne({ where: { id: productId } })
+  async findProductById(productId: number) {
+    return await this.repository.findOne({ where: { id: productId } })
   }
 
-  async createProduct(data: Partial<Product>, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.save(repo.create(data))
+  async createProduct(data: Partial<Product>) {
+    return await this.repository.save(this.repository.create(data))
   }
 
-  async updateProduct(productId: number, data: Partial<Product>, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.update({ id: productId }, data)
-  }
-
-  private repo(manager?: EntityManager) {
-    return manager ? manager.getRepository(Product) : this.repository
+  async updateProduct(productId: number, data: Partial<Product>) {
+    return await this.repository.update({ id: productId }, data)
   }
 }

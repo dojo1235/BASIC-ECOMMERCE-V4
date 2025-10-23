@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { DataSource, Repository, EntityManager, FindOptionsWhere } from 'typeorm'
+import { Repository, FindOptionsWhere } from 'typeorm'
 import { Order, OrderItem } from './entities/order.entity'
 import { FindOrdersDto } from './dto/find-orders.dto'
 import { paginate } from 'src/common/utils/pagination.util'
@@ -8,73 +8,46 @@ import { paginate } from 'src/common/utils/pagination.util'
 @Injectable()
 export class OrdersRepository {
   constructor(
-    private readonly dataSource: DataSource,
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
   ) {}
 
-  async findAllOrders(query: FindOrdersDto, manager?: EntityManager) {
-    const repo = this.repo(manager)
+  async findAllOrders(query: FindOrdersDto) {
     const where: FindOptionsWhere<Order> = {}
     if (query.status) where.status = query.status
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
     const relations = ['orderItems', 'orderItems.product']
-    const result = await paginate(repo, query, { where, relations })
+    const result = await paginate(this.orderRepository, query, { where, relations })
     return { orders: result.items, meta: result.meta }
   }
 
-  async findAllUserOrders(userId: number, query: FindOrdersDto, manager?: EntityManager) {
-    const repo = this.repo(manager)
+  async findAllUserOrders(userId: number, query: FindOrdersDto) {
     const where: FindOptionsWhere<Order> = { userId }
     if (query.status) where.status = query.status
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
     const relations = ['orderItems', 'orderItems.product']
-    const result = await paginate(repo, query, { where, relations })
+    const result = await paginate(this.orderRepository, query, { where, relations })
     return { orders: result.items, meta: result.meta }
   }
 
-  async findOrderByIdForAdmin(orderId: number, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.findOne({
+  async findOrderById(orderId: number) {
+    return await this.orderRepository.findOne({
       where: { id: orderId },
       relations: ['orderItems', 'orderItems.product'],
     })
   }
 
-  async findOrderById(orderId: number, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.findOne({
-      where: { id: orderId, isDeleted: false },
-      relations: ['orderItems', 'orderItems.product'],
-    })
+  async createOrder(data: Partial<Order>) {
+    return await this.orderRepository.save(this.orderRepository.create(data))
   }
 
-  async createOrder(data: Partial<Order>, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.save(repo.create(data))
+  async createOrderItems(orderItems: Partial<OrderItem>[]) {
+    return await this.orderItemRepository.insert(orderItems)
   }
 
-  async createOrderItems(orderItems: Partial<OrderItem>[], manager?: EntityManager) {
-    const repo = this.itemRepo(manager)
-    return await repo.insert(orderItems)
-  }
-
-  async updateOrder(orderId: number, data: Partial<Order>, manager?: EntityManager) {
-    const repo = this.repo(manager)
-    return await repo.update({ id: orderId }, data)
-  }
-
-  async transaction<T>(work: (manager: EntityManager) => Promise<T>) {
-    return await this.dataSource.transaction(work)
-  }
-
-  private repo(manager?: EntityManager) {
-    return manager ? manager.getRepository(Order) : this.orderRepository
-  }
-
-  private itemRepo(manager?: EntityManager) {
-    return manager ? manager.getRepository(OrderItem) : this.orderItemRepository
+  async updateOrder(orderId: number, data: Partial<Order>) {
+    return await this.orderRepository.update({ id: orderId }, data)
   }
 }

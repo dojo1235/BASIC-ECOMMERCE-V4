@@ -1,3 +1,5 @@
+import 'reflect-metadata'
+import { initializeTransactionalContext, StorageDriver } from 'typeorm-transactional'
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common'
 import { NestFactory, Reflector, HttpAdapterHost } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
@@ -5,6 +7,8 @@ import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 
 async function bootstrap() {
+  initializeTransactionalContext({ storageDriver: StorageDriver.AUTO })
+
   const app = await NestFactory.create(AppModule)
   app.enableCors()
   app.setGlobalPrefix('api')
