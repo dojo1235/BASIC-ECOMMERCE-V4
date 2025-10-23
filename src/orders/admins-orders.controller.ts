@@ -10,6 +10,7 @@ import { UserIdParamDto } from '../common/dto/user-id-param.dto'
 import { OrderIdParamDto } from '../common/dto/order-id-param.dto'
 import { OrderResponseDto } from './dto/order-response.dto'
 import { OrdersListResponseDto } from './dto/orders-list-response.dto'
+import { plainToInstance } from 'class-transformer'
 
 @ApiBearerAuth()
 @Controller('admins/orders')
@@ -19,10 +20,14 @@ export class AdminsOrdersController {
   @Get()
   @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Fetch all orders' })
-  @ApiOkResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
+  @ApiOkResponse({
+    description: 'Orders fetched successfully',
+    type: OrdersListResponseDto,
+  })
   async findAll(@Query() query: FindOrdersDto) {
+    const result = await this.ordersService.findAllOrders(query)
     return {
-      data: await this.ordersService.findAllOrders(query),
+      data: plainToInstance(OrdersListResponseDto, result),
       message: 'Orders fetched successfully',
     }
   }
@@ -30,10 +35,14 @@ export class AdminsOrdersController {
   @Get('users/:userId')
   @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Fetch all orders for a specific user' })
-  @ApiOkResponse({ description: 'User orders fetched successfully', type: OrdersListResponseDto })
+  @ApiOkResponse({
+    description: 'User orders fetched successfully',
+    type: OrdersListResponseDto,
+  })
   async findUserOrdersForAdmin(@Param() { userId }: UserIdParamDto, @Query() query: FindOrdersDto) {
+    const result = await this.ordersService.findUserOrdersForAdmin(userId, query)
     return {
-      data: await this.ordersService.findUserOrdersForAdmin(userId, query),
+      data: plainToInstance(OrdersListResponseDto, result),
       message: 'User orders fetched successfully',
     }
   }
@@ -41,10 +50,14 @@ export class AdminsOrdersController {
   @Get(':orderId')
   @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Fetch a single order' })
-  @ApiOkResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
+  @ApiOkResponse({
+    description: 'Order fetched successfully',
+    type: OrderResponseDto,
+  })
   async findOneForAdmin(@Param() { orderId }: OrderIdParamDto) {
+    const result = await this.ordersService.findOneForAdmin(orderId)
     return {
-      data: await this.ordersService.findOneForAdmin(orderId),
+      data: plainToInstance(OrderResponseDto, result),
       message: 'Order fetched successfully',
     }
   }
@@ -52,18 +65,22 @@ export class AdminsOrdersController {
   @Patch(':orderId/status')
   @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Update order status' })
-  @ApiOkResponse({ description: 'Order status updated successfully', type: OrderResponseDto })
+  @ApiOkResponse({
+    description: 'Order status updated successfully',
+    type: OrderResponseDto,
+  })
   async updateStatus(
     @Param() { orderId }: OrderIdParamDto,
     @Body() { status }: UpdateOrderStatusDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
+    const result = await this.ordersService.updateOrder(orderId, {
+      status,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
     return {
-      data: await this.ordersService.updateOrder(orderId, {
-        status,
-        updatedById: user.id,
-        updatedAt: new Date(),
-      }),
+      data: plainToInstance(OrderResponseDto, result),
       message: 'Order status updated successfully',
     }
   }
@@ -71,14 +88,18 @@ export class AdminsOrdersController {
   @Patch(':orderId/restore')
   @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Restore order' })
-  @ApiOkResponse({ description: 'Order restored successfully', type: OrderResponseDto })
+  @ApiOkResponse({
+    description: 'Order restored successfully',
+    type: OrderResponseDto,
+  })
   async restore(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
+    const result = await this.ordersService.updateOrder(orderId, {
+      isDeleted: false,
+      restoredById: user.id,
+      restoredAt: new Date(),
+    })
     return {
-      data: await this.ordersService.updateOrder(orderId, {
-        isDeleted: false,
-        restoredById: user.id,
-        restoredAt: new Date(),
-      }),
+      data: plainToInstance(OrderResponseDto, result),
       message: 'Order restored successfully',
     }
   }
@@ -86,14 +107,18 @@ export class AdminsOrdersController {
   @Delete(':orderId')
   @Auth(Role.OrderManager)
   @ApiOperation({ summary: 'Soft-delete order' })
-  @ApiOkResponse({ description: 'Order deleted successfully', type: OrderResponseDto })
+  @ApiOkResponse({
+    description: 'Order deleted successfully',
+    type: OrderResponseDto,
+  })
   async remove(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
+    const result = await this.ordersService.updateOrder(orderId, {
+      isDeleted: true,
+      deletedById: user.id,
+      deletedAt: new Date(),
+    })
     return {
-      data: await this.ordersService.updateOrder(orderId, {
-        isDeleted: true,
-        deletedById: user.id,
-        deletedAt: new Date(),
-      }),
+      data: plainToInstance(OrderResponseDto, result),
       message: 'Order deleted successfully',
     }
   }
