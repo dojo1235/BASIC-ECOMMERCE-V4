@@ -5,6 +5,8 @@ import { ProductsRepository } from 'src/products/products.repository'
 import { CartRepository } from 'src/cart/cart.repository'
 import { FindOrdersDto } from './dto/find-orders.dto'
 import { OrderStatus } from './entities/order.entity'
+import { Cart } from 'src/cart/entities/cart.entity'
+import { Product } from 'src/products/entities/product.entity'
 import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 @Injectable()
@@ -15,22 +17,12 @@ export class OrdersService {
     private readonly cartRepository: CartRepository,
   ) {}
 
-  // Place order (transactional)
+  // Place order (user)
   @Transactional()
   async placeOrder(userId: number, data: { contact: string; shippingAddress: string }) {
     const userCart = await this.cartRepository.findCart(userId)
     if (!userCart.length) throw new AppError(ErrorCode.INVALID_STATE, 'Cart is empty')
-    let total = 0
-    for (const item of userCart) {
-      const product = item.product
-      if (!product || product.isDeleted)
-        throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
-      if (item.quantity > product.stock)
-        throw new AppError(ErrorCode.INVALID_STATE, `Insufficient stock for ${product.name}`)
-      total += Number(product.price) * item.quantity
-    }
-    const shippingFee = total > 200 ? 0 : 50
-    total = Number((total + shippingFee).toFixed(2))
+    const { total, shippingFee } = this.getTotal(userCart)
     const createdOrder = await this.ordersRepository.createOrder({
       userId,
       total,
@@ -47,9 +39,9 @@ export class OrdersService {
       })),
     )
     for (const item of userCart) {
-      const product = item.product as any // will be typed later
+      const product = item.product as Partial<Product>
       await this.productsRepository.updateProduct(item.productId, {
-        stock: product.stock - item.quantity,
+        stock: (product.stock ?? 0) - item.quantity,
       })
     }
     await this.cartRepository.clearCart(userId)
@@ -123,5 +115,26 @@ export class OrdersService {
     })
     const updated = await this.ordersRepository.findOrderById(orderId)
     return { order: updated }
+  }
+
+  // Helper to calculate total and shipping fee
+  private getTotal(userCart: Cart[]): { total: number; shippingFee: number } {
+    let total = 0
+    for (const item of userCart) {
+      const product = item.product as Partial<Product>
+      if (!product || product.isDeleted)
+        throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+      const stock = product.stock ?? 0
+      const price = Number(product.price ?? 0)
+      if (item.quantity > stock)
+        throw new AppError(
+          ErrorCode.INVALID_STATE,
+          `Insufficient stock for ${product.name ?? 'product'}`,
+        )
+      total += price * item.quantity
+    }
+    const shippingFee = total > 200 ? 0 : 50
+    total = Number((total + shippingFee).toFixed(2))
+    return { total, shippingFee }
   }
 }
