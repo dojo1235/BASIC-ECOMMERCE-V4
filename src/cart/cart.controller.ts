@@ -47,12 +47,23 @@ export class CartController {
 
   @Get('count')
   @Auth()
-  @ApiOperation({ summary: 'Get total cart item count' })
+  @ApiOperation({ summary: 'Get cart items count' })
   @ApiOkResponse({ description: 'Cart items counted successfully' })
   async getCartCount(@CurrentUser() user: CurrentUserPayload) {
     return {
       data: await this.cartService.countUserCartItems(user.id),
       message: 'Cart items counted successfully',
+    }
+  }
+
+  @Get('total')
+  @Auth()
+  @ApiOperation({ summary: 'Get the total price of all items in cart' })
+  @ApiOkResponse({ description: 'Cart total fetched successfully' })
+  async getCartTotal(@CurrentUser() user: CurrentUserPayload) {
+    return {
+      data: await this.cartService.getTotal(user.id),
+      message: 'Cart total fetched successfully',
     }
   }
 

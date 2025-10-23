@@ -44,9 +44,14 @@ export class CartService {
   // Count total items in cart (user)
   async countUserCartItems(userId: number) {
     const count = await this.cartRepository.countCartItems(userId)
+    return { count }
+  }
+
+  // Get total price of all items in cart
+  async getTotal(userId: number) {
     const cart = await this.cartRepository.findCart(userId)
     const total = cart.reduce((sum, item) => sum + item.quantity * (item.product?.price ?? 0), 0)
-    return { count, total: total.toFixed(2) }
+    return { total: total.toFixed(2) }
   }
 
   // Update quantity of an existing cart item (user)
