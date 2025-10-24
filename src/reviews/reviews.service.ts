@@ -24,11 +24,15 @@ export class ReviewsService {
 
   // Find all product reviews (admin)
   async findProductReviewsForAdmin(productId: number, query: FindReviewsDto) {
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
     return await this.reviewsRepository.findProductReviews(productId, query)
   }
 
   // Find all product reviews (user)
   async findProductReviews(productId: number, query: FindReviewsDto) {
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
     query.isVisible = true
     return await this.reviewsRepository.findProductReviews(productId, query)
   }
@@ -42,6 +46,8 @@ export class ReviewsService {
 
   // Find single user review (user)
   async findUserReview(productId: number, userId: number) {
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
     const review = await this.reviewsRepository.findOneReview(userId, productId)
     if (!review) throw new AppError(ErrorCode.NOT_FOUND, 'Review not found')
     return { review }
@@ -58,6 +64,8 @@ export class ReviewsService {
 
   // Update user review (user)
   async updateReview(userId: number, productId: number, rating: number, comment: string) {
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
     const existing = await this.reviewsRepository.findOneReview(userId, productId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Review not found')
     await this.reviewsRepository.updateReview(existing.id, {

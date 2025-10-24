@@ -1,11 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ReviewResponseDto } from './review-response.dto'
+import { Review } from '../entities/review.entity'
 import { MetaResponseDto } from 'src/common/dto/meta-response.dto'
 
-export class ReviewsListResponseDto {
-  @ApiProperty({ description: 'List of product reviews', type: [ReviewResponseDto] })
-  reviews: ReviewResponseDto[]
+export class ReviewListWrapperDto {
+  @ApiProperty({ description: 'List of reviews for the product', type: [Review] })
+  reviews: Review[]
 
   @ApiProperty({ description: 'Pagination metadata', type: MetaResponseDto })
   meta: MetaResponseDto
+}
+
+export class ReviewsListResponseDto {
+  @ApiProperty({ description: 'Review list response data', type: () => ReviewListWrapperDto })
+  data: ReviewListWrapperDto
+
+  @ApiProperty({ description: 'Review list response message' })
+  message: string
 }

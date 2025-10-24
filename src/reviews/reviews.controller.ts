@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Patch, Param, Body, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { ReviewsService } from './reviews.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { ReviewDto } from './dto/review.dto'
@@ -8,8 +8,8 @@ import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
 import { FindReviewsDto } from './dto/find-reviews.dto'
 import { ReviewResponseDto } from './dto/review-response.dto'
 import { ReviewsListResponseDto } from './dto/reviews-list-response.dto'
+import { plainToInstance } from 'class-transformer'
 
-@ApiBearerAuth()
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
@@ -23,10 +23,10 @@ export class ReviewsController {
     @Body() { rating, comment }: ReviewDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return {
+    return plainToInstance(ReviewResponseDto, {
       data: await this.reviewsService.createReview(user.id, productId, rating, comment),
       message: 'Review created successfully',
-    }
+    })
   }
 
   @Get('products/:productId')
@@ -36,10 +36,10 @@ export class ReviewsController {
     type: ReviewsListResponseDto,
   })
   async findMany(@Param() { productId }: ProductIdParamDto, @Query() query: FindReviewsDto) {
-    return {
+    return plainToInstance(ReviewsListResponseDto, {
       data: await this.reviewsService.findProductReviews(productId, query),
       message: 'Product reviews fetched successfully',
-    }
+    })
   }
 
   @Get('products/:productId/me')
@@ -50,10 +50,10 @@ export class ReviewsController {
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return {
+    return plainToInstance(ReviewResponseDto, {
       data: await this.reviewsService.findUserReview(productId, user.id),
       message: 'Review fetched successfully',
-    }
+    })
   }
 
   @Patch('products/:productId')
@@ -65,9 +65,9 @@ export class ReviewsController {
     @Body() { rating, comment }: ReviewDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return {
+    return plainToInstance(ReviewResponseDto, {
       data: await this.reviewsService.updateReview(user.id, productId, rating, comment),
       message: 'Review updated successfully',
-    }
+    })
   }
 }

@@ -1,5 +1,5 @@
-import { Controller, Get, Patch, Param, Body, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { Controller, Get, Patch, Param, Query } from '@nestjs/common'
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { ReviewsService } from './reviews.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { Role } from 'src/users/entities/user.entity'
@@ -9,35 +9,35 @@ import { FindReviewsDto } from './dto/find-reviews.dto'
 import { ReviewResponseDto } from './dto/review-response.dto'
 import { ReviewsListResponseDto } from './dto/reviews-list-response.dto'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { plainToInstance } from 'class-transformer'
 
-@ApiBearerAuth()
 @Controller('admins/reviews')
 export class AdminsReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
   @Get('products/:productId')
-  @Auth(Role.ProductManager)
+  @Auth(Role.ViewOnlyAdmin)
   @ApiOperation({ summary: 'Fetch all reviews for a product' })
   @ApiOkResponse({
     description: 'Product reviews fetched successfully',
     type: ReviewsListResponseDto,
   })
   async findMany(@Param() { productId }: ProductIdParamDto, @Query() query: FindReviewsDto) {
-    return {
+    return plainToInstance(ReviewsListResponseDto, {
       data: await this.reviewsService.findProductReviewsForAdmin(productId, query),
       message: 'Product reviews fetched successfully',
-    }
+    })
   }
 
   @Get(':reviewId')
-  @Auth(Role.ProductManager)
+  @Auth(Role.ViewOnlyAdmin)
   @ApiOperation({ summary: 'Fetch a single review' })
   @ApiOkResponse({ description: 'Review fetched successfully', type: ReviewResponseDto })
   async findOne(@Param() { reviewId }: ReviewIdParamDto) {
-    return {
+    return plainToInstance(ReviewResponseDto, {
       data: await this.reviewsService.findOneForAdmin(reviewId),
       message: 'Review fetched successfully',
-    }
+    })
   }
 
   @Patch(':reviewId/hide')
@@ -45,14 +45,14 @@ export class AdminsReviewsController {
   @ApiOperation({ summary: 'Hide a review' })
   @ApiOkResponse({ description: 'Review hidden successfully', type: ReviewResponseDto })
   async hide(@Param() { reviewId }: ReviewIdParamDto, @CurrentUser() user: CurrentUserPayload) {
-    return {
+    return plainToInstance(ReviewResponseDto, {
       data: await this.reviewsService.updateReviewForAdmin(reviewId, {
         isVisible: false,
         hiddenById: user.id,
         hiddenAt: new Date(),
       }),
       message: 'Review hidden successfully',
-    }
+    })
   }
 
   @Patch(':reviewId/restore')
@@ -60,13 +60,13 @@ export class AdminsReviewsController {
   @ApiOperation({ summary: 'Restore a review' })
   @ApiOkResponse({ description: 'Review restored successfully', type: ReviewResponseDto })
   async restore(@Param() { reviewId }: ReviewIdParamDto, @CurrentUser() user: CurrentUserPayload) {
-    return {
+    return plainToInstance(ReviewResponseDto, {
       data: await this.reviewsService.updateReviewForAdmin(reviewId, {
         isVisible: true,
         restoredById: user.id,
         restoredAt: new Date(),
       }),
       message: 'Review restored successfully',
-    }
+    })
   }
 }
