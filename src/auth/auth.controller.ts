@@ -6,6 +6,9 @@ import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { RegisterResponseDto } from './dto/register-response.dto'
+import { LoginResponseDto } from './dto/login-response.dto'
+import { TokensResponseDto } from './dto/tokens-response.dto'
+import { plainToInstance } from 'class-transformer'
 
 @Controller('auth')
 export class AuthController {
@@ -15,31 +18,31 @@ export class AuthController {
   @ApiOperation({ summary: 'Register user' })
   @ApiCreatedResponse({ description: 'Registration successful', type: RegisterResponseDto })
   async register(@Body() registerDto: RegisterDto) {
-    return {
+    return plainToInstance(RegisterResponseDto, {
       data: await this.authService.register(registerDto),
       message: 'Registration successful',
-    }
+    })
   }
 
   @Throttle({ short: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
-  @ApiOkResponse({ description: 'Login successful' })
+  @ApiOkResponse({ description: 'Login successful', type: LoginResponseDto })
   async login(@Body() loginDto: LoginDto) {
-    return {
+    return plainToInstance(LoginResponseDto, {
       data: await this.authService.login(loginDto),
       message: 'Login successful',
-    }
+    })
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh token' })
-  @ApiOkResponse({ description: 'Token refreshed successfully' })
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+  @ApiOkResponse({ description: 'Token refreshed successfully', type: TokensResponseDto })
+  async refresh(@Body() { refreshToken }: RefreshTokenDto) {
     return {
-      data: await this.authService.refreshToken(refreshTokenDto.refreshToken),
+      data: await this.authService.refreshToken(refreshToken),
       message: 'Token refreshed successfully',
     }
   }
@@ -47,10 +50,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
-  @ApiOkResponse({ description: 'Logout successful' })
-  async logout(@Body() refreshTokenDto: RefreshTokenDto) {
+  @ApiOkResponse({ description: 'Logout successful', type: TokensResponseDto })
+  async logout(@Body() { refreshToken }: RefreshTokenDto) {
     return {
-      data: await this.authService.logout(refreshTokenDto.refreshToken),
+      data: await this.authService.logout(refreshToken),
       message: 'Logout successful',
     }
   }
@@ -58,10 +61,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('logout-all')
   @ApiOperation({ summary: 'Logout from all devices' })
-  @ApiOkResponse({ description: 'Logout from all devices' })
-  async logoutAll(@Body() refreshTokenDto: RefreshTokenDto) {
+  @ApiOkResponse({ description: 'Logout from all devices', type: TokensResponseDto })
+  async logoutAll(@Body() { refreshToken }: RefreshTokenDto) {
     return {
-      data: await this.authService.logoutAll(refreshTokenDto.refreshToken),
+      data: await this.authService.logoutAll(refreshToken),
       message: 'Logged out from all devices successfully',
     }
   }
