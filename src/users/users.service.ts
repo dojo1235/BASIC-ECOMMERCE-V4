@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { plainToInstance } from 'class-transformer'
 import { User } from './entities/user.entity'
 import { AuthRepository } from '../auth/auth.repository'
 import { UsersRepository } from './users.repository'
@@ -25,41 +24,39 @@ export class UsersService {
       throw new AppError(ErrorCode.INVALID_STATE, 'Creating user not allowed')
     const existing = await this.usersRepository.findUserByEmail(data.email)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
-    const hashedPassword = await hash(password)
+    const passwordHash = await hash(password)
     const created = await this.usersRepository.createUser({
       ...data,
-      passwordHash: hashedPassword,
+      passwordHash,
       createdById: superAdminId,
     })
-    return { user: plainToInstance(User, created) }
+    return { user: created }
   }
 
   // Find all admins
   async findAllAdmins(query: FindUsersDto) {
     if (query.role && query.role === Role.User)
       throw new AppError(ErrorCode.INVALID_STATE, 'Role is not an admin')
-    const { users, meta } = await this.usersRepository.findAllAdmins(query)
-    return { users: plainToInstance(User, users), meta }
+    return await this.usersRepository.findAllAdmins(query)
   }
 
   // Find all users
   async findAllUsers(query: FindUsersDto) {
-    const { users, meta } = await this.usersRepository.findAllUsers(query)
-    return { users: plainToInstance(User, users), meta }
+    return await this.usersRepository.findAllUsers(query)
   }
 
   // Find one admin
   async findOneAdmin(userId: number) {
     const admin = await this.usersRepository.findUserById(userId)
     this.ensureIsAdmin(admin)
-    return { user: plainToInstance(User, admin) }
+    return { user: admin }
   }
 
   // Find one user
   async findOneUser(userId: number) {
     const user = await this.usersRepository.findUserById(userId)
     this.ensureIsUser(user)
-    return { user: plainToInstance(User, user) }
+    return { user }
   }
 
   // Update admin (super admin)
@@ -74,7 +71,7 @@ export class UsersService {
     if (password) updatedData.passwordHash = await hash(password)
     await this.usersRepository.updateUser(userId, updatedData)
     const updated = await this.usersRepository.findUserById(userId)
-    return { user: plainToInstance(User, updated) }
+    return { user: updated }
   }
 
   // Update admin (admin)
@@ -88,7 +85,7 @@ export class UsersService {
     }
     await this.usersRepository.updateUser(userId, data)
     const updated = await this.usersRepository.findUserById(userId)
-    return { user: plainToInstance(User, updated) }
+    return { user: updated }
   }
 
   // Update user (admin)
@@ -103,7 +100,7 @@ export class UsersService {
     if (password) updatedData.passwordHash = await hash(password)
     await this.usersRepository.updateUser(userId, updatedData)
     const updated = await this.usersRepository.findUserById(userId)
-    return { user: plainToInstance(User, updated) }
+    return { user: updated }
   }
 
   // Update user (user)
@@ -117,7 +114,7 @@ export class UsersService {
     }
     await this.usersRepository.updateUser(userId, data)
     const updated = await this.usersRepository.findUserById(userId)
-    return { user: plainToInstance(User, updated) }
+    return { user: updated }
   }
 
   // Update password
@@ -128,9 +125,9 @@ export class UsersService {
     if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
     const isValid = await compare(oldPassword, user.passwordHash)
     if (!isValid) throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Old password is incorrect')
-    const newHashed = await hash(newPassword)
+    const passwordHash = await hash(newPassword)
     await this.usersRepository.updateUser(userId, {
-      passwordHash: newHashed,
+      passwordHash,
       updatedAt: new Date(),
     })
   }
