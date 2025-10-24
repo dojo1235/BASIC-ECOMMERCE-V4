@@ -22,11 +22,10 @@ export class OrdersController {
     type: OrderResponseDto,
   })
   async placeOrder(@Body() data: PlaceOrderDto, @CurrentUser() user: CurrentUserPayload) {
-    const result = await this.ordersService.placeOrder(user.id, data)
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.placeOrder(user.id, data),
       message: 'Order placed successfully',
-    }
+    })
   }
 
   @Get()
@@ -36,11 +35,10 @@ export class OrdersController {
     type: OrdersListResponseDto,
   })
   async findMyOrders(@Query() query: FindOrdersDto, @CurrentUser() user: CurrentUserPayload) {
-    const result = await this.ordersService.findUserOrders(user.id, query)
-    return {
-      data: plainToInstance(OrdersListResponseDto, result),
+    return plainToInstance(OrdersListResponseDto, {
+      data: await this.ordersService.findUserOrders(user.id, query),
       message: 'Orders fetched successfully',
-    }
+    })
   }
 
   @Get(':orderId')
@@ -53,11 +51,10 @@ export class OrdersController {
     @Param() { orderId }: OrderIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const result = await this.ordersService.findOne(user.id, orderId)
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.findOne(user.id, orderId),
       message: 'Order fetched successfully',
-    }
+    })
   }
 
   @Patch(':orderId/cancel')
@@ -70,10 +67,9 @@ export class OrdersController {
     @Param() { orderId }: OrderIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const result = await this.ordersService.cancelOrder(user.id, orderId)
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.cancelOrder(user.id, orderId),
       message: 'Order cancelled successfully',
-    }
+    })
   }
 }

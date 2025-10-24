@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import 'dotenv/config'
 import { DataSource } from 'typeorm'
 import { User } from './src/users/entities/user.entity'
@@ -28,11 +29,13 @@ const main = async () => {
     }
 
     // CREATE
-    const inserted = await usersRepo.save(usersRepo.create({
-      name: 'Alice',
-      email: 'alice@example.com',
-      passwordHash: 'secret123',
-    }))
+    const inserted = await usersRepo.save(
+      usersRepo.create({
+        name: 'Alice',
+        email: 'alice@example.com',
+        passwordHash: 'secret123',
+      }),
+    )
     console.log('Inserted user:', inserted)
 
     // FIND
@@ -47,7 +50,6 @@ const main = async () => {
     // DELETE
     const deleted = await usersRepo.delete(found.id)
     console.log('Deleted user:', deleted)
-
   } catch (err) {
     console.error('Error during CRUD test:', err)
   } finally {

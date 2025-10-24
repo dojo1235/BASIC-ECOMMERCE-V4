@@ -24,11 +24,10 @@ export class AdminsOrdersController {
     type: OrdersListResponseDto,
   })
   async findAll(@Query() query: FindOrdersDto) {
-    const result = await this.ordersService.findAllOrders(query)
-    return {
-      data: plainToInstance(OrdersListResponseDto, result),
+    return plainToInstance(OrdersListResponseDto, {
+      data: await this.ordersService.findAllOrders(query),
       message: 'Orders fetched successfully',
-    }
+    })
   }
 
   @Get('users/:userId')
@@ -38,11 +37,10 @@ export class AdminsOrdersController {
     type: OrdersListResponseDto,
   })
   async findUserOrdersForAdmin(@Param() { userId }: UserIdParamDto, @Query() query: FindOrdersDto) {
-    const result = await this.ordersService.findUserOrdersForAdmin(userId, query)
-    return {
-      data: plainToInstance(OrdersListResponseDto, result),
+    return plainToInstance(OrdersListResponseDto, {
+      data: await this.ordersService.findUserOrdersForAdmin(userId, query),
       message: 'User orders fetched successfully',
-    }
+    })
   }
 
   @Get(':orderId')
@@ -52,11 +50,10 @@ export class AdminsOrdersController {
     type: OrderResponseDto,
   })
   async findOneForAdmin(@Param() { orderId }: OrderIdParamDto) {
-    const result = await this.ordersService.findOneForAdmin(orderId)
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.findOneForAdmin(orderId),
       message: 'Order fetched successfully',
-    }
+    })
   }
 
   @Patch(':orderId/status')
@@ -70,15 +67,14 @@ export class AdminsOrdersController {
     @Body() { status }: UpdateOrderStatusDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    const result = await this.ordersService.updateOrder(orderId, {
-      status,
-      updatedById: user.id,
-      updatedAt: new Date(),
-    })
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.updateOrder(orderId, {
+        status,
+        updatedById: user.id,
+        updatedAt: new Date(),
+      }),
       message: 'Order status updated successfully',
-    }
+    })
   }
 
   @Patch(':orderId/restore')
@@ -88,15 +84,14 @@ export class AdminsOrdersController {
     type: OrderResponseDto,
   })
   async restore(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
-    const result = await this.ordersService.updateOrder(orderId, {
-      isDeleted: false,
-      restoredById: user.id,
-      restoredAt: new Date(),
-    })
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.updateOrder(orderId, {
+        isDeleted: false,
+        restoredById: user.id,
+        restoredAt: new Date(),
+      }),
       message: 'Order restored successfully',
-    }
+    })
   }
 
   @Delete(':orderId')
@@ -106,14 +101,13 @@ export class AdminsOrdersController {
     type: OrderResponseDto,
   })
   async remove(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
-    const result = await this.ordersService.updateOrder(orderId, {
-      isDeleted: true,
-      deletedById: user.id,
-      deletedAt: new Date(),
-    })
-    return {
-      data: plainToInstance(OrderResponseDto, result),
+    return plainToInstance(OrderResponseDto, {
+      data: await this.ordersService.updateOrder(orderId, {
+        isDeleted: true,
+        deletedById: user.id,
+        deletedAt: new Date(),
+      }),
       message: 'Order deleted successfully',
-    }
+    })
   }
 }

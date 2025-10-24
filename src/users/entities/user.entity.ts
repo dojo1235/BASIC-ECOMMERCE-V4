@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm'
+import { ApiProperty } from '@nestjs/swagger'
 
 export enum Role {
   SuperAdmin = 'superAdmin',
@@ -20,12 +21,15 @@ export enum Role {
 
 @Entity()
 export class User {
+  @ApiProperty({ description: 'Unique identifier for the user' })
   @PrimaryGeneratedColumn()
   id: number
 
+  @ApiProperty({ description: 'Full name of the user' })
   @Column({ type: 'varchar', length: 50 })
   name: string
 
+  @ApiProperty({ description: 'Email address of the user' })
   @Column({ type: 'varchar', length: 100, unique: true })
   email: string
 
@@ -33,65 +37,79 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   passwordHash: string
 
+  @ApiProperty({ description: 'Role of the user', enum: Role })
   @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role
 
+  @ApiProperty({ description: 'Indicates if the user is banned' })
   @Column({ type: 'tinyint', default: 0 })
   isBanned: boolean
 
+  @ApiProperty({ description: 'Indicates if the user is soft-deleted' })
   @Column({ type: 'tinyint', default: 0 })
   isDeleted: boolean
 
+  @ApiProperty({ description: 'Timestamp of last login', type: Date })
   @Column({ type: 'timestamp', nullable: true })
   lastLogin: Date | null
 
-  @Column({ nullable: true })
+  @ApiProperty({ description: 'ID of the user who created this user', type: Number })
+  @Column({ type: 'int', nullable: true })
   createdById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  createdBy: User
+  createdBy: User | null
 
+  @ApiProperty({ description: 'Timestamp when the user was created' })
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @Column({ nullable: true })
+  @ApiProperty({ description: 'ID of the user who last updated this user', type: Number })
+  @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  updatedBy: User
+  updatedBy: User | null
 
+  @ApiProperty({ description: 'Timestamp when the user was last updated', type: Date })
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
-  @Column({ nullable: true })
+  @ApiProperty({ description: 'ID of the user who banned this user', type: Number })
+  @Column({ type: 'int', nullable: true })
   bannedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  bannedBy: User
+  bannedBy: User | null
 
+  @ApiProperty({ description: 'Timestamp when the user was banned', type: Date })
   @Column({ type: 'timestamp', nullable: true })
   bannedAt: Date | null
 
-  @Column({ nullable: true })
+  @ApiProperty({ description: 'ID of the user who deleted this user', type: Number })
+  @Column({ type: 'int', nullable: true })
   deletedById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  deletedBy: User
+  deletedBy: User | null
 
+  @ApiProperty({ description: 'Timestamp when the user was deleted', type: Date })
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
 
-  @Column({ nullable: true })
+  @ApiProperty({ description: 'ID of the user who restored this user', type: Number })
+  @Column({ type: 'int', nullable: true })
   restoredById: number | null
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  restoredBy: User
+  restoredBy: User | null
 
+  @ApiProperty({ description: 'Timestamp when the user was restored', type: Date })
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
 }
