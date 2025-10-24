@@ -1,45 +1,43 @@
 import { Controller, Get, Patch, Delete, Body } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UserResponseDto } from './dto/user-response.dto'
+import { plainToInstance } from 'class-transformer'
 
-@ApiBearerAuth()
+@Auth()
 @Controller('users/me')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Auth()
   @ApiOperation({ summary: 'Fetch user profile' })
   @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
   async findOne(@CurrentUser() user: CurrentUserPayload) {
-    return {
+    return plainToInstance(UserResponseDto, {
       data: await this.usersService.findOneUser(user.id),
       message: 'Profile fetched successfully',
-    }
+    })
   }
 
   @Patch()
-  @Auth()
   @ApiOperation({ summary: 'Update user profile' })
   @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
   async update(@Body() dto: UpdateUserDto, @CurrentUser() user: CurrentUserPayload) {
-    return {
+    return plainToInstance(UserResponseDto, {
       data: await this.usersService.updateUser(user.id, {
         ...dto,
         updatedById: user.id,
         updatedAt: new Date(),
       }),
       message: 'Profile updated successfully',
-    }
+    })
   }
 
   @Patch('password')
-  @Auth()
   @ApiOperation({ summary: 'Update user password' })
   @ApiOkResponse({ description: 'Password updated successfully' })
   async updatePassword(
@@ -53,17 +51,16 @@ export class UsersController {
   }
 
   @Delete()
-  @Auth()
   @ApiOperation({ summary: 'Soft-delete user account' })
   @ApiOkResponse({ description: 'Account deleted successfully', type: UserResponseDto })
   async remove(@CurrentUser() user: CurrentUserPayload) {
-    return {
+    return plainToInstance(UserResponseDto, {
       data: await this.usersService.updateUser(user.id, {
         isDeleted: true,
         deletedById: user.id,
         deletedAt: new Date(),
       }),
       message: 'Account deleted successfully',
-    }
+    })
   }
 }
