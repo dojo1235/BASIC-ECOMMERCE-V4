@@ -45,8 +45,9 @@ export class AuthService {
     if (!isValid) throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials')
     const lastLogin = new Date()
     await this.usersRepository.updateUser(user.id, { lastLogin })
+    const updated = await this.usersRepository.findUserByEmail(data.email)
     const tokens = await this.generateTokens(user.id, user.role)
-    return { user: { ...user, lastLogin }, tokens }
+    return { user: updated, tokens }
   }
 
   async refreshToken(refreshToken: string) {
@@ -58,7 +59,6 @@ export class AuthService {
       revoked: true,
       revokedAt: new Date(),
     })
-
     const user = await this.usersRepository.findUserById(payload.sub)
     if (!user || user.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
     if (user.isBanned) throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Account banned')
