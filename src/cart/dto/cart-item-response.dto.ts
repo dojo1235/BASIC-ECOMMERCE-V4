@@ -1,28 +1,29 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { ProductResponseDto } from 'src/products/dto/product-response.dto'
+import { Product } from 'src/products/entities/product.entity'
+import { Cart } from '../entities/cart.entity'
+
+export class CartItemDataDto extends Cart {
+  @ApiProperty({
+    description: 'Product details for this cart item',
+    type: Product,
+  })
+  declare product: Product
+}
+
+export class CartItemWrapperDto {
+  @ApiProperty({ description: 'Cart item details', type: () => CartItemDataDto })
+  cartItem: CartItemDataDto
+}
 
 export class CartItemResponseDto {
-  @ApiProperty({ description: 'Unique identifier for the cart item' })
-  id: number
-
-  @ApiProperty({ description: 'ID of the user who owns this cart item' })
-  userId: number
-
-  @ApiProperty({ description: 'ID of the product added to the cart' })
-  productId: number
-
-  @ApiProperty({ description: 'Quantity of this product in the user’s cart' })
-  quantity: number
-
-  @ApiPropertyOptional({ description: 'Timestamp when the cart item was created' })
-  createdAt?: Date
-
-  @ApiPropertyOptional({ description: 'Timestamp when the cart item was last updated' })
-  updatedAt?: Date
-
-  @ApiPropertyOptional({
-    description: 'Product details associated with this cart item',
-    type: () => ProductResponseDto,
+  @ApiProperty({
+    description: 'Main response payload containing the cart item response',
+    type: () => CartItemWrapperDto,
   })
-  product?: ProductResponseDto
+  data: CartItemWrapperDto
+
+  @ApiProperty({
+    description: 'Descriptive message about the cart item operation',
+  })
+  message: string
 }

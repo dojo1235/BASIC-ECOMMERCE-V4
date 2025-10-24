@@ -1,5 +1,5 @@
 import { Controller, Post, Patch, Get, Delete, Param, Body } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
 import { CartService } from './cart.service'
 import { Auth } from '../common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
@@ -7,14 +7,14 @@ import { CartListResponseDto } from './dto/cart-list-response.dto'
 import { CartItemResponseDto } from './dto/cart-item-response.dto'
 import { QuantityDto } from './dto/quantity.dto'
 import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
+import { plainToInstance } from 'class-transformer'
 
-@ApiBearerAuth()
+@Auth()
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Post('products/:productId')
-  @Auth()
   @ApiOperation({ summary: 'Add product to cart' })
   @ApiCreatedResponse({
     description: 'Product added to cart successfully',
@@ -25,28 +25,26 @@ export class CartController {
     @Body() { quantity }: QuantityDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return {
+    return plainToInstance(CartItemResponseDto, {
       data: await this.cartService.addToCart(user.id, productId, quantity),
       message: 'Product added to cart successfully',
-    }
+    })
   }
 
   @Get()
-  @Auth()
   @ApiOperation({ summary: 'Get user cart' })
   @ApiOkResponse({
     description: 'Cart fetched successfully',
     type: CartListResponseDto,
   })
   async getUserCart(@CurrentUser() user: CurrentUserPayload) {
-    return {
+    return plainToInstance(CartListResponseDto, {
       data: await this.cartService.findUserCart(user.id),
       message: 'Cart fetched successfully',
-    }
+    })
   }
 
   @Get('count')
-  @Auth()
   @ApiOperation({ summary: 'Get cart items count' })
   @ApiOkResponse({ description: 'Cart items counted successfully' })
   async getCartCount(@CurrentUser() user: CurrentUserPayload) {
@@ -57,7 +55,6 @@ export class CartController {
   }
 
   @Get('total')
-  @Auth()
   @ApiOperation({ summary: 'Get the total price of all items in cart' })
   @ApiOkResponse({ description: 'Cart total fetched successfully' })
   async getCartTotal(@CurrentUser() user: CurrentUserPayload) {
@@ -68,7 +65,6 @@ export class CartController {
   }
 
   @Patch('products/:productId')
-  @Auth()
   @ApiOperation({ summary: 'Update cart item quantity' })
   @ApiOkResponse({
     description: 'Cart item updated successfully',
@@ -79,14 +75,13 @@ export class CartController {
     @Body() { quantity }: QuantityDto,
     @CurrentUser() user: CurrentUserPayload,
   ) {
-    return {
+    return plainToInstance(CartItemResponseDto, {
       data: await this.cartService.updateQuantity(user.id, productId, quantity),
       message: 'Cart item updated successfully',
-    }
+    })
   }
 
   @Delete('products/:productId')
-  @Auth()
   @ApiOperation({ summary: 'Remove a single product from cart' })
   @ApiOkResponse({ description: 'Product removed from cart successfully' })
   async removeFromCart(
@@ -100,7 +95,6 @@ export class CartController {
   }
 
   @Delete('clear')
-  @Auth()
   @ApiOperation({ summary: 'Clear all items in user cart' })
   @ApiOkResponse({ description: 'Cart cleared successfully' })
   async clearCart(@CurrentUser() user: CurrentUserPayload) {

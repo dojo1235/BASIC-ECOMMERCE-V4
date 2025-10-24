@@ -73,7 +73,6 @@ export class CartService {
     const existing = await this.cartRepository.findCartItem(userId, productId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Cart item not found')
     await this.cartRepository.removeFromCart(userId, productId)
-    return { cartItem: existing }
   }
 
   // Clear all items in cart (user)
