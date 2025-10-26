@@ -28,6 +28,19 @@ export class SuperAdminsController {
     })
   }
 
+  @Post(':adminId/revoke-sessions')
+  @ApiOperation({ summary: 'Log out admin from all devices' })
+  @ApiOkResponse({ description: 'All admin sessions revoked successfully' })
+  async revokeAllSessions(
+    @Param() { adminId }: AdminIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return plainToInstance(UserResponseDto, {
+      data: await this.usersService.revokeAllAdminSessions(adminId, user.id),
+      message: 'All admin sessions revoked successfully',
+    })
+  }
+
   @Get()
   @ApiOperation({ summary: 'Fetch all admins' })
   @ApiOkResponse({ description: 'Admins fetched successfully', type: UsersListResponseDto })
@@ -110,19 +123,6 @@ export class SuperAdminsController {
         restoredAt: new Date(),
       }),
       message: 'Admin restored successfully',
-    })
-  }
-
-  @Patch(':adminId/revoke-sessions')
-  @ApiOperation({ summary: 'Log out admin from all devices' })
-  @ApiOkResponse({ description: 'All admin sessions revoked successfully' })
-  async revokeAllSessions(
-    @Param() { adminId }: AdminIdParamDto,
-    @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return plainToInstance(UserResponseDto, {
-      data: await this.usersService.revokeAllAdminSessions(adminId, user.id),
-      message: 'All admin sessions revoked successfully',
     })
   }
 

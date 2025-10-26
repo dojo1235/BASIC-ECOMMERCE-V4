@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Delete, Body, Param, Query } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query } from '@nestjs/common'
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -15,6 +15,20 @@ import { plainToInstance } from 'class-transformer'
 @Controller('admins/users')
 export class AdminsUsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post(':userId/revoke-sessions')
+  @Auth(Role.UserManager)
+  @ApiOperation({ summary: 'Log out user from all devices' })
+  @ApiOkResponse({ description: 'All user sessions revoked successfully' })
+  async revokeAllSessions(
+    @Param() { userId }: UserIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ) {
+    return plainToInstance(UserResponseDto, {
+      data: await this.usersService.revokeAllUserSessions(userId, user.id),
+      message: 'All user sessions revoked successfully',
+    })
+  }
 
   @Get()
   @Auth(Role.ViewOnlyAdmin)
@@ -104,20 +118,6 @@ export class AdminsUsersController {
         restoredAt: new Date(),
       }),
       message: 'User restored successfully',
-    })
-  }
-
-  @Patch(':userId/revoke-sessions')
-  @Auth(Role.UserManager)
-  @ApiOperation({ summary: 'Revoke all user sessions' })
-  @ApiOkResponse({ description: 'All user sessions revoked successfully' })
-  async revokeAllSessions(
-    @Param() { userId }: UserIdParamDto,
-    @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return plainToInstance(UserResponseDto, {
-      data: await this.usersService.revokeAllUserSessions(userId, user.id),
-      message: 'All user sessions revoked successfully',
     })
   }
 
