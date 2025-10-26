@@ -84,7 +84,7 @@ export class OrdersService {
   async updateOrder(orderId: number, data: Record<string, any>) {
     const existing = await this.ordersRepository.findOrderById(orderId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Order not found')
-    if (data.status && existing.status === 'cancelled')
+    if (data.status && existing.status === OrderStatus.Cancelled)
       throw new AppError(ErrorCode.INVALID_STATE, 'Updating cancelled order not allowed')
     if (data.status === 'cancelled')
       throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Orders can only be cancelled by owners')
@@ -119,8 +119,7 @@ export class OrdersService {
 
   // Helper to calculate total and shipping fee
   private getTotal(userCart: Cart[]): { total: number; shippingFee: number } {
-    let total = 0
-    for (const item of userCart) {
+    let total = userCart.reduce((sum, item) => {
       const product = item.product as Partial<Product>
       if (!product || product.isDeleted)
         throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
@@ -131,8 +130,8 @@ export class OrdersService {
           ErrorCode.INVALID_STATE,
           `Insufficient stock for ${product.name ?? 'product'}`,
         )
-      total += price * item.quantity
-    }
+      return sum + price * item.quantity
+    }, 0)
     const shippingFee = total > 200 ? 0 : 50
     total = Number((total + shippingFee).toFixed(2))
     return { total, shippingFee }

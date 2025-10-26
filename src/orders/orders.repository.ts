@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, FindOptionsWhere } from 'typeorm'
-import { Order, OrderItem } from './entities/order.entity'
+import { Order } from './entities/order.entity'
+import { OrderItem } from './entities/order-item.entity'
 import { FindOrdersDto } from './dto/find-orders.dto'
 import { paginate } from 'src/common/utils/pagination.util'
 

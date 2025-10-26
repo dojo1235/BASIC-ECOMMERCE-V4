@@ -6,7 +6,8 @@ import { OrdersRepository } from './orders.repository'
 import { OrdersService } from './orders.service'
 import { AdminsOrdersController } from './admins-orders.controller'
 import { OrdersController } from './orders.controller'
-import { Order, OrderItem } from './entities/order.entity'
+import { Order } from './entities/order.entity'
+import { OrderItem } from './entities/order-item.entity'
 
 @Module({
   imports: [TypeOrmModule.forFeature([Order, OrderItem]), ProductsModule, CartModule],

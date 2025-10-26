@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Order } from '../entities/order.entity'
-import { OrderItem } from '../entities/order.entity'
+import { OrderItem } from '../entities/order-item.entity'
 import { Product } from 'src/products/entities/product.entity'
 
 export class OrderItemDataDto extends OrderItem {
@@ -31,13 +31,3 @@ export class OrderResponseDto {
   @ApiProperty({ description: 'Order response message' })
   message: string
 }
-
-/*{
-  "data": {
-    "order": {
-      ...order fields...
-      "orderItems": [ ... ]
-    }
-  },
-  "message": "Order fetched successfully"
-}*/
