@@ -10,7 +10,7 @@ export class RegisterDataDto {
   tokens: TokensDataDto
 }
 
-export class RegisterResponseDto {
+export class AuthResponseDto {
   @ApiProperty({
     description: 'Main response payload containing the register response',
     type: () => RegisterDataDto,

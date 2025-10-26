@@ -5,8 +5,7 @@ import { AuthService } from './auth.service'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
-import { RegisterResponseDto } from './dto/register-response.dto'
-import { LoginResponseDto } from './dto/login-response.dto'
+import { AuthResponseDto } from './dto/auth-response.dto'
 import { TokensResponseDto } from './dto/tokens-response.dto'
 import { plainToInstance } from 'class-transformer'
 
@@ -16,9 +15,9 @@ export class AuthController {
 
   @Post('register')
   @ApiOperation({ summary: 'Register user' })
-  @ApiCreatedResponse({ description: 'Registration successful', type: RegisterResponseDto })
+  @ApiCreatedResponse({ description: 'Registration successful', type: AuthResponseDto })
   async register(@Body() registerDto: RegisterDto) {
-    return plainToInstance(RegisterResponseDto, {
+    return plainToInstance(AuthResponseDto, {
       data: await this.authService.register(registerDto),
       message: 'Registration successful',
     })
@@ -28,9 +27,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
-  @ApiOkResponse({ description: 'Login successful', type: LoginResponseDto })
+  @ApiOkResponse({ description: 'Login successful', type: AuthResponseDto })
   async login(@Body() loginDto: LoginDto) {
-    return plainToInstance(LoginResponseDto, {
+    return plainToInstance(AuthResponseDto, {
       data: await this.authService.login(loginDto),
       message: 'Login successful',
     })

@@ -34,7 +34,7 @@ export class Wishlist {
   @JoinColumn()
   product: Product
 
-  @ApiProperty({ description: 'Timestamp when the product was added to the wishlist', type: Date })
+  @ApiProperty({ description: 'Timestamp when the product was added to the wishlist' })
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 }
