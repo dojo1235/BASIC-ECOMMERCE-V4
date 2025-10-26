@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ApiProperty } from '@nestjs/swagger'
 import { Product } from 'src/products/entities/product.entity'
 import { Cart } from '../entities/cart.entity'
 

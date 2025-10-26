@@ -15,7 +15,6 @@
   "homepage": "https://github.com/dojo1235/BASIC-ECOMMERCE-V4#readme",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -68,7 +67,7 @@
     "@types/node": "^22.10.7",
     "@types/passport-jwt": "^4.0.1",
     "@types/pluralize": "^0.0.33",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.1",
     "drizzle-kit": "^0.31.5",
     "eslint": "^9.38.0",
@@ -79,7 +78,6 @@
     "jest": "^30.0.0",
     "knip": "^5.66.0",
     "lint-staged": "^16.2.4",
-    "prettier": "^3.6.2",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
@@ -88,8 +86,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --fix",
-      "prettier --write"
+      "eslint --fix"
     ]
   },
   "jest": {

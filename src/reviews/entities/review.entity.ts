@@ -7,7 +7,6 @@ import {
   JoinColumn,
   Unique,
   Check,
-  UpdateDateColumn,
 } from 'typeorm'
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from 'src/users/entities/user.entity'
