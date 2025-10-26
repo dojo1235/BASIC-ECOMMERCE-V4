@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Patch, Body, Param, Query } from '@nestjs/common'
-import { ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
+import { Controller, Get, Post, Patch, Body, Param, Query, HttpStatus } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
@@ -7,6 +7,7 @@ import { PlaceOrderDto } from './dto/place-order.dto'
 import { FindOrdersDto } from './dto/find-orders.dto'
 import { OrderIdParamDto } from '../common/dto/order-id-param.dto'
 import { plainToInstance } from 'class-transformer'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { OrderResponseDto } from './dto/order-response.dto'
 import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 
@@ -17,9 +18,10 @@ export class OrdersController {
 
   @Post()
   @ApiOperation({ summary: 'Place new order' })
-  @ApiCreatedResponse({
+  @ApiSuccessResponse({
     description: 'Order placed successfully',
     type: OrderResponseDto,
+    status: HttpStatus.CREATED,
   })
   async placeOrder(@Body() data: PlaceOrderDto, @CurrentUser() user: CurrentUserPayload) {
     return plainToInstance(OrderResponseDto, {
@@ -30,10 +32,7 @@ export class OrdersController {
 
   @Get()
   @ApiOperation({ summary: 'Fetch all orders of the logged-in user' })
-  @ApiOkResponse({
-    description: 'Orders fetched successfully',
-    type: OrdersListResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
   async findMyOrders(@Query() query: FindOrdersDto, @CurrentUser() user: CurrentUserPayload) {
     return plainToInstance(OrdersListResponseDto, {
       data: await this.ordersService.findUserOrders(user.id, query),
@@ -43,10 +42,7 @@ export class OrdersController {
 
   @Get(':orderId')
   @ApiOperation({ summary: 'Fetch a single order of the logged-in user' })
-  @ApiOkResponse({
-    description: 'Order fetched successfully',
-    type: OrderResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
   async findMyOrder(
     @Param() { orderId }: OrderIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
@@ -59,10 +55,7 @@ export class OrdersController {
 
   @Patch(':orderId/cancel')
   @ApiOperation({ summary: 'Cancel an order of the logged-in user' })
-  @ApiOkResponse({
-    description: 'Order cancelled successfully',
-    type: OrderResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Order cancelled successfully', type: OrderResponseDto })
   async cancelOrder(
     @Param() { orderId }: OrderIdParamDto,
     @CurrentUser() user: CurrentUserPayload,

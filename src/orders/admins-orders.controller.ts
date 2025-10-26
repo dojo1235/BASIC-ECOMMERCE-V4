@@ -1,5 +1,5 @@
 import { Controller, Get, Patch, Delete, Param, Body, Query } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOperation } from '@nestjs/swagger'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { Role } from 'src/users/entities/user.entity'
@@ -8,6 +8,7 @@ import { UpdateOrderStatusDto } from './dto/update-order-status.dto'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UserIdParamDto } from '../common/dto/user-id-param.dto'
 import { OrderIdParamDto } from '../common/dto/order-id-param.dto'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { OrderResponseDto } from './dto/order-response.dto'
 import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 import { plainToInstance } from 'class-transformer'
@@ -19,10 +20,7 @@ export class AdminsOrdersController {
 
   @Get()
   @ApiOperation({ summary: 'Fetch all orders' })
-  @ApiOkResponse({
-    description: 'Orders fetched successfully',
-    type: OrdersListResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
   async findAll(@Query() query: FindOrdersDto) {
     return plainToInstance(OrdersListResponseDto, {
       data: await this.ordersService.findAllOrders(query),
@@ -32,7 +30,7 @@ export class AdminsOrdersController {
 
   @Get('users/:userId')
   @ApiOperation({ summary: 'Fetch all orders for a specific user' })
-  @ApiOkResponse({
+  @ApiSuccessResponse({
     description: 'User orders fetched successfully',
     type: OrdersListResponseDto,
   })
@@ -45,10 +43,7 @@ export class AdminsOrdersController {
 
   @Get(':orderId')
   @ApiOperation({ summary: 'Fetch a single order' })
-  @ApiOkResponse({
-    description: 'Order fetched successfully',
-    type: OrderResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
   async findOneForAdmin(@Param() { orderId }: OrderIdParamDto) {
     return plainToInstance(OrderResponseDto, {
       data: await this.ordersService.findOneForAdmin(orderId),
@@ -58,10 +53,7 @@ export class AdminsOrdersController {
 
   @Patch(':orderId/status')
   @ApiOperation({ summary: 'Update order status' })
-  @ApiOkResponse({
-    description: 'Order status updated successfully',
-    type: OrderResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Order status updated successfully', type: OrderResponseDto })
   async updateStatus(
     @Param() { orderId }: OrderIdParamDto,
     @Body() { status }: UpdateOrderStatusDto,
@@ -79,10 +71,7 @@ export class AdminsOrdersController {
 
   @Patch(':orderId/restore')
   @ApiOperation({ summary: 'Restore order' })
-  @ApiOkResponse({
-    description: 'Order restored successfully',
-    type: OrderResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Order restored successfully', type: OrderResponseDto })
   async restore(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
     return plainToInstance(OrderResponseDto, {
       data: await this.ordersService.updateOrder(orderId, {
@@ -96,10 +85,7 @@ export class AdminsOrdersController {
 
   @Delete(':orderId')
   @ApiOperation({ summary: 'Soft-delete order' })
-  @ApiOkResponse({
-    description: 'Order deleted successfully',
-    type: OrderResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Order deleted successfully', type: OrderResponseDto })
   async remove(@Param() { orderId }: OrderIdParamDto, @CurrentUser() user: CurrentUserPayload) {
     return plainToInstance(OrderResponseDto, {
       data: await this.ordersService.updateOrder(orderId, {

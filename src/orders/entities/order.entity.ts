@@ -96,6 +96,10 @@ export class Order {
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
 
+  @ApiProperty({
+    description: 'List of order items included in this order',
+    type: () => [OrderItem],
+  })
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   orderItems: OrderItem[]
 }

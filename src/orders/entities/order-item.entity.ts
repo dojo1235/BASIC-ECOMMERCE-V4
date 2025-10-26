@@ -28,6 +28,10 @@ export class OrderItem {
   @Column()
   productId: number
 
+  @ApiProperty({
+    description: 'Product details for this order item',
+    type: Product,
+  })
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn()
   product: Product
