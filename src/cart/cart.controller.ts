@@ -1,8 +1,9 @@
-import { Controller, Post, Patch, Get, Delete, Param, Body } from '@nestjs/common'
-import { ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
+import { Controller, Post, Patch, Get, Delete, Param, Body, HttpStatus } from '@nestjs/common'
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
 import { CartService } from './cart.service'
 import { Auth } from '../common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { CartListResponseDto } from './dto/cart-list-response.dto'
 import { CartItemResponseDto } from './dto/cart-item-response.dto'
 import { QuantityDto } from './dto/quantity.dto'
@@ -16,9 +17,10 @@ export class CartController {
 
   @Post('products/:productId')
   @ApiOperation({ summary: 'Add product to cart' })
-  @ApiCreatedResponse({
+  @ApiSuccessResponse({
     description: 'Product added to cart successfully',
     type: CartItemResponseDto,
+    status: HttpStatus.CREATED,
   })
   async addToCart(
     @Param() { productId }: ProductIdParamDto,
@@ -33,10 +35,7 @@ export class CartController {
 
   @Get()
   @ApiOperation({ summary: 'Get user cart' })
-  @ApiOkResponse({
-    description: 'Cart fetched successfully',
-    type: CartListResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Cart fetched successfully', type: CartListResponseDto })
   async getUserCart(@CurrentUser() user: CurrentUserPayload) {
     return plainToInstance(CartListResponseDto, {
       data: await this.cartService.findUserCart(user.id),
@@ -66,10 +65,7 @@ export class CartController {
 
   @Patch('products/:productId')
   @ApiOperation({ summary: 'Update cart item quantity' })
-  @ApiOkResponse({
-    description: 'Cart item updated successfully',
-    type: CartItemResponseDto,
-  })
+  @ApiSuccessResponse({ description: 'Cart item updated successfully', type: CartItemResponseDto })
   async updateQuantity(
     @Param() { productId }: ProductIdParamDto,
     @Body() { quantity }: QuantityDto,

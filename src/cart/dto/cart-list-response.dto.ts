@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { CartItemDataDto } from './cart-item-response.dto'
+import { Cart } from '../entities/cart.entity'
 
-export class CartListDataDto {
+export class CartListResponseDto {
   @ApiProperty({
     description: 'List of cart items belonging to the user',
-    type: [CartItemDataDto],
+    type: [Cart],
   })
-  cart: CartItemDataDto[]
+  cart: Cart[]
 
   @ApiProperty({
     description: 'Total number of all items (sum of quantities) in the cart',
@@ -17,15 +17,4 @@ export class CartListDataDto {
     description: 'Total price of all items combined in the cart',
   })
   total: string
-}
-
-export class CartListResponseDto {
-  @ApiProperty({
-    description: 'Cart list response data',
-    type: () => CartListDataDto,
-  })
-  data: CartListDataDto
-
-  @ApiProperty({ description: 'Cart list response message' })
-  message: string
 }
