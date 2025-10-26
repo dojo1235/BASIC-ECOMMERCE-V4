@@ -2,9 +2,17 @@
   "name": "BASIC_ECOMMERCE_V4",
   "version": "0.0.1",
   "description": "E-commerce backend with multiple admin tier and all core e-commerce flows built with NestJs, MYSQL and TypeORM",
-  "author": "BRIGGS DIVINE TOBIN",
+  "author": "BRIGGS DIVINE TOBIN <https://github.com/dojo1235>",
   "private": true,
   "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dojo1235/BASIC-ECOMMERCE-V4.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dojo1235/BASIC-ECOMMERCE-V4/issues"
+  },
+  "homepage": "https://github.com/dojo1235/BASIC-ECOMMERCE-V4#readme",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
