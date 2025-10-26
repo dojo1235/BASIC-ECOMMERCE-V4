@@ -119,7 +119,7 @@ export class OrdersService {
 
   // Helper to calculate total and shipping fee
   private getTotal(userCart: Cart[]): { total: number; shippingFee: number } {
-    let total = userCart.reduce((sum, item) => {
+    const total = userCart.reduce((sum, item) => {
       const product = item.product as Partial<Product>
       if (!product || product.isDeleted)
         throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
@@ -133,7 +133,7 @@ export class OrdersService {
       return sum + price * item.quantity
     }, 0)
     const shippingFee = total > 200 ? 0 : 50
-    total = Number((total + shippingFee).toFixed(2))
-    return { total, shippingFee }
+    const totalWithFee = Number((total + shippingFee).toFixed(2))
+    return { total: totalWithFee, shippingFee }
   }
 }
