@@ -8,23 +8,10 @@ export class TokensDataDto {
   refreshToken: string
 }
 
-export class TokensWrapperDto {
+export class TokensResponseDto {
   @ApiProperty({
     description: 'Authentication tokens',
     type: () => TokensDataDto,
   })
   tokens: TokensDataDto
-}
-
-export class TokensResponseDto {
-  @ApiProperty({
-    description: 'Main response payload containing the tokens',
-    type: () => TokensWrapperDto,
-  })
-  data: TokensWrapperDto
-
-  @ApiProperty({
-    description: 'Descriptive message about the tokens response operation',
-  })
-  message: string
 }
