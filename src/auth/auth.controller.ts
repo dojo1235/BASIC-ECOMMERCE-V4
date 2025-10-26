@@ -40,10 +40,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh token' })
   @ApiOkResponse({ description: 'Token refreshed successfully', type: TokensResponseDto })
   async refresh(@Body() { refreshToken }: RefreshTokenDto) {
-    return {
+    return plainToInstance(TokensResponseDto, {
       data: await this.authService.refreshToken(refreshToken),
       message: 'Token refreshed successfully',
-    }
+    })
   }
 
   @HttpCode(HttpStatus.OK)
@@ -51,10 +51,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout user' })
   @ApiOkResponse({ description: 'Logout successful', type: TokensResponseDto })
   async logout(@Body() { refreshToken }: RefreshTokenDto) {
-    return {
+    return plainToInstance(TokensResponseDto, {
       data: await this.authService.logout(refreshToken),
       message: 'Logout successful',
-    }
+    })
   }
 
   @HttpCode(HttpStatus.OK)
@@ -62,9 +62,9 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout from all devices' })
   @ApiOkResponse({ description: 'Logout from all devices', type: TokensResponseDto })
   async logoutAll(@Body() { refreshToken }: RefreshTokenDto) {
-    return {
+    return plainToInstance(TokensResponseDto, {
       data: await this.authService.logoutAll(refreshToken),
       message: 'Logged out from all devices successfully',
-    }
+    })
   }
 }
