@@ -5,6 +5,7 @@ import { ProductsRepository } from 'src/products/products.repository'
 import { CartRepository } from 'src/cart/cart.repository'
 import { FindOrdersDto } from './dto/find-orders.dto'
 import { OrderStatus } from './entities/order.entity'
+import { Order } from './entities/order.entity'
 import { Cart } from 'src/cart/entities/cart.entity'
 import { Product } from 'src/products/entities/product.entity'
 import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
@@ -81,12 +82,12 @@ export class OrdersService {
   }
 
   // Update order (admin)
-  async updateOrder(orderId: number, data: Record<string, any>) {
+  async updateOrder(orderId: number, data: Partial<Order>) {
     const existing = await this.ordersRepository.findOrderById(orderId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Order not found')
     if (data.status && existing.status === OrderStatus.Cancelled)
       throw new AppError(ErrorCode.INVALID_STATE, 'Updating cancelled order not allowed')
-    if (data.status === 'cancelled')
+    if (data.status === OrderStatus.Cancelled)
       throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'Orders can only be cancelled by owners')
     await this.ordersRepository.updateOrder(orderId, data)
     const updated = await this.ordersRepository.findOrderById(orderId)

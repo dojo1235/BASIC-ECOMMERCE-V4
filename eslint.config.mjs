@@ -1,15 +1,11 @@
 // @ts-check
-import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { defineConfig } from 'eslint/config'
 import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import globals from 'globals'
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-export default tseslint.config(
+export default defineConfig([
   {
     ignores: ['eslint.config.mjs', 'dist', 'node_modules'],
   },
@@ -25,11 +21,8 @@ export default tseslint.config(
       sourceType: 'module',
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: __dirname,
       },
     },
-  },
-  {
     rules: {
       'prettier/prettier': ['warn', {}, { usePrettierrc: true }],
 
@@ -37,12 +30,11 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
-
-      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-
+      
       'no-use-before-define': 'warn',
       'no-async-promise-executor': 'warn',
+      '@typescript-eslint/no-explicit-any': 'warn',
     },
-  }
-)
+  },
+])

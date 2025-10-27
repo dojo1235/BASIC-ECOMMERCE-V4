@@ -16,5 +16,5 @@ export class CartListResponseDto {
   @ApiProperty({
     description: 'Total price of all items combined in the cart',
   })
-  total: string
+  total: number
 }

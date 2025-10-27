@@ -16,10 +16,10 @@ export const dataSourceOptions: TypeOrmModuleAsyncOptions = {
     database: configService.get<string>('database.name'),
     entities: [join(__dirname, '..', '/**/*.entity{.ts,.js}')],
     synchronize: true,
-    logging: true,
+    logging: false,
     namingStrategy: new NamingStrategy(),
   }),
-  async dataSourceFactory(options) {
+  dataSourceFactory(options) {
     if (!options) throw new Error('Invalid TypeORM options')
     const dataSource = new DataSource(options)
     return addTransactionalDataSource(dataSource)

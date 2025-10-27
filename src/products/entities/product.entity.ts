@@ -8,6 +8,7 @@ import {
 } from 'typeorm'
 import { User } from 'src/users/entities/user.entity'
 import { ApiProperty } from '@nestjs/swagger'
+import { Exclude } from 'class-transformer'
 
 export enum ProductStatus {
   InStock = 'inStock',
@@ -17,10 +18,12 @@ export enum ProductStatus {
 
 @Entity()
 export class Product {
+  @Exclude()
   @ApiProperty({ description: 'Unique identifier for the product' })
   @PrimaryGeneratedColumn()
   id: number
 
+  @Exclude()
   @ApiProperty({ description: 'Name of the product' })
   @Column({ type: 'varchar', length: 150 })
   name: string
