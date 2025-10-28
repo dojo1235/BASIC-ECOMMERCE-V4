@@ -8,13 +8,24 @@ import {
   ExecutionContext,
   CallHandler,
 } from '@nestjs/common'
-import { ApiExtraModels, ApiResponse as OriginalApiResponse, getSchemaPath } from '@nestjs/swagger'
+import {
+  ApiExtraModels,
+  ApiResponse as OriginalApiResponse,
+  getSchemaPath,
+  ApiProperty,
+} from '@nestjs/swagger'
 import { plainToInstance } from 'class-transformer'
 import { map } from 'rxjs/operators'
 
-class SuccessResponse<T = any> {
+class SuccessResponse<T = unknown> {
+  @ApiProperty({
+    description: 'The actual response payload. Will be null if no data is returned.',
+  })
   data: T
 
+  @ApiProperty({
+    description: 'Message describing the result of the operation.',
+  })
   message: string
 }
 
@@ -28,8 +39,11 @@ class ResponseInterceptor<T> implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map((data) => {
-        const wrapped = { message: this.description, data: data ?? null }
-        return plainToInstance(SuccessResponse, wrapped)
+        if (!this.type) {
+          return { message: this.description, data: null }
+        }
+        const dataInstance = plainToInstance(this.type, data ?? null)
+        return { message: this.description, data: dataInstance }
       }),
     )
   }
@@ -37,7 +51,7 @@ class ResponseInterceptor<T> implements NestInterceptor {
 
 class EmptyResponseDto {}
 
-export const ApiSuccessResponse = <T extends Type<any>>(options: {
+export const ApiSuccessResponse = <T extends Type<unknown>>(options: {
   description: string
   type?: T
   status?: number
@@ -53,8 +67,8 @@ export const ApiSuccessResponse = <T extends Type<any>>(options: {
       schema: {
         type: 'object',
         properties: {
-          data: { $ref: getSchemaPath(type) },
           message: { type: 'string' },
+          data: { $ref: getSchemaPath(type) },
         },
       },
     }),
