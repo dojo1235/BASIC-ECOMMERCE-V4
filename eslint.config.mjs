@@ -7,7 +7,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 
 export default defineConfig([
   {
-    ignores: ['eslint.config.mjs', 'dist', 'node_modules'],
+    ignores: ['eslint.config.mjs', 'dist', 'node_modules', 'test.d.ts'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
@@ -18,7 +18,7 @@ export default defineConfig([
         ...globals.node,
         ...globals.jest,
       },
-      sourceType: 'module',
+      sourceType: 'script',
       parserOptions: {
         projectService: true,
       },
