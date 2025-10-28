@@ -19,9 +19,9 @@ export const dataSourceOptions: TypeOrmModuleAsyncOptions = {
     logging: false,
     namingStrategy: new NamingStrategy(),
   }),
-  dataSourceFactory(options) {
+  dataSourceFactory: async (options) => {
     if (!options) throw new Error('Invalid TypeORM options')
     const dataSource = new DataSource(options)
-    return addTransactionalDataSource(dataSource)
+    return Promise.resolve(addTransactionalDataSource(dataSource))
   },
 }

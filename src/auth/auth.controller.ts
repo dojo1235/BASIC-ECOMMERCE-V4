@@ -1,14 +1,13 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
-import { ApiOperation, ApiOkResponse } from '@nestjs/swagger'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { AuthService } from './auth.service'
 import { RegisterDto } from './dto/register.dto'
 import { LoginDto } from './dto/login.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
-import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { AuthResponseDto } from './dto/auth-response.dto'
 import { TokensResponseDto } from './dto/tokens-response.dto'
-import { plainToInstance } from 'class-transformer'
 
 @Controller('auth')
 export class AuthController {
@@ -21,11 +20,8 @@ export class AuthController {
     type: AuthResponseDto,
     status: HttpStatus.CREATED,
   })
-  async register(@Body() registerDto: RegisterDto) {
-    return plainToInstance(AuthResponseDto, {
-      data: await this.authService.register(registerDto),
-      message: 'Registration successful',
-    })
+  async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
+    return await this.authService.register(registerDto)
   }
 
   @Throttle({ short: { ttl: 60000, limit: 10 } })
@@ -33,43 +29,31 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Login user' })
   @ApiSuccessResponse({ description: 'Login successful', type: AuthResponseDto })
-  async login(@Body() loginDto: LoginDto) {
-    return plainToInstance(AuthResponseDto, {
-      data: await this.authService.login(loginDto),
-      message: 'Login successful',
-    })
+  async login(@Body() loginDto: LoginDto): Promise<AuthResponseDto> {
+    return await this.authService.login(loginDto)
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   @ApiOperation({ summary: 'Refresh token' })
   @ApiSuccessResponse({ description: 'Token refreshed successfully', type: TokensResponseDto })
-  async refresh(@Body() { refreshToken }: RefreshTokenDto) {
-    return plainToInstance(TokensResponseDto, {
-      data: await this.authService.refreshToken(refreshToken),
-      message: 'Token refreshed successfully',
-    })
+  async refresh(@Body() { refreshToken }: RefreshTokenDto): Promise<TokensResponseDto> {
+    return await this.authService.refreshToken(refreshToken)
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
-  @ApiOkResponse({ description: 'Logout successful' })
-  async logout(@Body() { refreshToken }: RefreshTokenDto) {
-    return plainToInstance(TokensResponseDto, {
-      data: await this.authService.logout(refreshToken),
-      message: 'Logout successful',
-    })
+  @ApiSuccessResponse({ description: 'Logout successful' })
+  async logout(@Body() { refreshToken }: RefreshTokenDto): Promise<void> {
+    return await this.authService.logout(refreshToken)
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('logout-all')
   @ApiOperation({ summary: 'Logout from all devices' })
-  @ApiOkResponse({ description: 'Logout from all devices' })
-  async logoutAll(@Body() { refreshToken }: RefreshTokenDto) {
-    return plainToInstance(TokensResponseDto, {
-      data: await this.authService.logoutAll(refreshToken),
-      message: 'Logged out from all devices successfully',
-    })
+  @ApiSuccessResponse({ description: 'Logout from all devices' })
+  async logoutAll(@Body() { refreshToken }: RefreshTokenDto): Promise<void> {
+    return await this.authService.logoutAll(refreshToken)
   }
 }

@@ -4,7 +4,7 @@ import { TokensDataDto } from './tokens-response.dto'
 
 export class AuthResponseDto {
   @ApiProperty({ description: 'Registered user details', type: () => User })
-  user: User
+  user: User | null
 
   @ApiProperty({ description: 'Authentication tokens', type: () => TokensDataDto })
   tokens: TokensDataDto

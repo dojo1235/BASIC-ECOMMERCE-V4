@@ -51,14 +51,11 @@ export const ApiSuccessResponse = <T extends Type<any>>(options: {
       status,
       description: description ?? 'Successful response',
       schema: {
-        allOf: [
-          { $ref: getSchemaPath(SuccessResponse) },
-          {
-            properties: {
-              data: { $ref: getSchemaPath(type) },
-            },
-          },
-        ],
+        type: 'object',
+        properties: {
+          data: { $ref: getSchemaPath(type) },
+          message: { type: 'string' },
+        },
       },
     }),
   )
