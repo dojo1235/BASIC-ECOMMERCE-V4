@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Query, HttpStatus } from '@nestjs/common'
+import { Controller, Get, Post, Delete, Param, Query, HttpCode, HttpStatus } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { WishlistService } from './wishlist.service'
@@ -14,17 +14,18 @@ import { WishlistCountResponseDto } from './dto/wishlist-count-response.dto'
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('products/:productId')
   @ApiOperation({ summary: 'Add product to wishlist' })
   @ApiSuccessResponse({
     description: 'Product added to wishlist successfully',
-    status: HttpStatus.CREATED,
+    status: HttpStatus.NO_CONTENT,
   })
   async addProduct(
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<void> {
-    return await this.wishlistService.addProductToWishlist(user.id, productId)
+    await this.wishlistService.addProductToWishlist(user.id, productId)
   }
 
   @Get()
@@ -47,13 +48,17 @@ export class WishlistController {
     return await this.wishlistService.countWishlistItems(user.id)
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('products/:productId')
   @ApiOperation({ summary: 'Remove a product from the wishlist' })
-  @ApiSuccessResponse({ description: 'Product removed from wishlist successfully' })
+  @ApiSuccessResponse({
+    description: 'Product removed from wishlist successfully',
+    status: HttpStatus.NO_CONTENT,
+  })
   async removeProduct(
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<void> {
-    return await this.wishlistService.removeProductFromWishlist(user.id, productId)
+    await this.wishlistService.removeProductFromWishlist(user.id, productId)
   }
 }
