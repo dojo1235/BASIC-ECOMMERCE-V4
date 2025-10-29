@@ -18,7 +18,6 @@ export default defineConfig([
         ...globals.node,
         ...globals.jest,
       },
-      sourceType: 'script',
       parserOptions: {
         projectService: true,
       },
