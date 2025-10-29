@@ -23,12 +23,12 @@ import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
 
+@Auth(Role.ProductManager)
 @Controller('admins/products')
 export class AdminsProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @Auth(Role.ProductManager)
   @ApiOperation({ summary: 'Create new product' })
   @ApiSuccessResponse({
     description: 'Product created successfully',
@@ -62,7 +62,6 @@ export class AdminsProductsController {
   }
 
   @Patch(':productId')
-  @Auth(Role.ProductManager)
   @ApiOperation({ summary: 'Update product details' })
   @ApiSuccessResponse({ description: 'Product fetched successfully', type: ProductResponseDto })
   async updateProduct(
@@ -78,7 +77,6 @@ export class AdminsProductsController {
   }
 
   @Patch(':productId/status')
-  @Auth(Role.ProductManager)
   @ApiOperation({ summary: 'Update product status' })
   @ApiSuccessResponse({
     description: 'Product status updated successfully',
@@ -97,7 +95,6 @@ export class AdminsProductsController {
   }
 
   @Patch(':productId/restore')
-  @Auth(Role.ProductManager)
   @ApiOperation({ summary: 'Restore soft-deleted product' })
   @ApiSuccessResponse({ description: 'Product restored successfully', type: ProductResponseDto })
   async restoreProduct(
@@ -112,7 +109,6 @@ export class AdminsProductsController {
   }
 
   @Delete(':productId')
-  @Auth(Role.ProductManager)
   @ApiOperation({ summary: 'Soft-delete product' })
   @ApiSuccessResponse({ description: 'Product deleted successfully', type: ProductResponseDto })
   async deleteProduct(

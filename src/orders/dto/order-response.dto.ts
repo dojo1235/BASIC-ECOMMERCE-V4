@@ -3,5 +3,5 @@ import { Order } from '../entities/order.entity'
 
 export class OrderResponseDto {
   @ApiProperty({ description: 'Order details', type: () => Order })
-  order: Order
+  order: Order | null
 }
