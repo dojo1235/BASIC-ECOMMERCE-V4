@@ -1,4 +1,14 @@
-import { Controller, Post, Patch, Get, Delete, Param, Body, HttpStatus } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Patch,
+  Get,
+  Delete,
+  Param,
+  Body,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { CartService } from './cart.service'
@@ -69,20 +79,25 @@ export class CartController {
     return await this.cartService.updateQuantity(user.id, productId, quantity)
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('products/:productId')
   @ApiOperation({ summary: 'Remove a single product from cart' })
-  @ApiSuccessResponse({ description: 'Product removed from cart successfully' })
+  @ApiSuccessResponse({
+    description: 'Product removed from cart successfully',
+    status: HttpStatus.NO_CONTENT,
+  })
   async removeFromCart(
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<void> {
-    return await this.cartService.removeFromCart(user.id, productId)
+    await this.cartService.removeFromCart(user.id, productId)
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('clear')
   @ApiOperation({ summary: 'Clear all items in user cart' })
-  @ApiSuccessResponse({ description: 'Cart cleared successfully' })
+  @ApiSuccessResponse({ description: 'Cart cleared successfully', status: HttpStatus.NO_CONTENT })
   async clearCart(@CurrentUser() user: CurrentUserPayload): Promise<void> {
-    return await this.cartService.clearCart(user.id)
+    await this.cartService.clearCart(user.id)
   }
 }
