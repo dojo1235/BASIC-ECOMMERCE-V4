@@ -7,6 +7,7 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from 'src/users/entities/user.entity'
 import { OrderItem } from './order-item.entity'
@@ -29,6 +30,7 @@ export class Order {
   @Column()
   userId: number
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User
@@ -57,6 +59,7 @@ export class Order {
   @Column({ type: 'tinyint', default: false })
   isDeleted: boolean
 
+  @ApiProperty({ description: 'Date and time the order was created' })
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
@@ -64,6 +67,7 @@ export class Order {
   @Column({ nullable: true })
   updatedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   updatedBy: User
@@ -76,6 +80,7 @@ export class Order {
   @Column({ nullable: true })
   deletedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   deletedBy: User
@@ -88,6 +93,7 @@ export class Order {
   @Column({ nullable: true })
   restoredById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   restoredBy: User

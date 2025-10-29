@@ -6,8 +6,9 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm'
-import { User } from 'src/users/entities/user.entity'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
+import { User } from 'src/users/entities/user.entity'
 
 export enum ProductStatus {
   InStock = 'inStock',
@@ -56,6 +57,7 @@ export class Product {
   @Column({ nullable: true })
   createdById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   createdBy: User | null
@@ -68,6 +70,7 @@ export class Product {
   @Column({ nullable: true })
   updatedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   updatedBy: User | null
@@ -80,6 +83,7 @@ export class Product {
   @Column({ nullable: true })
   deletedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   deletedBy: User | null
@@ -92,6 +96,7 @@ export class Product {
   @Column({ nullable: true })
   restoredById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   restoredBy: User | null

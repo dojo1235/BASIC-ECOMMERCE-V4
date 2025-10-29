@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer'
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -7,6 +6,7 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 
 export enum Role {
@@ -57,6 +57,7 @@ export class User {
   @Column({ type: 'int', nullable: true })
   createdById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   createdBy: User | null
@@ -69,6 +70,7 @@ export class User {
   @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   updatedBy: User | null
@@ -81,6 +83,7 @@ export class User {
   @Column({ type: 'int', nullable: true })
   bannedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   bannedBy: User | null
@@ -93,6 +96,7 @@ export class User {
   @Column({ type: 'int', nullable: true })
   deletedById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   deletedBy: User | null
@@ -105,6 +109,7 @@ export class User {
   @Column({ type: 'int', nullable: true })
   restoredById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   restoredBy: User | null

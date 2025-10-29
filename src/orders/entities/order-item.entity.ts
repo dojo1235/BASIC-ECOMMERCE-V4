@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { Order } from './order.entity'
 import { Product } from 'src/products/entities/product.entity'
@@ -20,6 +21,7 @@ export class OrderItem {
   @Column()
   orderId: number
 
+  @Exclude()
   @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
   @JoinColumn()
   order: Order

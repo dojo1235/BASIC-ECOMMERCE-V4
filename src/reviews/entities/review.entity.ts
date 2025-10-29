@@ -8,6 +8,7 @@ import {
   Unique,
   Check,
 } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from 'src/users/entities/user.entity'
 import { Product } from 'src/products/entities/product.entity'
@@ -24,6 +25,7 @@ export class Review {
   @Column()
   userId: number
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User
@@ -32,6 +34,7 @@ export class Review {
   @Column()
   productId: number
 
+  @Exclude()
   @ManyToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn()
   product: Product
@@ -60,6 +63,7 @@ export class Review {
   @Column({ nullable: true })
   hiddenById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   hiddenBy: User | null
@@ -72,6 +76,7 @@ export class Review {
   @Column({ nullable: true })
   restoredById: number | null
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
   restoredBy: User | null
