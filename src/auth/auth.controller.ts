@@ -41,19 +41,19 @@ export class AuthController {
     return await this.authService.refreshToken(refreshToken)
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   @ApiOperation({ summary: 'Logout user' })
-  @ApiSuccessResponse({ description: 'Logout successful' })
+  @ApiSuccessResponse({ description: 'Logout successful', status: HttpStatus.NO_CONTENT })
   async logout(@Body() { refreshToken }: RefreshTokenDto): Promise<void> {
-    return await this.authService.logout(refreshToken)
+    await this.authService.logout(refreshToken)
   }
 
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout-all')
   @ApiOperation({ summary: 'Logout from all devices' })
-  @ApiSuccessResponse({ description: 'Logout from all devices' })
+  @ApiSuccessResponse({ description: 'Logout from all devices', status: HttpStatus.NO_CONTENT })
   async logoutAll(@Body() { refreshToken }: RefreshTokenDto): Promise<void> {
-    return await this.authService.logoutAll(refreshToken)
+    await this.authService.logoutAll(refreshToken)
   }
 }
