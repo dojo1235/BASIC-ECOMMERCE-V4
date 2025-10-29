@@ -38,20 +38,26 @@ export class CartService {
       (sum, item) => sum + item.quantity * (item.product?.price ?? 0),
       0,
     )
-    return { cart, count: totalQuantity, total: totalPrice.toFixed(2) }
+    const total = Number(totalPrice.toFixed(2))
+    return { cart, count: totalQuantity, total }
   }
 
   // Count total items in cart (user)
   async countUserCartItems(userId: number) {
-    const count = await this.cartRepository.countCartItems(userId)
+    const totalCount = await this.cartRepository.countCartItems(userId)
+    const count = Number(totalCount)
     return { count }
   }
 
   // Get total price of all items in cart
   async getTotal(userId: number) {
     const cart = await this.cartRepository.findCart(userId)
-    const total = cart.reduce((sum, item) => sum + item.quantity * (item.product?.price ?? 0), 0)
-    return { total: total.toFixed(2) }
+    const totalPrice = cart.reduce(
+      (sum, item) => sum + item.quantity * (item.product?.price ?? 0),
+      0,
+    )
+    const total = Number(totalPrice.toFixed(2))
+    return { total }
   }
 
   // Update quantity of an existing cart item (user)

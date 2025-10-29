@@ -3,5 +3,5 @@ import { Cart } from '../entities/cart.entity'
 
 export class CartItemResponseDto {
   @ApiProperty({ description: 'Cart item details', type: () => Cart })
-  cartItem: Cart
+  cartItem: Cart | null
 }

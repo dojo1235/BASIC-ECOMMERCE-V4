@@ -1,14 +1,15 @@
 import { Controller, Post, Patch, Get, Delete, Param, Body, HttpStatus } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
-import { CartService } from './cart.service'
-import { Auth } from '../common/decorators/auth.decorator'
-import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
+import { CartService } from './cart.service'
+import { Auth } from 'src/common/decorators/auth.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { ProductIdParamDto } from 'src/common/dto/product-id-param.dto'
+import { QuantityDto } from './dto/quantity.dto'
 import { CartListResponseDto } from './dto/cart-list-response.dto'
 import { CartItemResponseDto } from './dto/cart-item-response.dto'
-import { QuantityDto } from './dto/quantity.dto'
-import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
-import { plainToInstance } from 'class-transformer'
+import { CartCountResponseDto } from './dto/cart-count-response.dto'
+import { CartTotalResponseDto } from './dto/cart-total-response.dto'
 
 @Auth()
 @Controller('cart')
@@ -26,41 +27,35 @@ export class CartController {
     @Param() { productId }: ProductIdParamDto,
     @Body() { quantity }: QuantityDto,
     @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return plainToInstance(CartItemResponseDto, {
-      data: await this.cartService.addToCart(user.id, productId, quantity),
-      message: 'Product added to cart successfully',
-    })
+  ): Promise<CartItemResponseDto> {
+    return await this.cartService.addToCart(user.id, productId, quantity)
   }
 
   @Get()
   @ApiOperation({ summary: 'Get user cart' })
   @ApiSuccessResponse({ description: 'Cart fetched successfully', type: CartListResponseDto })
-  async getUserCart(@CurrentUser() user: CurrentUserPayload) {
-    return plainToInstance(CartListResponseDto, {
-      data: await this.cartService.findUserCart(user.id),
-      message: 'Cart fetched successfully',
-    })
+  async getUserCart(@CurrentUser() user: CurrentUserPayload): Promise<CartListResponseDto> {
+    return await this.cartService.findUserCart(user.id)
   }
 
   @Get('count')
   @ApiOperation({ summary: 'Get cart items count' })
-  @ApiOkResponse({ description: 'Cart items counted successfully' })
-  async getCartCount(@CurrentUser() user: CurrentUserPayload) {
-    return {
-      data: await this.cartService.countUserCartItems(user.id),
-      message: 'Cart items counted successfully',
-    }
+  @ApiSuccessResponse({
+    description: 'Cart items counted successfully',
+    type: CartCountResponseDto,
+  })
+  async getCartCount(@CurrentUser() user: CurrentUserPayload): Promise<CartCountResponseDto> {
+    return await this.cartService.countUserCartItems(user.id)
   }
 
   @Get('total')
   @ApiOperation({ summary: 'Get the total price of all items in cart' })
-  @ApiOkResponse({ description: 'Cart total fetched successfully' })
-  async getCartTotal(@CurrentUser() user: CurrentUserPayload) {
-    return {
-      data: await this.cartService.getTotal(user.id),
-      message: 'Cart total fetched successfully',
-    }
+  @ApiSuccessResponse({
+    description: 'Cart total fetched successfully',
+    type: CartTotalResponseDto,
+  })
+  async getCartTotal(@CurrentUser() user: CurrentUserPayload): Promise<CartTotalResponseDto> {
+    return await this.cartService.getTotal(user.id)
   }
 
   @Patch('products/:productId')
@@ -70,33 +65,24 @@ export class CartController {
     @Param() { productId }: ProductIdParamDto,
     @Body() { quantity }: QuantityDto,
     @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return plainToInstance(CartItemResponseDto, {
-      data: await this.cartService.updateQuantity(user.id, productId, quantity),
-      message: 'Cart item updated successfully',
-    })
+  ): Promise<CartItemResponseDto> {
+    return await this.cartService.updateQuantity(user.id, productId, quantity)
   }
 
   @Delete('products/:productId')
   @ApiOperation({ summary: 'Remove a single product from cart' })
-  @ApiOkResponse({ description: 'Product removed from cart successfully' })
+  @ApiSuccessResponse({ description: 'Product removed from cart successfully' })
   async removeFromCart(
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return {
-      data: await this.cartService.removeFromCart(user.id, productId),
-      message: 'Product removed from cart successfully',
-    }
+  ): Promise<void> {
+    return await this.cartService.removeFromCart(user.id, productId)
   }
 
   @Delete('clear')
   @ApiOperation({ summary: 'Clear all items in user cart' })
-  @ApiOkResponse({ description: 'Cart cleared successfully' })
-  async clearCart(@CurrentUser() user: CurrentUserPayload) {
-    return {
-      data: await this.cartService.clearCart(user.id),
-      message: 'Cart cleared successfully',
-    }
+  @ApiSuccessResponse({ description: 'Cart cleared successfully' })
+  async clearCart(@CurrentUser() user: CurrentUserPayload): Promise<void> {
+    return await this.cartService.clearCart(user.id)
   }
 }
