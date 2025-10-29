@@ -39,7 +39,7 @@ class ResponseInterceptor<T> implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler) {
     return next.handle().pipe(
       map((data) => {
-        if (!this.type) {
+        if (!this.type || !data) {
           return { message: this.description, data: null }
         }
         const dataInstance = plainToInstance(this.type, data ?? null)
