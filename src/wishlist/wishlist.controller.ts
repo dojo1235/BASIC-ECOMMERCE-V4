@@ -1,64 +1,59 @@
-import { Controller, Get, Post, Delete, Param, Query } from '@nestjs/common'
-import { ApiBearerAuth, ApiOkResponse, ApiCreatedResponse, ApiOperation } from '@nestjs/swagger'
+import { Controller, Get, Post, Delete, Param, Query, HttpStatus } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { WishlistService } from './wishlist.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
-import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
+import { ProductIdParamDto } from 'src/common/dto/product-id-param.dto'
 import { FindWishlistDto } from './dto/find-wishlist.dto'
 import { WishlistResponseDto } from './dto/wishlist-response.dto'
+import { WishlistCountResponseDto } from './dto/wishlist-count-response.dto'
 
-@ApiBearerAuth()
+@Auth()
 @Controller('wishlist')
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
   @Post('products/:productId')
-  @Auth()
   @ApiOperation({ summary: 'Add product to wishlist' })
-  @ApiCreatedResponse({ description: 'Product added to wishlist successfully' })
+  @ApiSuccessResponse({
+    description: 'Product added to wishlist successfully',
+    status: HttpStatus.CREATED,
+  })
   async addProduct(
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return {
-      data: await this.wishlistService.addProductToWishlist(user.id, productId),
-      message: 'Product added to wishlist successfully',
-    }
+  ): Promise<void> {
+    return await this.wishlistService.addProductToWishlist(user.id, productId)
   }
 
   @Get()
-  @Auth()
   @ApiOperation({ summary: 'Get all wishlist items for the logged-in user' })
-  @ApiOkResponse({ description: 'Wishlist fetched successfully', type: WishlistResponseDto })
-  async findAll(@Query() query: FindWishlistDto, @CurrentUser() user: CurrentUserPayload) {
-    return {
-      data: await this.wishlistService.findWishlist(user.id, query),
-      message: 'Wishlist fetched successfully',
-    }
+  @ApiSuccessResponse({ description: 'Wishlist fetched successfully', type: WishlistResponseDto })
+  async findAll(
+    @Query() query: FindWishlistDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<WishlistResponseDto> {
+    return await this.wishlistService.findWishlist(user.id, query)
   }
 
   @Get('count')
-  @Auth()
   @ApiOperation({ summary: 'Count total wishlist items for the logged-in user' })
-  @ApiOkResponse({ description: 'Wishlist counted successfully' })
-  async count(@CurrentUser() user: CurrentUserPayload) {
-    return {
-      data: await this.wishlistService.countWishlistItems(user.id),
-      message: 'Wishlist counted successfully',
-    }
+  @ApiSuccessResponse({
+    description: 'Wishlist counted successfully',
+    type: WishlistCountResponseDto,
+  })
+  async count(@CurrentUser() user: CurrentUserPayload): Promise<WishlistCountResponseDto> {
+    return await this.wishlistService.countWishlistItems(user.id)
   }
 
   @Delete('products/:productId')
-  @Auth()
   @ApiOperation({ summary: 'Remove a product from the wishlist' })
-  @ApiOkResponse({ description: 'Product removed from wishlist successfully' })
+  @ApiSuccessResponse({ description: 'Product removed from wishlist successfully' })
   async removeProduct(
     @Param() { productId }: ProductIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return {
-      data: await this.wishlistService.removeProductFromWishlist(user.id, productId),
-      message: 'Product removed from wishlist successfully',
-    }
+  ): Promise<void> {
+    return await this.wishlistService.removeProductFromWishlist(user.id, productId)
   }
 }
