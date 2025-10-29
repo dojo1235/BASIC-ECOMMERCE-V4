@@ -1,12 +1,12 @@
 import { Controller, Get, Patch, Delete, Body } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
+import { Auth } from 'src/common/decorators/auth.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
-import { Auth } from 'src/common/decorators/auth.decorator'
-import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UserResponseDto } from './dto/user-response.dto'
-import { plainToInstance } from 'class-transformer'
 
 @Auth()
 @Controller('users/me')
@@ -15,52 +15,43 @@ export class UsersController {
 
   @Get()
   @ApiOperation({ summary: 'Fetch user profile' })
-  @ApiOkResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
-  async findOne(@CurrentUser() user: CurrentUserPayload) {
-    return plainToInstance(UserResponseDto, {
-      data: await this.usersService.findOneUser(user.id),
-      message: 'Profile fetched successfully',
-    })
+  @ApiSuccessResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
+  async findUserProfile(@CurrentUser() user: CurrentUserPayload): Promise<UserResponseDto> {
+    return await this.usersService.findOneUser(user.id)
   }
 
   @Patch()
   @ApiOperation({ summary: 'Update user profile' })
-  @ApiOkResponse({ description: 'Profile updated successfully', type: UserResponseDto })
-  async update(@Body() dto: UpdateUserDto, @CurrentUser() user: CurrentUserPayload) {
-    return plainToInstance(UserResponseDto, {
-      data: await this.usersService.updateUser(user.id, {
-        ...dto,
-        updatedById: user.id,
-        updatedAt: new Date(),
-      }),
-      message: 'Profile updated successfully',
+  @ApiSuccessResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  async updateUserProfile(
+    @Body() dto: UpdateUserDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUser(user.id, {
+      ...dto,
+      updatedById: user.id,
+      updatedAt: new Date(),
     })
   }
 
   @Patch('password')
   @ApiOperation({ summary: 'Update user password' })
-  @ApiOkResponse({ description: 'Password updated successfully' })
+  @ApiSuccessResponse({ description: 'Password updated successfully' })
   async updatePassword(
-    @Body() updatePasswordDto: UpdatePasswordDto,
+    @Body() dto: UpdatePasswordDto,
     @CurrentUser() user: CurrentUserPayload,
-  ) {
-    return {
-      data: await this.usersService.updatePassword(user.id, updatePasswordDto),
-      message: 'Password updated successfully',
-    }
+  ): Promise<void> {
+    return await this.usersService.updatePassword(user.id, dto)
   }
 
   @Delete()
   @ApiOperation({ summary: 'Soft-delete user account' })
-  @ApiOkResponse({ description: 'Account deleted successfully', type: UserResponseDto })
-  async remove(@CurrentUser() user: CurrentUserPayload) {
-    return plainToInstance(UserResponseDto, {
-      data: await this.usersService.updateUser(user.id, {
-        isDeleted: true,
-        deletedById: user.id,
-        deletedAt: new Date(),
-      }),
-      message: 'Account deleted successfully',
+  @ApiSuccessResponse({ description: 'Account deleted successfully', type: UserResponseDto })
+  async deleteUser(@CurrentUser() user: CurrentUserPayload): Promise<UserResponseDto> {
+    return await this.usersService.updateUser(user.id, {
+      isDeleted: true,
+      deletedById: user.id,
+      deletedAt: new Date(),
     })
   }
 }

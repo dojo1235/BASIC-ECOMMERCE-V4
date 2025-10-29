@@ -1,23 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from '../entities/user.entity'
 
-export class UserWrapperDto {
-  @ApiProperty({
-    description: 'User entity with all associated fields',
-    type: () => User,
-  })
-  user: User
-}
-
 export class UserResponseDto {
   @ApiProperty({
-    description: 'Main response payload containing the user data',
-    type: () => UserWrapperDto,
+    description: 'User details',
+    type: () => User,
   })
-  data: UserWrapperDto
-
-  @ApiProperty({
-    description: 'Descriptive message about the user response operation',
-  })
-  message: string
+  user: User | null
 }
