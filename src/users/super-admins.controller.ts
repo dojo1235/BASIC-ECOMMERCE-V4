@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  HttpCode,
   HttpStatus,
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
@@ -42,17 +43,18 @@ export class SuperAdminsController {
     return await this.usersService.createAdmin(createAdminDto, user.id)
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post(':adminId/revoke-sessions')
   @ApiOperation({ summary: 'Log out admin from all devices' })
   @ApiSuccessResponse({
     description: 'All admin sessions revoked successfully',
-    status: HttpStatus.CREATED,
+    status: HttpStatus.NO_CONTENT,
   })
   async revokeAllSessions(
     @Param() { adminId }: AdminIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<void> {
-    return await this.usersService.revokeAllAdminSessions(adminId, user.id)
+    await this.usersService.revokeAllAdminSessions(adminId, user.id)
   }
 
   @Get()

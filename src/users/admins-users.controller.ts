@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Query,
+  HttpCode,
   HttpStatus,
 } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
@@ -27,17 +28,18 @@ import { UserIdParamDto } from 'src/common/dto/user-id-param.dto'
 export class AdminsUsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post(':userId/revoke-sessions')
   @ApiOperation({ summary: 'Log out user from all devices' })
   @ApiSuccessResponse({
     description: 'All user sessions revoked successfully',
-    status: HttpStatus.CREATED,
+    status: HttpStatus.NO_CONTENT,
   })
   async revokeAllSessions(
     @Param() { userId }: UserIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<void> {
-    return await this.usersService.revokeAllUserSessions(userId, user.id)
+    await this.usersService.revokeAllUserSessions(userId, user.id)
   }
 
   @Get()
