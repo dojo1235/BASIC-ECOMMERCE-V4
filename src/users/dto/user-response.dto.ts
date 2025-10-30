@@ -5,6 +5,7 @@ export class UserResponseDto {
   @ApiProperty({
     description: 'User details',
     type: () => User,
+    nullable: true,
   })
   user: User | null
 }

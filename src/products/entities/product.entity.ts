@@ -26,7 +26,7 @@ export class Product {
   @Column({ type: 'varchar', length: 150 })
   name: string
 
-  @ApiProperty({ description: 'Product description', type: String })
+  @ApiProperty({ description: 'Product description', type: String, nullable: true })
   @Column({ type: 'text', nullable: true })
   description: string | null
 
@@ -53,7 +53,7 @@ export class Product {
   @Column({ type: 'tinyint', default: false })
   isDeleted: boolean
 
-  @ApiProperty({ description: 'User ID of the creator', type: Number })
+  @ApiProperty({ description: 'User ID of the creator', type: Number, nullable: true })
   @Column({ nullable: true })
   createdById: number | null
 
@@ -66,7 +66,7 @@ export class Product {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @ApiProperty({ description: 'User ID of the last updater', type: Number })
+  @ApiProperty({ description: 'User ID of the last updater', type: Number, nullable: true })
   @Column({ nullable: true })
   updatedById: number | null
 
@@ -75,11 +75,19 @@ export class Product {
   @JoinColumn()
   updatedBy: User | null
 
-  @ApiProperty({ description: 'Date and time the product was last updated', type: Date })
+  @ApiProperty({
+    description: 'Date and time the product was last updated',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
-  @ApiProperty({ description: 'User ID of the person who deleted the product', type: Number })
+  @ApiProperty({
+    description: 'User ID of the person who deleted the product',
+    type: Number,
+    nullable: true,
+  })
   @Column({ nullable: true })
   deletedById: number | null
 
@@ -88,11 +96,19 @@ export class Product {
   @JoinColumn()
   deletedBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the product was deleted', type: Date })
+  @ApiProperty({
+    description: 'Timestamp when the product was deleted',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
 
-  @ApiProperty({ description: 'User ID of the person who restored the product', type: Number })
+  @ApiProperty({
+    description: 'User ID of the person who restored the product',
+    type: Number,
+    nullable: true,
+  })
   @Column({ nullable: true })
   restoredById: number | null
 
@@ -101,7 +117,11 @@ export class Product {
   @JoinColumn()
   restoredBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the product was restored', type: Date })
+  @ApiProperty({
+    description: 'Timestamp when the product was restored',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
 }

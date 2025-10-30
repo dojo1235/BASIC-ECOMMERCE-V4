@@ -42,7 +42,7 @@ class ResponseInterceptor<T> implements NestInterceptor {
         if (!this.type || !data) {
           return { message: this.description, data: null }
         }
-        const dataInstance = plainToInstance(this.type, data ?? null)
+        const dataInstance = plainToInstance(this.type, data)
         return { message: this.description, data: dataInstance }
       }),
     )

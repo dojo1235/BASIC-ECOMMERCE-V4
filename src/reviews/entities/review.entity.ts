@@ -55,11 +55,15 @@ export class Review {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @ApiProperty({ description: 'Timestamp when the review was last updated', type: Date })
+  @ApiProperty({
+    description: 'Timestamp when the review was last updated',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who hid the review', type: Number })
+  @ApiProperty({ description: 'ID of the user who hid the review', type: Number, nullable: true })
   @Column({ nullable: true })
   hiddenById: number | null
 
@@ -68,11 +72,15 @@ export class Review {
   @JoinColumn()
   hiddenBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the review was hidden', type: Date })
+  @ApiProperty({ description: 'Timestamp when the review was hidden', type: Date, nullable: true })
   @Column({ type: 'timestamp', nullable: true })
   hiddenAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who restored the review', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who restored the review',
+    type: Number,
+    nullable: true,
+  })
   @Column({ nullable: true })
   restoredById: number | null
 
@@ -81,7 +89,11 @@ export class Review {
   @JoinColumn()
   restoredBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the review was restored', type: Date })
+  @ApiProperty({
+    description: 'Timestamp when the review was restored',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
 }

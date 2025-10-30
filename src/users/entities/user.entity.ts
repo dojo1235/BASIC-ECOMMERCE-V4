@@ -49,11 +49,15 @@ export class User {
   @Column({ type: 'tinyint', default: 0 })
   isDeleted: boolean
 
-  @ApiProperty({ description: 'Timestamp of last login', type: Date })
+  @ApiProperty({ description: 'Timestamp of last login', type: Date, nullable: true })
   @Column({ type: 'timestamp', nullable: true })
   lastLogin: Date | null
 
-  @ApiProperty({ description: 'ID of the user who created this user', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who created this user',
+    type: Number,
+    nullable: true,
+  })
   @Column({ type: 'int', nullable: true })
   createdById: number | null
 
@@ -66,7 +70,11 @@ export class User {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @ApiProperty({ description: 'ID of the user who last updated this user', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who last updated this user',
+    type: Number,
+    nullable: true,
+  })
   @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
@@ -75,11 +83,15 @@ export class User {
   @JoinColumn()
   updatedBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the user was last updated', type: Date })
+  @ApiProperty({
+    description: 'Timestamp when the user was last updated',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who banned this user', type: Number })
+  @ApiProperty({ description: 'ID of the user who banned this user', type: Number, nullable: true })
   @Column({ type: 'int', nullable: true })
   bannedById: number | null
 
@@ -88,11 +100,15 @@ export class User {
   @JoinColumn()
   bannedBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the user was banned', type: Date })
+  @ApiProperty({ description: 'Timestamp when the user was banned', type: Date, nullable: true })
   @Column({ type: 'timestamp', nullable: true })
   bannedAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who deleted this user', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who deleted this user',
+    type: Number,
+    nullable: true,
+  })
   @Column({ type: 'int', nullable: true })
   deletedById: number | null
 
@@ -101,11 +117,15 @@ export class User {
   @JoinColumn()
   deletedBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the user was deleted', type: Date })
+  @ApiProperty({ description: 'Timestamp when the user was deleted', type: Date, nullable: true })
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who restored this user', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who restored this user',
+    type: Number,
+    nullable: true,
+  })
   @Column({ type: 'int', nullable: true })
   restoredById: number | null
 
@@ -114,7 +134,7 @@ export class User {
   @JoinColumn()
   restoredBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the user was restored', type: Date })
+  @ApiProperty({ description: 'Timestamp when the user was restored', type: Date, nullable: true })
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
 }

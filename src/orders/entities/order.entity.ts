@@ -63,42 +63,66 @@ export class Order {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @ApiProperty({ description: 'ID of the user who last updated this order', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who last updated this order',
+    type: Number,
+    nullable: true,
+  })
   @Column({ nullable: true })
   updatedById: number | null
 
   @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  updatedBy: User
+  updatedBy: User | null
 
-  @ApiProperty({ description: 'Date and time when the order was last updated', type: Date })
+  @ApiProperty({
+    description: 'Date and time when the order was last updated',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who deleted this order', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who deleted this order',
+    type: Number,
+    nullable: true,
+  })
   @Column({ nullable: true })
   deletedById: number | null
 
   @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  deletedBy: User
+  deletedBy: User | null
 
-  @ApiProperty({ description: 'Date and time when the order was deleted', type: Date })
+  @ApiProperty({
+    description: 'Date and time when the order was deleted',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   deletedAt: Date | null
 
-  @ApiProperty({ description: 'ID of the user who restored this order', type: Number })
+  @ApiProperty({
+    description: 'ID of the user who restored this order',
+    type: Number,
+    nullable: true,
+  })
   @Column({ nullable: true })
   restoredById: number | null
 
   @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  restoredBy: User
+  restoredBy: User | null
 
-  @ApiProperty({ description: 'Date and time when the order was restored', type: Date })
+  @ApiProperty({
+    description: 'Date and time when the order was restored',
+    type: Date,
+    nullable: true,
+  })
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
 

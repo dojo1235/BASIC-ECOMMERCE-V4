@@ -47,7 +47,11 @@ export class Cart {
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
-  @ApiProperty({ description: 'Timestamp when the cart item was last updated', type: Date })
+  @ApiProperty({
+    description: 'Timestamp when the cart item was last updated',
+    type: Date,
+    nullable: true,
+  })
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updatedAt: Date | null
 }
