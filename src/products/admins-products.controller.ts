@@ -1,107 +1,124 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, ParseIntPipe, Query, Req } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpStatus,
+} from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { ProductsService } from './products.service'
 import { CreateProductDto } from './dto/create-product.dto'
 import { UpdateProductDto } from './dto/update-product.dto'
-import { ProductStatus } from 'src/common/enums/product-status.enum'
-import { Role } from 'src/common/enums/roles.enum'
+import { FindProductsDto } from './dto/find-products.dto'
+import { UpdateProductStatusDto } from './dto/update-product-status.dto'
+import { ProductsListResponseDto } from './dto/products-list-response.dto'
+import { ProductResponseDto } from './dto/product-response.dto'
+import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
 
+@Auth(Role.ProductManager)
 @Controller('admins/products')
 export class AdminsProductsController {
   constructor(private readonly productsService: ProductsService) {}
-  
-  // Create new product
+
   @Post()
-  @Auth(Role.ProductManager)
-  async createProduct(@Body() createProductDto: CreateProductDto, @Req() req: any) {
-    return buildResponse(
-      await this.productsService.createProduct(createProductDto, req.user.id),
-      'Product created successfully',
-    )
+  @ApiOperation({ summary: 'Create new product' })
+  @ApiSuccessResponse({
+    description: 'Product created successfully',
+    type: ProductResponseDto,
+    status: HttpStatus.CREATED,
+  })
+  async createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ProductResponseDto> {
+    return await this.productsService.createProduct(createProductDto, user.id)
   }
 
-  // Fetch all products
   @Get()
   @Auth(Role.ViewOnlyAdmin)
-  async findAll(@Query() query: Record<string, any>) {
-    return buildResponse(
-      await this.productsService.findAllProductsForAdmin(query),
-      'Products fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch all products' })
+  @ApiSuccessResponse({
+    description: 'Products fetched successfully',
+    type: ProductsListResponseDto,
+  })
+  async findAllProducts(@Query() query: FindProductsDto): Promise<ProductsListResponseDto> {
+    return await this.productsService.findAllProductsForAdmin(query)
   }
 
-  // Fetch a single product
-  @Get(':id')
+  @Get(':productId')
   @Auth(Role.ViewOnlyAdmin)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return buildResponse(
-      await this.productsService.findOneProductForAdmin(id),
-      'Product fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch a single product' })
+  @ApiSuccessResponse({ description: 'Product fetched successfully', type: ProductResponseDto })
+  async findOneProduct(@Param() { productId }: ProductIdParamDto): Promise<ProductResponseDto> {
+    return await this.productsService.findOneProductForAdmin(productId)
   }
 
-  // Update product
-  @Patch(':id')
-  @Auth(Role.ProductManager)
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateProductDto,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.productsService.updateProduct(id, {
-        ...dto,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'Product updated successfully',
-    )
+  @Patch(':productId')
+  @ApiOperation({ summary: 'Update product details' })
+  @ApiSuccessResponse({ description: 'Product fetched successfully', type: ProductResponseDto })
+  async updateProduct(
+    @Param() { productId }: ProductIdParamDto,
+    @Body() updateProductDto: UpdateProductDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ProductResponseDto> {
+    return await this.productsService.updateProduct(productId, {
+      ...updateProductDto,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
 
-  // Update product status
-  @Patch(':id/status')
-  @Auth(Role.ProductManager)
-  async updateStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('status') status: ProductStatus,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.productsService.updateProduct(id, {
-        status,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'Product status updated successfully',
-    )
+  @Patch(':productId/status')
+  @ApiOperation({ summary: 'Update product status' })
+  @ApiSuccessResponse({
+    description: 'Product status updated successfully',
+    type: ProductResponseDto,
+  })
+  async updateProductStatus(
+    @Param() { productId }: ProductIdParamDto,
+    @Body() { status }: UpdateProductStatusDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ProductResponseDto> {
+    return await this.productsService.updateProduct(productId, {
+      status,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
 
-  // Restore product
-  @Patch(':id/restore')
-  @Auth(Role.ProductManager)
-  async restore(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.productsService.updateProduct(id, {
-        isDeleted: false,
-        restoredBy: req.user.id,
-        restoredAt: new Date(),
-      }),
-      'Product restored successfully',
-    )
+  @Patch(':productId/restore')
+  @ApiOperation({ summary: 'Restore soft-deleted product' })
+  @ApiSuccessResponse({ description: 'Product restored successfully', type: ProductResponseDto })
+  async restoreProduct(
+    @Param() { productId }: ProductIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ProductResponseDto> {
+    return await this.productsService.updateProduct(productId, {
+      isDeleted: false,
+      restoredById: user.id,
+      restoredAt: new Date(),
+    })
   }
 
-  // Soft-delete product
-  @Delete(':id')
-  @Auth(Role.SuperAdmin)
-  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.productsService.updateProduct(id, {
-        isDeleted: true,
-        deletedBy: req.user.id,
-        deletedAt: new Date(),
-      }),
-      'Product deleted successfully',
-    )
+  @Delete(':productId')
+  @ApiOperation({ summary: 'Soft-delete product' })
+  @ApiSuccessResponse({ description: 'Product deleted successfully', type: ProductResponseDto })
+  async deleteProduct(
+    @Param() { productId }: ProductIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ProductResponseDto> {
+    return await this.productsService.updateProduct(productId, {
+      isDeleted: true,
+      deletedById: user.id,
+      deletedAt: new Date(),
+    })
   }
 }

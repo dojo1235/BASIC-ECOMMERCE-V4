@@ -1,61 +1,77 @@
-import { Controller, Get, Patch, Param, Body, Req, ParseIntPipe, Query } from '@nestjs/common'
+import { Controller, Get, Patch, Param, Query } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { ReviewsService } from './reviews.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { Role } from 'src/common/enums/roles.enum'
-import { buildResponse } from 'src/common/utils/response.util'
+import { Role } from 'src/users/entities/user.entity'
+import { ProductIdParamDto } from 'src/common/dto/product-id-param.dto'
+import { ReviewIdParamDto } from 'src/common/dto/review-id-param.dto'
+import { FindReviewsDto } from './dto/find-reviews.dto'
+import { ReviewResponseDto } from './dto/review-response.dto'
+import { ReviewsListResponseDto } from './dto/reviews-list-response.dto'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 
+@Auth(Role.ProductManager)
 @Controller('admins/reviews')
 export class AdminsReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  // Get all reviews for a product
   @Get('products/:productId')
-  @Auth(Role.ProductManager)
-  async findMany(
-    @Param('productId', ParseIntPipe) productId: number,
-    @Query() query: Record<string, any>,
-  ) {
-    return buildResponse(
-      await this.reviewsService.findProductReviewsForAdmin(productId, query),
-      'Product reviews fetched successfully',
-    )
+  @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch all reviews for a product' })
+  @ApiSuccessResponse({
+    description: 'Product reviews fetched successfully',
+    type: ReviewsListResponseDto,
+  })
+  async findProductReviewsForAdmin(
+    @Param() { productId }: ProductIdParamDto,
+    @Query() query: FindReviewsDto,
+  ): Promise<ReviewsListResponseDto> {
+    return await this.reviewsService.findProductReviewsForAdmin(productId, query)
   }
 
-  // Get a single review
   @Get(':reviewId')
-  @Auth(Role.ProductManager)
-  async findOne(@Param('reviewId', ParseIntPipe) reviewId: number) {
-    return buildResponse(
-      await this.reviewsService.findOneForAdmin(reviewId),
-      'Review fetched successfully',
-    )
+  @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch a single review' })
+  @ApiSuccessResponse({
+    description: 'Review fetched successfully',
+    type: ReviewResponseDto,
+  })
+  async findOneForAdmin(@Param() { reviewId }: ReviewIdParamDto): Promise<ReviewResponseDto> {
+    return await this.reviewsService.findOneForAdmin(reviewId)
   }
 
-  // Hide review
   @Patch(':reviewId/hide')
-  @Auth(Role.ProductManager)
-  async hide(@Param('reviewId', ParseIntPipe) reviewId: number, @Req() req: any) {
-    return buildResponse(
-      await this.reviewsService.updateReviewForAdmin(reviewId, {
-        isVisible: false,
-        hiddenBy: req.user.id,
-        hiddenAt: new Date(),
-      }),
-      'Review hidden successfully',
-    )
+  @ApiOperation({ summary: 'Hide a review' })
+  @ApiSuccessResponse({
+    description: 'Review hidden successfully',
+    type: ReviewResponseDto,
+  })
+  async hideReview(
+    @Param() { reviewId }: ReviewIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ReviewResponseDto> {
+    return await this.reviewsService.updateReviewForAdmin(reviewId, {
+      isVisible: false,
+      hiddenById: user.id,
+      hiddenAt: new Date(),
+    })
   }
-  
-  // restore review
+
   @Patch(':reviewId/restore')
-  @Auth(Role.ProductManager)
-  async restore(@Param('reviewId', ParseIntPipe) reviewId: number, @Req() req: any) {
-    return buildResponse(
-      await this.reviewsService.updateReviewForAdmin(reviewId, {
-        isVisible: true,
-        restoredBy: req.user.id,
-        restoredAt: new Date(),
-      }),
-      'Review restored successfully',
-    )
+  @ApiOperation({ summary: 'Restore a review' })
+  @ApiSuccessResponse({
+    description: 'Review restored successfully',
+    type: ReviewResponseDto,
+  })
+  async restoreReview(
+    @Param() { reviewId }: ReviewIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ReviewResponseDto> {
+    return await this.reviewsService.updateReviewForAdmin(reviewId, {
+      isVisible: true,
+      restoredById: user.id,
+      restoredAt: new Date(),
+    })
   }
 }

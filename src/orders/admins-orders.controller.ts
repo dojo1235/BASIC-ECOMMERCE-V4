@@ -1,89 +1,92 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Req, ParseIntPipe, Query } from '@nestjs/common'
+import { Controller, Get, Patch, Delete, Param, Body, Query } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { Role } from 'src/common/enums/roles.enum'
-import { buildResponse } from 'src/common/utils/response.util'
+import { Role } from 'src/users/entities/user.entity'
+import { FindOrdersDto } from './dto/find-orders.dto'
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { UserIdParamDto } from 'src/common/dto/user-id-param.dto'
+import { OrderIdParamDto } from 'src/common/dto/order-id-param.dto'
+import { OrderResponseDto } from './dto/order-response.dto'
+import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 
+@Auth(Role.OrderManager)
 @Controller('admins/orders')
 export class AdminsOrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // Get all orders
   @Get()
-  @Auth(Role.OrderManager)
-  async findAll(@Query() query: Record<string, any>) {
-    return buildResponse(
-      await this.ordersService.findAllOrders(query),
-      'Orders fetched successfully',
-    )
+  @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch all orders' })
+  @ApiSuccessResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
+  async findAllOrders(@Query() query: FindOrdersDto): Promise<OrdersListResponseDto> {
+    return await this.ordersService.findAllOrders(query)
   }
 
-  // Get all orders for a specific user
   @Get('users/:userId')
-  @Auth(Role.OrderManager)
+  @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch all orders for a specific user' })
+  @ApiSuccessResponse({
+    description: 'User orders fetched successfully',
+    type: OrdersListResponseDto,
+  })
   async findUserOrdersForAdmin(
-    @Param('userId', ParseIntPipe) userId: number,
-    @Query() query: Record<string, any>,
-  ) {
-    return buildResponse(
-      await this.ordersService.findUserOrdersForAdmin(userId, query),
-      'User orders fetched successfully',
-    )
+    @Param() { userId }: UserIdParamDto,
+    @Query() query: FindOrdersDto,
+  ): Promise<OrdersListResponseDto> {
+    return await this.ordersService.findUserOrdersForAdmin(userId, query)
   }
 
-  // Get a single order
   @Get(':orderId')
-  @Auth(Role.OrderManager)
-  async findOneForAdmin(@Param('orderId', ParseIntPipe) orderId: number) {
-    return buildResponse(
-      await this.ordersService.findOneForAdmin(orderId),
-      'Order fetched successfully',
-    )
+  @Auth(Role.ViewOnlyAdmin)
+  @ApiOperation({ summary: 'Fetch a single order' })
+  @ApiSuccessResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
+  async findOneOrderForAdmin(@Param() { orderId }: OrderIdParamDto): Promise<OrderResponseDto> {
+    return await this.ordersService.findOneForAdmin(orderId)
   }
 
-  // Update order status
   @Patch(':orderId/status')
-  @Auth(Role.OrderManager)
-  async updateStatus(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Body() body: any,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.ordersService.updateOrder(orderId, {
-        status: body.status,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'Order status updated successfully',
-    )
+  @ApiOperation({ summary: 'Update order status' })
+  @ApiSuccessResponse({ description: 'Order status updated successfully', type: OrderResponseDto })
+  async updateOrderStatus(
+    @Param() { orderId }: OrderIdParamDto,
+    @Body() { status }: UpdateOrderStatusDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrderResponseDto> {
+    return await this.ordersService.updateOrder(orderId, {
+      status,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
-  
-  // restore order
+
   @Patch(':orderId/restore')
-  @Auth(Role.OrderManager)
-  async restore(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: any) {
-    return buildResponse(
-      await this.ordersService.updateOrder(orderId, {
-        isDeleted: false,
-        restoredBy: req.user.id,
-        restoredAt: new Date(),
-      }),
-      'Order restored successfully',
-    )
+  @ApiOperation({ summary: 'Restore order' })
+  @ApiSuccessResponse({ description: 'Order restored successfully', type: OrderResponseDto })
+  async restoreOrder(
+    @Param() { orderId }: OrderIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrderResponseDto> {
+    return await this.ordersService.updateOrder(orderId, {
+      isDeleted: false,
+      restoredById: user.id,
+      restoredAt: new Date(),
+    })
   }
-  
-  // Soft-Delete order
+
   @Delete(':orderId')
-  @Auth(Role.OrderManager)
-  async remove(@Param('orderId', ParseIntPipe) orderId: number, @Req() req: any) {
-    return buildResponse(
-      await this.ordersService.updateOrder(orderId, {
-        isDeleted: true,
-        deletedBy: req.user.id,
-        deletedAt: new Date(),
-      }),
-      'Order deleted successfully',
-    )
+  @ApiOperation({ summary: 'Soft-delete order' })
+  @ApiSuccessResponse({ description: 'Order deleted successfully', type: OrderResponseDto })
+  async deleteOrder(
+    @Param() { orderId }: OrderIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrderResponseDto> {
+    return await this.ordersService.updateOrder(orderId, {
+      isDeleted: true,
+      deletedById: user.id,
+      deletedAt: new Date(),
+    })
   }
 }

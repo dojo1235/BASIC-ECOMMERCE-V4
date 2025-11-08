@@ -1,65 +1,61 @@
-import { Controller, Get, Body, Patch, Delete, Req } from '@nestjs/common'
+import { Controller, Get, Patch, Delete, Body, HttpCode, HttpStatus } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
+import { Auth } from 'src/common/decorators/auth.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
-import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { UserResponseDto } from './dto/user-response.dto'
 
+@Auth()
 @Controller('users/me')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Fetch user profile
   @Get()
-  @Auth()
-  async findOne(@Req() req: any) {
-    return buildResponse(
-      await this.usersService.findOneUser(req.user.id),
-      'Profile fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch user profile' })
+  @ApiSuccessResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
+  async findUserProfile(@CurrentUser() user: CurrentUserPayload): Promise<UserResponseDto> {
+    return await this.usersService.findOneUser(user.id)
   }
 
-  // Update user profile
   @Patch()
-  @Auth()
-  async update(@Body() dto: UpdateUserDto, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUser(req.user.id, {
-        ...dto,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'Profile updated successfully',
-    )
-  }
-  
-  // Update password for user
-  @Patch('password')
-  @Auth()
-  async updatePassword(
-    @Body() updatePasswordDto: UpdatePasswordDto,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.usersService.updatePassword(
-        req.user.id,
-        updatePasswordDto
-      ),
-      'Password updated successfully',
-    )
+  @ApiOperation({ summary: 'Update user profile' })
+  @ApiSuccessResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  async updateUserProfile(
+    @Body() dto: UpdateUserDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUser(user.id, {
+      ...dto,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
 
-  // Soft-delete user
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Patch('password')
+  @ApiOperation({ summary: 'Update user password' })
+  @ApiSuccessResponse({
+    description: 'Password updated successfully',
+    status: HttpStatus.NO_CONTENT,
+  })
+  async updatePassword(
+    @Body() dto: UpdatePasswordDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<void> {
+    await this.usersService.updatePassword(user.id, dto)
+  }
+
   @Delete()
-  @Auth()
-  async remove(@Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUser(req.user.id, {
-        isDeleted: true,
-        deletedBy: req.user.id,
-        deletedAt: new Date(),
-      }),
-      'Account deleted successfully',
-    )
+  @ApiOperation({ summary: 'Soft-delete user account' })
+  @ApiSuccessResponse({ description: 'Account deleted successfully', type: UserResponseDto })
+  async deleteUser(@CurrentUser() user: CurrentUserPayload): Promise<UserResponseDto> {
+    return await this.usersService.updateUser(user.id, {
+      isDeleted: true,
+      deletedById: user.id,
+      deletedAt: new Date(),
+    })
   }
 }

@@ -1,1 +1,0 @@
-ALTER TABLE "wishlist" DROP COLUMN "updatedAt";

@@ -1,116 +1,79 @@
-import { Injectable, HttpStatus } from '@nestjs/common'
-import { db } from 'src/drizzle/db'
-import { reviews, products } from 'src/drizzle/schema'
-import { eq, and, desc } from 'drizzle-orm'
-import { paginate } from 'src/common/utils/pagination.util'
-import { AppError } from 'src/common/errors/app-error'
+import { Injectable } from '@nestjs/common'
+import { ReviewsRepository } from './reviews.repository'
+import { ProductsRepository } from '../products/products.repository'
+import { FindReviewsDto } from './dto/find-reviews.dto'
+import { Review } from './entities/review.entity'
+import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 @Injectable()
 export class ReviewsService {
+  constructor(
+    private readonly reviewsRepository: ReviewsRepository,
+    private readonly productsRepository: ProductsRepository,
+  ) {}
+
   // Create a review (user)
   async createReview(userId: number, productId: number, rating: number, comment: string) {
-    const product = await db.query.products.findFirst({
-      where: eq(products.id, productId),
-    })
-    if (!product) throw new AppError('Product not found', HttpStatus.NOT_FOUND)
-    const existing = await db.query.reviews.findFirst({
-      where: and(eq(reviews.productId, productId), eq(reviews.userId, userId)),
-    })
-    if (existing) throw new AppError('Review already exists', HttpStatus.CONFLICT)
-    const [created] = await db.insert(reviews)
-      .values({ userId, productId, rating, comment })
-      .returning({
-        id: reviews.id,
-        userId: reviews.userId,
-        productId: reviews.productId,
-        rating: reviews.rating,
-        comment: reviews.comment,
-      }) as any[]
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    const existing = await this.reviewsRepository.findOneReview(userId, productId)
+    if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Review already exist')
+    const created = await this.reviewsRepository.createReview(userId, productId, rating, comment)
     return { review: created }
   }
 
   // Find all product reviews (admin)
-  async findProductReviewsForAdmin(productId: number, query: Record<string, any>) {
-    const whereConditions: any[] = [eq(reviews.productId, productId)]
-    if (query.rating) whereConditions.push(eq(reviews.rating, Number(query.rating)))
-    if ('isVisible' in query) whereConditions.push(eq(reviews.isVisible, query.isVisible === 'true'))
-    const result = await paginate(db.query.reviews, reviews, whereConditions, query)
-    return { reviews: result.items, meta: result.meta }
+  async findProductReviewsForAdmin(productId: number, query: FindReviewsDto) {
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    return await this.reviewsRepository.findProductReviews(productId, query)
   }
 
   // Find all product reviews (user)
-  async findProductReviews(productId: number, query: Record<string, any>) {
-    const whereConditions: any[] = [
-      eq(reviews.productId, productId),
-      eq(reviews.isVisible, true),
-    ]
-    const result = await paginate(db.query.reviews, reviews, whereConditions, query)
-    return { reviews: result.items, meta: result.meta }
+  async findProductReviews(productId: number, query: FindReviewsDto) {
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    query.isVisible = true
+    return await this.reviewsRepository.findProductReviews(productId, query)
   }
 
   // Find a single review (admin)
   async findOneForAdmin(reviewId: number) {
-    const review = await db.query.reviews.findFirst({
-      where: eq(reviews.id, reviewId),
-    })
-    if (!review) throw new AppError('Review not found', HttpStatus.NOT_FOUND)
+    const review = await this.reviewsRepository.findOneReviewForAdmin(reviewId)
+    if (!review) throw new AppError(ErrorCode.NOT_FOUND, 'Review not found')
     return { review }
   }
 
   // Find single user review (user)
   async findUserReview(productId: number, userId: number) {
-    const review = await db.query.reviews.findFirst({
-      where: and(
-        eq(reviews.productId, productId),
-        eq(reviews.userId, userId),
-        eq(reviews.isVisible, true),
-      ),
-    })
-    if (!review) throw new AppError('Review not found', HttpStatus.NOT_FOUND)
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    const review = await this.reviewsRepository.findOneReview(userId, productId)
+    if (!review) throw new AppError(ErrorCode.NOT_FOUND, 'Review not found')
     return { review }
   }
 
   // Update a review (admin)
-  async updateReviewForAdmin(reviewId: number, dto: any) {
-    const existing = await db.query.reviews.findFirst({
-      where: eq(reviews.id, reviewId),
-    })
-    if (!existing) throw new AppError('Review not found', HttpStatus.NOT_FOUND)
-    const [updated] = await db.update(reviews)
-      .set(dto)
-      .where(eq(reviews.id, reviewId))
-      .returning() as any[]
+  async updateReviewForAdmin(reviewId: number, data: Partial<Review>) {
+    const existing = await this.reviewsRepository.findOneReviewForAdmin(reviewId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Review not found')
+    await this.reviewsRepository.updateReview(reviewId, data)
+    const updated = await this.reviewsRepository.findOneReviewForAdmin(reviewId)
     return { review: updated }
   }
 
   // Update user review (user)
   async updateReview(userId: number, productId: number, rating: number, comment: string) {
-    const existing = await db.query.reviews.findFirst({
-      where: and(
-        eq(reviews.productId, productId),
-        eq(reviews.userId, userId),
-        eq(reviews.isVisible, true),
-      ),
+    const product = await this.productsRepository.findProductById(productId)
+    if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    const existing = await this.reviewsRepository.findOneReview(userId, productId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Review not found')
+    await this.reviewsRepository.updateReview(existing.id, {
+      rating,
+      comment,
+      updatedAt: new Date(),
     })
-    if (!existing) throw new AppError('Review not found', HttpStatus.NOT_FOUND)
-    const [updated] = await db.update(reviews)
-      .set({
-        rating,
-        comment,
-        updatedAt: new Date(),
-      })
-      .where(and(
-        eq(reviews.productId, productId),
-        eq(reviews.userId, userId),
-        eq(reviews.isVisible, true),
-      ))
-      .returning({
-        id: reviews.id,
-        userId: reviews.userId,
-        productId: reviews.productId,
-        rating: reviews.rating,
-        comment: reviews.comment,
-      }) as any[]
+    const updated = await this.reviewsRepository.findOneReview(userId, productId)
     return { review: updated }
   }
 }

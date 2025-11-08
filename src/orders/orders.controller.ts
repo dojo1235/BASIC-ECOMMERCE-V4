@@ -1,58 +1,61 @@
-import { Controller, Get, Post, Patch, Param, Body, Req, ParseIntPipe, Query } from '@nestjs/common'
+import { Controller, Get, Post, Patch, Body, Param, Query, HttpStatus } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { PlaceOrderDto } from './dto/place-order.dto'
+import { FindOrdersDto } from './dto/find-orders.dto'
+import { OrderIdParamDto } from 'src/common/dto/order-id-param.dto'
+import { OrderResponseDto } from './dto/order-response.dto'
+import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 
+@Auth()
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
-  
-  // Place new order
+
   @Post()
-  @Auth()
+  @ApiOperation({ summary: 'Place a new order' })
+  @ApiSuccessResponse({
+    description: 'Order placed successfully',
+    type: OrderResponseDto,
+    status: HttpStatus.CREATED,
+  })
   async placeOrder(
-    @Body() payload: { contact: string; shippingAddress: string },
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.ordersService.placeOrder(req.user.id, payload),
-      'Order placed successfully',
-    )
+    @Body() data: PlaceOrderDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrderResponseDto> {
+    return await this.ordersService.placeOrder(user.id, data)
   }
 
-  // Get user orders
   @Get()
-  @Auth()
-  async findMyOrders(@Query() query: Record<string, any>, @Req() req: any) {
-    return buildResponse(
-      await this.ordersService.findUserOrders(req.user.id, query),
-      'Orders fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch all orders of the logged-in user' })
+  @ApiSuccessResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
+  async findUserOrders(
+    @Query() query: FindOrdersDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrdersListResponseDto> {
+    return await this.ordersService.findUserOrders(user.id, query)
   }
 
-  // Get a single order for user
   @Get(':orderId')
-  @Auth()
-  async findMyOrder(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.ordersService.findOne(req.user.id, orderId),
-      'Order fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch a single order of the logged-in user' })
+  @ApiSuccessResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
+  async findUserOrder(
+    @Param() { orderId }: OrderIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrderResponseDto> {
+    return await this.ordersService.findOne(user.id, orderId)
   }
 
-  // Cancel an order
   @Patch(':orderId/cancel')
-  @Auth()
+  @ApiOperation({ summary: 'Cancel an order of the logged-in user' })
+  @ApiSuccessResponse({ description: 'Order cancelled successfully', type: OrderResponseDto })
   async cancelOrder(
-    @Param('orderId', ParseIntPipe) orderId: number,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.ordersService.cancelOrder(req.user.id, orderId),
-      'Order cancelled successfully',
-    )
+    @Param() { orderId }: OrderIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<OrderResponseDto> {
+    return await this.ordersService.cancelOrder(user.id, orderId)
   }
 }

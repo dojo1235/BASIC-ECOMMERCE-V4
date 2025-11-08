@@ -1,120 +1,134 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, Req } from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { UsersService } from './users.service'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { Role } from 'src/common/enums/roles.enum'
+import { FindUsersDto } from './dto/find-users.dto'
+import { Role } from 'src/users/entities/user.entity'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { UsersListResponseDto } from './dto/users-list-response.dto'
+import { UserResponseDto } from './dto/user-response.dto'
+import { UpdateUserRoleDto } from './dto/update-user-role.dto'
+import { UserIdParamDto } from 'src/common/dto/user-id-param.dto'
 
+@Auth(Role.UserManager)
 @Controller('admins/users')
 export class AdminsUsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Fetch all users
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post(':userId/revoke-sessions')
+  @ApiOperation({ summary: 'Log out user from all devices' })
+  @ApiSuccessResponse({
+    description: 'All user sessions revoked successfully',
+    status: HttpStatus.NO_CONTENT,
+  })
+  async revokeAllSessions(
+    @Param() { userId }: UserIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<void> {
+    await this.usersService.revokeAllUserSessions(userId, user.id)
+  }
+
   @Get()
   @Auth(Role.ViewOnlyAdmin)
-  async findAll(@Query() query: Record<string, any>) {
-    return buildResponse(
-      await this.usersService.findAllUsers(query),
-      'Users fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch all users' })
+  @ApiSuccessResponse({ description: 'Users fetched successfully', type: UsersListResponseDto })
+  async findAllUsers(@Query() query: FindUsersDto): Promise<UsersListResponseDto> {
+    return await this.usersService.findAllUsers(query)
   }
 
-  // Fetch a single user
-  @Get(':id')
+  @Get(':userId')
   @Auth(Role.ViewOnlyAdmin)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return buildResponse(
-      await this.usersService.findOneUser(id),
-      'User fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch a single user' })
+  @ApiSuccessResponse({ description: 'User fetched successfully', type: UserResponseDto })
+  async findOneUser(@Param() { userId }: UserIdParamDto): Promise<UserResponseDto> {
+    return await this.usersService.findOneUser(userId)
   }
 
-  // Update user
-  @Patch(':id')
-  @Auth(Role.UserManager)
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateUserDto,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.usersService.updateUserForAdmin(id, {
-        ...dto,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'User updated successfully',
-    )
+  @Patch(':userId')
+  @ApiOperation({ summary: 'Update user details' })
+  @ApiSuccessResponse({ description: 'User updated successfully', type: UserResponseDto })
+  async updateUserDetails(
+    @Param() { userId }: UserIdParamDto,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUserForAdmin(userId, {
+      ...updateUserDto,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
 
-  // Update user role
-  @Patch(':id/role')
+  @Patch(':userId/role')
   @Auth(Role.SuperAdmin)
-  async updateRole(
-    @Param('id', ParseIntPipe) id: number,
-    @Body('role') role: Role,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.usersService.updateUserForAdmin(id, {
-        role,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'User role updated successfully',
-    )
+  @ApiOperation({ summary: 'Update user role' })
+  @ApiSuccessResponse({ description: 'User role updated successfully', type: UserResponseDto })
+  async updateUserRole(
+    @Param() { userId }: UserIdParamDto,
+    @Body() { role }: UpdateUserRoleDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUserForAdmin(userId, {
+      role,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
 
-  // Ban user
-  @Patch(':id/ban')
-  @Auth(Role.UserManager)
-  async ban(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUserForAdmin(id, {
-        isBanned: true,
-        bannedBy: req.user.id,
-        bannedAt: new Date(),
-      }),
-      'User banned successfully',
-    )
+  @Patch(':userId/ban')
+  @ApiOperation({ summary: 'Ban user' })
+  @ApiSuccessResponse({ description: 'User banned successfully', type: UserResponseDto })
+  async banUser(
+    @Param() { userId }: UserIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUserForAdmin(userId, {
+      isBanned: true,
+      bannedById: user.id,
+      bannedAt: new Date(),
+    })
   }
 
-  // Restore user
-  @Patch(':id/restore')
-  @Auth(Role.UserManager)
-  async restore(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUserForAdmin(id, {
-        isBanned: false,
-        isDeleted: false,
-        restoredBy: req.user.id,
-        restoredAt: new Date(),
-      }),
-      'User restored successfully',
-    )
-  }
-  
-  // Log out user from all devices
-  @Patch(':id/revoke-sessions')
-  @Auth(Role.UserManager)
-  async revokeAllSessions(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.revokeAllUserSessions(id, req.user.id),
-      'All user sessions revoked successfully',
-    )
+  @Patch(':userId/restore')
+  @ApiOperation({ summary: 'Restore user' })
+  @ApiSuccessResponse({ description: 'User restored successfully', type: UserResponseDto })
+  async restoreUser(
+    @Param() { userId }: UserIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUserForAdmin(userId, {
+      isBanned: false,
+      isDeleted: false,
+      restoredById: user.id,
+      restoredAt: new Date(),
+    })
   }
 
-  // Soft-delete user
-  @Delete(':id')
-  @Auth(Role.UserManager)
-  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateUserForAdmin(id, {
-        isDeleted: true,
-        deletedBy: req.user.id,
-        deletedAt: new Date(),
-      }),
-      'User deleted successfully',
-    )
+  @Delete(':userId')
+  @ApiOperation({ summary: 'Soft-delete user' })
+  @ApiSuccessResponse({ description: 'User deleted successfully', type: UserResponseDto })
+  async deleteUser(
+    @Param() { userId }: UserIdParamDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateUserForAdmin(userId, {
+      isDeleted: true,
+      deletedById: user.id,
+      deletedAt: new Date(),
+    })
   }
 }

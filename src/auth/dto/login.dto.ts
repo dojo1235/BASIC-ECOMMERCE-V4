@@ -1,8 +1,10 @@
 import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class LoginDto {
   @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
+  @ApiProperty({ description: 'Email address of the user' })
   email: string
 
   @IsString()
@@ -12,5 +14,6 @@ export class LoginDto {
   @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
   @Matches(/\d/, { message: 'Password must contain at least one number' })
   @Matches(/[\W_]/, { message: 'Password must contain at least one special character' })
+  @ApiProperty({ description: 'Password of the user', minLength: 8, maxLength: 100 })
   password: string
 }

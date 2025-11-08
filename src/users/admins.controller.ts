@@ -1,53 +1,51 @@
-import { Controller, Get, Patch, Body, Req } from '@nestjs/common'
-import { UsersService } from './users.service';
+import { Controller, Get, Patch, Body, HttpCode, HttpStatus } from '@nestjs/common'
+import { ApiOperation } from '@nestjs/swagger'
+import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
+import { Auth } from 'src/common/decorators/auth.decorator'
+import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { UsersService } from './users.service'
 import { UpdateAdminDto } from './dto/update-admin.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
-import { Role } from 'src/common/enums/roles.enum'
-import { Auth } from 'src/common/decorators/auth.decorator'
-import { buildResponse } from 'src/common/utils/response.util'
+import { UserResponseDto } from './dto/user-response.dto'
+import { Role } from 'src/users/entities/user.entity'
 
+@Auth(Role.ViewOnlyAdmin)
 @Controller('admins/me')
 export class AdminsController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Fetch admin profile
   @Get()
-  @Auth(Role.ViewOnlyAdmin)
-  async findOne(@Req() req: any) {
-    return buildResponse(
-      await this.usersService.findOneAdmin(req.user.id),
-      'Profile fetched successfully',
-    )
+  @ApiOperation({ summary: 'Fetch admin profile' })
+  @ApiSuccessResponse({ description: 'Profile fetched successfully', type: UserResponseDto })
+  async findAdminProfile(@CurrentUser() user: CurrentUserPayload): Promise<UserResponseDto> {
+    return await this.usersService.findOneAdmin(user.id)
   }
 
-  // Update admin profile
   @Patch()
-  @Auth(Role.ViewOnlyAdmin)
-  async update(@Body() dto: UpdateAdminDto,
-    @Req() req: any) {
-    return buildResponse(
-      await this.usersService.updateAdmin(req.user.id, {
-        ...dto,
-        updatedBy: req.user.id,
-        updatedAt: new Date(),
-      }),
-      'Profile updated successfully',
-    )
+  @ApiOperation({ summary: 'Update admin profile' })
+  @ApiSuccessResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  async updateAdminProfile(
+    @Body() dto: UpdateAdminDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<UserResponseDto> {
+    return await this.usersService.updateAdmin(user.id, {
+      ...dto,
+      updatedById: user.id,
+      updatedAt: new Date(),
+    })
   }
-  
-  // Update password for admin
+
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('password')
-  @Auth(Role.ViewOnlyAdmin)
-  async updatePassword(
-    @Body() updatePasswordDto: UpdatePasswordDto,
-    @Req() req: any,
-  ) {
-    return buildResponse(
-      await this.usersService.updatePassword(
-        req.user.id,
-        updatePasswordDto
-      ),
-      'Password updated successfully',
-    )
+  @ApiOperation({ summary: 'Update admin password' })
+  @ApiSuccessResponse({
+    description: 'Password updated successfully',
+    status: HttpStatus.NO_CONTENT,
+  })
+  async updateAdminPassword(
+    @Body() dto: UpdatePasswordDto,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<void> {
+    await this.usersService.updatePassword(user.id, dto)
   }
 }

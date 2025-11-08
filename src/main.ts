@@ -1,25 +1,39 @@
-import { ValidationPipe } from '@nestjs/common'
-import { NestFactory } from '@nestjs/core'
+import 'reflect-metadata'
+import { initializeTransactionalContext, StorageDriver } from 'typeorm-transactional'
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common'
+import { NestFactory, Reflector, HttpAdapterHost } from '@nestjs/core'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
-import { SanitizeInterceptor } from './common/interceptors/sanitize.interceptor'
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter'
 
 async function bootstrap() {
+  initializeTransactionalContext({ storageDriver: StorageDriver.AUTO })
+
   const app = await NestFactory.create(AppModule)
   app.enableCors()
   app.setGlobalPrefix('api')
   // enable global validation/transformation
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,            // strips properties not in DTOs
+      whitelist: true, // strips properties not in DTOs
       forbidNonWhitelisted: true, // throws if extra props are sent
-      transform: true,            // converts payloads to DTO class types
+      transform: true, // converts payloads to DTO class types
     }),
   )
-  // Globally apply sanitation
-  app.useGlobalInterceptors(new SanitizeInterceptor())
-  // plug in global exception filter
-  app.useGlobalFilters(new AllExceptionsFilter())
+
+  const config = new DocumentBuilder()
+    .setTitle('E-commerce API')
+    .setDescription('API documentation for the e-commerce platform')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build()
+
+  const document = SwaggerModule.createDocument(app, config)
+  SwaggerModule.setup('api', app, document)
+
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+  const httpAdapterHost = app.get(HttpAdapterHost)
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost))
 
   await app.listen(process.env.PORT ?? 3000)
 }

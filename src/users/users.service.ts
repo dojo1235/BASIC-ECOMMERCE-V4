@@ -1,247 +1,166 @@
-import { Injectable, HttpStatus } from '@nestjs/common'
-import { db } from 'src/drizzle/db'
-import { users, refreshTokens } from 'src/drizzle/schema'
-import { eq, and, ne, ilike, or } from 'drizzle-orm'
+import { Injectable } from '@nestjs/common'
+import { User } from './entities/user.entity'
+import { AuthRepository } from '../auth/auth.repository'
+import { UsersRepository } from './users.repository'
+import { hash, compare } from 'src/common/utils/crypto.util'
+import { Role } from './entities/user.entity'
+import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
+import { CreateAdminDto } from './dto/create-admin.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
-import { comparePassword, hashPassword } from 'src/common/utils/password.util'
-import { Role } from 'src/common/enums/roles.enum'
-import { paginate } from 'src/common/utils/pagination.util'
-import { AppError } from 'src/common/errors/app-error'
+import { FindUsersDto } from './dto/find-users.dto'
+
+type UpdateUserInput = Partial<User> & { password?: string }
 
 @Injectable()
 export class UsersService {
-  // Ensure is admin
-  private ensureIsAdmin(admin: any) {
-    if (!admin) throw new AppError('Admin not found', HttpStatus.NOT_FOUND)
-    if (admin.role === Role.User)
-      throw new AppError('Not an admin', HttpStatus.BAD_REQUEST)
-  }
-
-  // Ensure is user
-  private ensureIsUser(user: any) {
-    if (!user) throw new AppError('User not found', HttpStatus.NOT_FOUND)
-    if (user.role !== Role.User)
-      throw new AppError('Not a user', HttpStatus.BAD_REQUEST)
-  }
+  constructor(
+    private readonly authRepository: AuthRepository,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   // Create admin (super admin)
-  async createAdmin(createAdminDto: any, superAdminId: number) {
-    if (createAdminDto.role === Role.User)
-      throw new AppError('Creating user not allowed', HttpStatus.BAD_REQUEST)
-    const existing = await db.query.users.findFirst({
-      where: eq(users.email, createAdminDto.email),
+  async createAdmin({ password, ...data }: CreateAdminDto, superAdminId: number) {
+    if (data.role === Role.User)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Creating user not allowed')
+    const existing = await this.usersRepository.findUserByEmail(data.email)
+    if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
+    const passwordHash = await hash(password)
+    const created = await this.usersRepository.createUser({
+      ...data,
+      passwordHash,
+      createdById: superAdminId,
     })
-    if (existing) throw new AppError('Email already exists', HttpStatus.CONFLICT)
-    const hashedPassword = await hashPassword(createAdminDto.password)
-    const [created] = await db.insert(users)
-      .values({
-        ...createAdminDto,
-        password: hashedPassword,
-        createdBy: superAdminId,
-      })
-      .returning() as any[]
     return { user: created }
   }
 
-  // Find all admins (super admin)
-  async findAllAdmins(query: Record<string, any>) {
-    const { search, role, isBanned, isDeleted } = query
-    const adminRoles = Object.values(Role).filter(r => r !== Role.User)
-    if (role && !adminRoles.includes(role as any))
-      throw new AppError('Invalid admin role', HttpStatus.BAD_REQUEST)
-    const whereConditions: any[] = [ne(users.role, Role.User)]
-    if (search) {
-      whereConditions.push(
-        or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)),
-      )
-    }
-    if (role) whereConditions.push(eq(users.role, role))
-    if ('isBanned' in query) whereConditions.push(eq(users.isBanned, query.isBanned === 'true'))
-    if ('isDeleted' in query) whereConditions.push(eq(users.isDeleted, query.isDeleted === 'true'))
-    const result = await paginate(db.query.users, users, whereConditions, query)
-    return { users: result.items, meta: result.meta }
+  // Find all admins
+  async findAllAdmins(query: FindUsersDto) {
+    if (query.role && query.role === Role.User)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Role is not an admin')
+    return await this.usersRepository.findAllAdmins(query)
   }
 
-  // Find all users (admin)
-  async findAllUsers(query: Record<string, any>) {
-    const { search, isBanned, isDeleted } = query
-    const whereConditions: any[] = [eq(users.role, Role.User)]
-    if (search) {
-      whereConditions.push(
-        or(ilike(users.name, `%${search}%`), ilike(users.email, `%${search}%`)),
-      )
-    }
-    if ('isBanned' in query) whereConditions.push(eq(users.isBanned, query.isBanned === 'true'))
-    if ('isDeleted' in query) whereConditions.push(eq(users.isDeleted, query.isDeleted === 'true'))
-    const result = await paginate(db.query.users, users, whereConditions, query)
-    return { users: result.items, meta: result.meta }
+  // Find all users
+  async findAllUsers(query: FindUsersDto) {
+    return await this.usersRepository.findAllUsers(query)
   }
 
-  // Find one admin (admin)
-  async findOneAdmin(id: number) {
-    const admin = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  // Find one admin
+  async findOneAdmin(userId: number) {
+    const admin = await this.usersRepository.findUserById(userId)
     this.ensureIsAdmin(admin)
     return { user: admin }
   }
 
-  // Find one user (both)
-  async findOneUser(id: number) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  // Find one user
+  async findOneUser(userId: number) {
+    const user = await this.usersRepository.findUserById(userId)
     this.ensureIsUser(user)
     return { user }
   }
-  
+
   // Update admin (super admin)
-  async updateAdminForSuperAdmin(id: number, dto: any) {
-    const admin = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async updateAdminForSuperAdmin(userId: number, { password, ...data }: UpdateUserInput) {
+    const admin = await this.usersRepository.findUserById(userId)
     this.ensureIsAdmin(admin)
-    if ('email' in dto) {
-      const normalizedEmail = dto.email.trim().toLowerCase()
-      const existing = await db.query.users.findFirst({
-        where: eq(users.email, normalizedEmail),
-      })
-      if (existing)
-        throw new AppError('Email already exists', HttpStatus.CONFLICT)
-      dto.email = normalizedEmail
+    if (data.email) {
+      const existing = await this.usersRepository.findUserByEmail(data.email)
+      if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
     }
-    if ('password' in dto) {
-      dto.password = await hashPassword(dto.password)
-    }
-    const [updated] = await db.update(users)
-      .set(dto)
-      .where(eq(users.id, id))
-      .returning() as any[]
+    const updatedData: Partial<User> = { ...data }
+    if (password) updatedData.passwordHash = await hash(password)
+    await this.usersRepository.updateUser(userId, updatedData)
+    const updated = await this.usersRepository.findUserById(userId)
     return { user: updated }
   }
 
   // Update admin (admin)
-  async updateAdmin(id: number, dto: any) {
-    if ('password' in dto)
-      throw new AppError('Use the change password endpoint', HttpStatus.FORBIDDEN)
-    const admin = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async updateAdmin(userId: number, { password, ...data }: UpdateUserInput) {
+    if (password) throw new AppError(ErrorCode.INVALID_STATE, 'Use the change password endpoint')
+    const admin = await this.usersRepository.findUserById(userId)
     this.ensureIsAdmin(admin)
-    if ('email' in dto) {
-      const normalizedEmail = dto.email.trim().toLowerCase()
-      const existing = await db.query.users.findFirst({
-        where: eq(users.email, normalizedEmail),
-      })
-      if (existing)
-        throw new AppError('Email already exists', HttpStatus.CONFLICT)
-      dto.email = normalizedEmail
+    if (data.email) {
+      const existing = await this.usersRepository.findUserByEmail(data.email)
+      if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
     }
-    const [updated] = await db.update(users)
-      .set(dto)
-      .where(eq(users.id, id))
-      .returning() as any[]
+    await this.usersRepository.updateUser(userId, data)
+    const updated = await this.usersRepository.findUserById(userId)
     return { user: updated }
   }
-  
+
   // Update user (admin)
-  async updateUserForAdmin(id: number, dto: any) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async updateUserForAdmin(userId: number, { password, ...data }: UpdateUserInput) {
+    const user = await this.usersRepository.findUserById(userId)
     this.ensureIsUser(user)
-    if ('email' in dto) {
-      const normalizedEmail = dto.email.trim().toLowerCase()
-      const existing = await db.query.users.findFirst({
-        where: eq(users.email, normalizedEmail),
-      })
-      if (existing)
-        throw new AppError('Email already exists', HttpStatus.CONFLICT)
-      dto.email = normalizedEmail
+    if (data.email) {
+      const existing = await this.usersRepository.findUserByEmail(data.email)
+      if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
     }
-    if ('password' in dto) {
-      dto.password = await hashPassword(dto.password)
-    }
-    const [updated] = await db.update(users)
-      .set(dto)
-      .where(eq(users.id, id))
-      .returning() as any []
+    const updatedData: Partial<User> = { ...data }
+    if (password) updatedData.passwordHash = await hash(password)
+    await this.usersRepository.updateUser(userId, updatedData)
+    const updated = await this.usersRepository.findUserById(userId)
     return { user: updated }
   }
-  
+
   // Update user (user)
-  async updateUser(id: number, dto: any) {
-    if ('password' in dto)
-      throw new AppError('Use the change password endpoint', HttpStatus.FORBIDDEN)
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async updateUser(userId: number, { password, ...data }: UpdateUserInput) {
+    if (password) throw new AppError(ErrorCode.INVALID_STATE, 'Use the change password endpoint')
+    const user = await this.usersRepository.findUserById(userId)
     this.ensureIsUser(user)
-    if ('email' in dto) {
-      const normalizedEmail = dto.email.trim().toLowerCase()
-      const existing = await db.query.users.findFirst({
-        where: eq(users.email, normalizedEmail),
-      })
-      if (existing)
-        throw new AppError('Email already exists', HttpStatus.CONFLICT)
-      dto.email = normalizedEmail
+    if (data.email) {
+      const existing = await this.usersRepository.findUserByEmail(data.email)
+      if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
     }
-    const [updated] = await db.update(users)
-      .set(dto)
-      .where(eq(users.id, id))
-      .returning({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        role: users.role,
-      }) as any[]
+    await this.usersRepository.updateUser(userId, data)
+    const updated = await this.usersRepository.findUserById(userId)
     return { user: updated }
   }
-  
-  // Update password (both)
-  async updatePassword(id: number, updatePasswordDto: UpdatePasswordDto) {
-    if (updatePasswordDto.newPassword === updatePasswordDto.oldPassword)
-      throw new AppError('Cannot update to same password', HttpStatus.BAD_REQUEST) 
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
+
+  // Update password
+  async updatePassword(userId: number, { oldPassword, newPassword }: UpdatePasswordDto) {
+    if (newPassword === oldPassword)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Cannot update to same password')
+    const user = await this.usersRepository.findUserById(userId)
+    if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
+    const isValid = await compare(oldPassword, user.passwordHash)
+    if (!isValid) throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Old password is incorrect')
+    const passwordHash = await hash(newPassword)
+    await this.usersRepository.updateUser(userId, {
+      passwordHash,
+      updatedAt: new Date(),
     })
-    if (!user) throw new AppError('User not found', HttpStatus.NOT_FOUND)
-    const isValid = await comparePassword(updatePasswordDto.oldPassword, user.password)
-    if (!isValid)
-      throw new AppError('Old password is incorrect', HttpStatus.UNAUTHORIZED)
-    const newHashed = await hashPassword(updatePasswordDto.newPassword)
-    await db.update(users)
-      .set({ password: newHashed, updatedAt: new Date() })
-      .where(eq(users.id, id))
   }
 
   // Revoke all admin sessions (super admin)
-  async revokeAllAdminSessions(id: number, superAdminId: number) {
-    const admin = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async revokeAllAdminSessions(userId: number, superAdminId: number) {
+    const admin = await this.usersRepository.findUserById(userId)
     this.ensureIsAdmin(admin)
-    await db.update(refreshTokens)
-      .set({
-        revoked: true,
-        revokedBy: superAdminId,
-        revokedAt: new Date(),
-      })
-      .where(and(eq(refreshTokens.userId, id), eq(refreshTokens.revoked, false)))
+    await this.authRepository.revokeAllTokensForUser(userId, {
+      revoked: true,
+      revokedById: superAdminId,
+      revokedAt: new Date(),
+    })
   }
 
   // Revoke all user sessions (admin)
-  async revokeAllUserSessions(id: number, adminId: number) {
-    const user = await db.query.users.findFirst({
-      where: eq(users.id, id),
-    })
+  async revokeAllUserSessions(userId: number, adminId: number) {
+    const user = await this.usersRepository.findUserById(userId)
     this.ensureIsUser(user)
-    await db.update(refreshTokens)
-      .set({
-        revoked: true,
-        revokedBy: adminId,
-        revokedAt: new Date(),
-      })
-      .where(and(eq(refreshTokens.userId, id), eq(refreshTokens.revoked, false)))
+    await this.authRepository.revokeAllTokensForUser(userId, {
+      revoked: true,
+      revokedById: adminId,
+      revokedAt: new Date(),
+    })
+  }
+
+  private ensureIsAdmin(admin: User | null) {
+    if (!admin) throw new AppError(ErrorCode.NOT_FOUND, 'Admin not found')
+    if (admin.role === Role.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not an admin')
+  }
+
+  private ensureIsUser(user: User | null) {
+    if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
+    if (user.role !== Role.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not a user')
   }
 }
