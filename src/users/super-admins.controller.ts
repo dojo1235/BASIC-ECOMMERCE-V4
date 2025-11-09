@@ -43,12 +43,12 @@ export class SuperAdminsController {
     return await this.usersService.createAdmin(createAdminDto, user.id)
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @Post(':adminId/revoke-sessions')
   @ApiOperation({ summary: 'Log out admin from all devices' })
   @ApiSuccessResponse({
-    description: 'All admin sessions revoked successfully',
-    status: HttpStatus.NO_CONTENT,
+    description: 'Admin logged out from all devices successfully',
+    status: HttpStatus.OK,
   })
   async revokeAllSessions(
     @Param() { adminId }: AdminIdParamDto,

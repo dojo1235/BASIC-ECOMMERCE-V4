@@ -32,7 +32,7 @@ export class AdminsUsersController {
   @Post(':userId/revoke-sessions')
   @ApiOperation({ summary: 'Log out user from all devices' })
   @ApiSuccessResponse({
-    description: 'All user sessions revoked successfully',
+    description: 'User logged out from all devices successfully',
     status: HttpStatus.NO_CONTENT,
   })
   async revokeAllSessions(
