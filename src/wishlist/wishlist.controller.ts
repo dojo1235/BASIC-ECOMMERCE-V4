@@ -14,12 +14,11 @@ import { WishlistCountResponseDto } from './dto/wishlist-count-response.dto'
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @Post('products/:productId')
   @ApiOperation({ summary: 'Add product to wishlist' })
   @ApiSuccessResponse({
     description: 'Product added to wishlist successfully',
-    status: HttpStatus.NO_CONTENT,
   })
   async addProduct(
     @Param() { productId }: ProductIdParamDto,
@@ -48,12 +47,10 @@ export class WishlistController {
     return await this.wishlistService.countWishlistItems(user.id)
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('products/:productId')
   @ApiOperation({ summary: 'Remove a product from the wishlist' })
   @ApiSuccessResponse({
     description: 'Product removed from wishlist successfully',
-    status: HttpStatus.NO_CONTENT,
   })
   async removeProduct(
     @Param() { productId }: ProductIdParamDto,

@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Body, HttpCode, HttpStatus } from '@nestjs/common'
+import { Controller, Get, Patch, Body } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { Auth } from 'src/common/decorators/auth.decorator'
@@ -35,12 +35,10 @@ export class AdminsController {
     })
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Patch('password')
   @ApiOperation({ summary: 'Update admin password' })
   @ApiSuccessResponse({
     description: 'Password updated successfully',
-    status: HttpStatus.NO_CONTENT,
   })
   async updateAdminPassword(
     @Body() dto: UpdatePasswordDto,

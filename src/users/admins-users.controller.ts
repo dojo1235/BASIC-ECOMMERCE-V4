@@ -28,12 +28,11 @@ import { UserIdParamDto } from 'src/common/dto/user-id-param.dto'
 export class AdminsUsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @Post(':userId/revoke-sessions')
   @ApiOperation({ summary: 'Log out user from all devices' })
   @ApiSuccessResponse({
     description: 'User logged out from all devices successfully',
-    status: HttpStatus.NO_CONTENT,
   })
   async revokeAllSessions(
     @Param() { userId }: UserIdParamDto,
