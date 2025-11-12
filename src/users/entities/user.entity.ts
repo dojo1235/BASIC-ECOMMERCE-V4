@@ -41,7 +41,7 @@ export class User {
   role: Role
 
   @ApiProperty({ description: 'Balance of the user account in cases of order refunds' })
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  @Column({ type: 'numeric', precision: 10, scale: 2, default: 0 })
   balance: number
 
   @ApiProperty({ description: 'Indicates if the user is banned' })
