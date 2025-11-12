@@ -184,9 +184,11 @@ export class UsersService {
 
   // Create new address (both)
   async createAddress(data: Partial<Address>) {
-    const country = await this.countriesRepository.findCountryById(data.countryId!)
+    if (!data.countryId) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Country ID is required')
+    if (!data.userId) throw new AppError(ErrorCode.VALIDATION_ERROR, 'User ID is required')
+    const country = await this.countriesRepository.findCountryById(data.countryId)
     if (!country) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')
-    if (data.isDefault) await this.usersRepository.clearDefaultAddress(data.userId!)
+    if (data.isDefault) await this.usersRepository.clearDefaultAddress(data.userId)
     const created = await this.usersRepository.createAddress(data)
     return { address: created }
   }

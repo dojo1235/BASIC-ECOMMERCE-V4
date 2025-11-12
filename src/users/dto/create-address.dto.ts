@@ -8,7 +8,6 @@ import {
   IsInt,
 } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
 
 export class CreateAddressDto {
   @IsString()
@@ -51,7 +50,6 @@ export class CreateAddressDto {
   postalCode?: string
 
   @IsOptional()
-  @QueryBoolean()
   @IsBoolean()
   @ApiPropertyOptional({ description: 'Indicates if this is the default address', nullable: true })
   isDefault?: boolean
