@@ -65,7 +65,7 @@ export class CountriesController {
   ): Promise<CountryResponseDto> {
     return await this.countriesService.updateCountry(countryId, {
       ...updateCountryDto,
-      createdById: user.id,
+      updatedById: user.id,
     })
   }
 }
