@@ -1,5 +1,14 @@
-import { IsString, IsOptional, Length, IsBoolean, IsPhoneNumber } from 'class-validator'
+import {
+  IsString,
+  IsOptional,
+  Length,
+  IsBoolean,
+  IsPhoneNumber,
+  IsNotEmpty,
+  IsInt,
+} from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
 
 export class CreateAddressDto {
   @IsString()
@@ -28,10 +37,12 @@ export class CreateAddressDto {
   @ApiProperty({ description: 'City for the address', minLength: 2, maxLength: 100 })
   city: string
 
-  @IsString()
-  @Length(2, 100)
-  @ApiProperty({ description: 'Country for the address', minLength: 2, maxLength: 100 })
-  country: string
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    description: 'Country ID of the address',
+  })
+  countryId: number
 
   @IsString()
   @Length(2, 20)
@@ -39,8 +50,9 @@ export class CreateAddressDto {
   @ApiPropertyOptional({ description: 'Postal code', minLength: 2, maxLength: 20, nullable: true })
   postalCode?: string
 
-  @IsBoolean()
   @IsOptional()
+  @QueryBoolean()
+  @IsBoolean()
   @ApiPropertyOptional({ description: 'Indicates if this is the default address', nullable: true })
   isDefault?: boolean
 }

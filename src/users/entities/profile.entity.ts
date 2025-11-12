@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from './user.entity'
 
@@ -25,6 +26,7 @@ export class Profile {
   @Column()
   userId: number
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User

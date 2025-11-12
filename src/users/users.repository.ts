@@ -21,7 +21,7 @@ export class UsersRepository {
 
   async createUser(data: Partial<User>) {
     const entity = this.userRepository.create(data)
-    return this.userRepository.save(entity)
+    return await this.userRepository.save(entity)
   }
 
   async findAllAdmins(query: FindUsersDto) {
@@ -45,33 +45,33 @@ export class UsersRepository {
   }
 
   async findUserById(userId: number) {
-    return this.userRepository.findOne({ where: { id: userId } })
+    return await this.userRepository.findOne({ where: { id: userId } })
   }
 
   async findUserByEmail(email: string) {
-    return this.userRepository.findOne({ where: { email } })
+    return await this.userRepository.findOne({ where: { email } })
   }
 
   async updateUser(userId: number, data: Partial<User>) {
-    return this.userRepository.update({ id: userId }, data)
+    return await this.userRepository.update({ id: userId }, data)
   }
 
   async createProfile(data: Partial<Profile>) {
     const entity = this.profileRepository.create(data)
-    return this.profileRepository.save(entity)
+    return await this.profileRepository.save(entity)
   }
 
   async findProfile(userId: number) {
-    return this.profileRepository.findOne({ where: { userId } })
+    return await this.profileRepository.findOne({ where: { userId } })
   }
 
   async updateProfile(userId: number, data: Partial<Profile>) {
-    return this.profileRepository.update({ userId }, data)
+    return await this.profileRepository.update({ userId }, data)
   }
 
   async createAddress(data: Partial<Address>) {
     const entity = this.addressRepository.create(data)
-    return this.addressRepository.save(entity)
+    return await this.addressRepository.save(entity)
   }
 
   async findAddresses(userId: number) {
@@ -82,11 +82,15 @@ export class UsersRepository {
   }
 
   async findAddressById(addressId: number, userId: number) {
-    return this.addressRepository.findOne({ where: { id: addressId, userId } })
+    return await this.addressRepository.findOne({ where: { id: addressId, userId } })
   }
 
   async updateAddress(addressId: number, userId: number, data: Partial<Address>) {
-    return this.addressRepository.update({ id: addressId, userId }, data)
+    return await this.addressRepository.update({ id: addressId, userId }, data)
+  }
+
+  async clearDefaultAddress(userId: number) {
+    await this.addressRepository.update({ userId }, { isDefault: false })
   }
 
   async deleteAddress(addressId: number, userId: number) {

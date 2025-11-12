@@ -1,11 +1,9 @@
-import { IsEnum, IsOptional, IsString, IsDateString, Length, IsPhoneNumber } from 'class-validator'
+import { PartialType } from '@nestjs/mapped-types'
 import { ApiPropertyOptional } from '@nestjs/swagger'
+import { CreateProfileDto } from './create-profile.dto'
 import { Gender } from '../entities/profile.entity'
 
-export class UpdateProfileDto {
-  @IsString()
-  @Length(3, 50, { message: 'First Name must be between 3 and 50 characters long' })
-  @IsOptional()
+export class UpdateProfileDto extends PartialType(CreateProfileDto) {
   @ApiPropertyOptional({
     description: 'First name of the user',
     minLength: 3,
@@ -14,9 +12,6 @@ export class UpdateProfileDto {
   })
   firstName?: string
 
-  @IsString()
-  @Length(3, 50, { message: 'Middle Name must be between 3 and 50 characters long' })
-  @IsOptional()
   @ApiPropertyOptional({
     description: 'Middle name of the user',
     minLength: 3,
@@ -25,9 +20,6 @@ export class UpdateProfileDto {
   })
   middleName?: string
 
-  @IsString()
-  @Length(3, 50, { message: 'Last Name must be between 3 and 50 characters long' })
-  @IsOptional()
   @ApiPropertyOptional({
     description: 'Last name of the user',
     minLength: 3,
@@ -36,8 +28,6 @@ export class UpdateProfileDto {
   })
   lastName?: string
 
-  @IsDateString()
-  @IsOptional()
   @ApiPropertyOptional({
     description: 'Date of birth of the user',
     type: String,
@@ -46,18 +36,12 @@ export class UpdateProfileDto {
   })
   dob?: string
 
-  @IsPhoneNumber(undefined)
-  @IsOptional()
   @ApiPropertyOptional({ description: 'Primary contact number', nullable: true })
   contact?: string
 
-  @IsEnum(Gender)
-  @IsOptional()
   @ApiPropertyOptional({ description: 'Gender of the user', enum: Gender, nullable: true })
   gender?: Gender
 
-  @IsString()
-  @IsOptional()
   @ApiPropertyOptional({ description: 'Profile picture URL or path', nullable: true })
   profilePicture?: string
 }

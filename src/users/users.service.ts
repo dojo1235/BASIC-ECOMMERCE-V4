@@ -4,6 +4,7 @@ import { Profile } from './entities/profile.entity'
 import { Address } from './entities/address.entity'
 import { AuthRepository } from '../auth/auth.repository'
 import { UsersRepository } from './users.repository'
+import { CountriesRepository } from 'src/countries/countries.repository'
 import { hash, compare } from 'src/common/utils/crypto.util'
 import { Role } from './entities/user.entity'
 import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
@@ -18,6 +19,7 @@ export class UsersService {
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly usersRepository: UsersRepository,
+    private readonly countriesRepository: CountriesRepository,
   ) {}
 
   // Create admin (super admin)
@@ -156,17 +158,20 @@ export class UsersService {
     })
   }
 
+  // Create profile(both)
   async createProfile(data: Partial<Profile>) {
     const created = await this.usersRepository.createProfile(data)
     return { profile: created }
   }
 
+  // Find Profile (both)
   async findProfile(userId: number) {
     const profile = await this.usersRepository.findProfile(userId)
     if (!profile) throw new AppError(ErrorCode.NOT_FOUND, 'Profile not found')
     return { profile }
   }
 
+  // Update profile details (both)
   async updateProfile(userId: number, data: Partial<Profile>) {
     const existing = await this.usersRepository.findProfile(userId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Profile not found')
@@ -175,30 +180,43 @@ export class UsersService {
     return { profile: updated }
   }
 
+  // Create new address (both)
   async createAddress(data: Partial<Address>) {
+    const country = await this.countriesRepository.findCountryById(data.countryId!)
+    if (!country) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')
+    if (data.isDefault) await this.usersRepository.clearDefaultAddress(data.userId!)
     const created = await this.usersRepository.createAddress(data)
     return { address: created }
   }
 
+  // Find addresses (both)
   async findAddresses(userId: number) {
     const addresses = await this.usersRepository.findAddresses(userId)
     return { addresses }
   }
 
+  // Find single address (both)
   async findAddressById(addressId: number, userId: number) {
     const address = await this.usersRepository.findAddressById(addressId, userId)
     if (!address) throw new AppError(ErrorCode.NOT_FOUND, 'Address not found')
     return { address }
   }
 
+  // Update address (both)
   async updateAddress(addressId: number, userId: number, data: Partial<Address>) {
     const existing = await this.usersRepository.findAddressById(addressId, userId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Address not found')
+    if (data.countryId) {
+      const country = await this.countriesRepository.findCountryById(data.countryId)
+      if (!country) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')
+    }
+    if (data.isDefault) await this.usersRepository.clearDefaultAddress(userId)
     await this.usersRepository.updateAddress(addressId, userId, data)
     const updated = await this.usersRepository.findAddressById(addressId, userId)
     return { address: updated }
   }
 
+  // Hard-Delete address (both)
   async deleteAddress(addressId: number, userId: number) {
     const existing = await this.usersRepository.findAddressById(addressId, userId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Address not found')

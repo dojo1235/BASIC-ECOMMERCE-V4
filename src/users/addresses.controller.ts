@@ -12,7 +12,7 @@ import { AddressIdParamDto } from 'src/common/dto/address-id-param.dto'
 
 @Auth()
 @Controller('addresses')
-export class AddressController {
+export class AddressesController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
@@ -60,10 +60,10 @@ export class AddressController {
   })
   async updateAddress(
     @Param() { addressId }: AddressIdParamDto,
-    @Body() data: UpdateAddressDto,
+    @Body() updateAddressDto: UpdateAddressDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<AddressResponseDto> {
-    return await this.usersService.updateAddress(addressId, user.id, data)
+    return await this.usersService.updateAddress(addressId, user.id, updateAddressDto)
   }
 
   @Delete(':addressId')

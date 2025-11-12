@@ -7,8 +7,10 @@ import {
   UpdateDateColumn,
   JoinColumn,
 } from 'typeorm'
+import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
-import { User } from './user.entity' // fixed import path
+import { User } from './user.entity'
+import { Country } from 'src/countries/entities/country.entity'
 
 @Entity()
 export class Address {
@@ -20,6 +22,7 @@ export class Address {
   @Column()
   userId: number
 
+  @Exclude()
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User
@@ -40,9 +43,14 @@ export class Address {
   @Column({ type: 'varchar', length: 100 })
   city: string
 
-  @ApiProperty({ description: 'Country for the address' })
-  @Column({ type: 'varchar', length: 100 })
-  country: string
+  @ApiProperty({ description: 'Country ID associated with this address' })
+  @Column()
+  countryId: number
+
+  @Exclude()
+  @ManyToOne(() => Country, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  country: Country
 
   @ApiProperty({ description: 'Postal code', type: String, nullable: true })
   @Column({ type: 'varchar', length: 20, nullable: true })

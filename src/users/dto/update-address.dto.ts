@@ -1,10 +1,8 @@
-import { IsString, IsOptional, Length, IsBoolean, IsPhoneNumber } from 'class-validator'
+import { PartialType } from '@nestjs/mapped-types'
 import { ApiPropertyOptional } from '@nestjs/swagger'
+import { CreateAddressDto } from './create-address.dto'
 
-export class UpdateAddressDto {
-  @IsString()
-  @Length(3, 255)
-  @IsOptional()
+export class UpdateAddressDto extends PartialType(CreateAddressDto) {
   @ApiPropertyOptional({
     description: 'Primary address line',
     minLength: 3,
@@ -13,9 +11,6 @@ export class UpdateAddressDto {
   })
   addressLine1?: string
 
-  @IsString()
-  @Length(3, 255)
-  @IsOptional()
   @ApiPropertyOptional({
     description: 'Secondary address line',
     minLength: 3,
@@ -24,14 +19,9 @@ export class UpdateAddressDto {
   })
   addressLine2?: string
 
-  @IsPhoneNumber(undefined)
-  @IsOptional()
   @ApiPropertyOptional({ description: 'Contact number for this address', nullable: true })
   contact?: string
 
-  @IsString()
-  @Length(2, 100)
-  @IsOptional()
   @ApiPropertyOptional({
     description: 'City for the address',
     minLength: 2,
@@ -40,25 +30,14 @@ export class UpdateAddressDto {
   })
   city?: string
 
-  @IsString()
-  @Length(2, 100)
-  @IsOptional()
   @ApiPropertyOptional({
-    description: 'Country for the address',
-    minLength: 2,
-    maxLength: 100,
-    nullable: true,
+    description: 'Country ID of the address',
   })
-  country?: string
+  countryId: number
 
-  @IsString()
-  @Length(2, 20)
-  @IsOptional()
   @ApiPropertyOptional({ description: 'Postal code', minLength: 2, maxLength: 20, nullable: true })
   postalCode?: string
 
-  @IsBoolean()
-  @IsOptional()
   @ApiPropertyOptional({ description: 'Indicates if this is the default address', nullable: true })
   isDefault?: boolean
 }

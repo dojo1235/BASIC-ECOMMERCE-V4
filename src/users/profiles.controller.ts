@@ -9,8 +9,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto'
 import { ProfileResponseDto } from './dto/profile-response.dto'
 
 @Auth()
-@Controller('profile')
-export class ProfileController {
+@Controller('profiles')
+export class ProfilesController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
