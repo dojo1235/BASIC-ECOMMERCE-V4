@@ -15,7 +15,10 @@ export enum Role {
   UserManager = 'userManager',
   ProductManager = 'productManager',
   OrderManager = 'orderManager',
+  SellerManager = 'sellerManager',
+  PaymentManager = 'paymentManager',
   ViewOnlyAdmin = 'viewOnlyAdmin',
+  Seller = 'seller',
   User = 'user',
 }
 
@@ -24,10 +27,6 @@ export class User {
   @ApiProperty({ description: 'Unique identifier for the user' })
   @PrimaryGeneratedColumn()
   id: number
-
-  @ApiProperty({ description: 'Full name of the user' })
-  @Column({ type: 'varchar', length: 50 })
-  name: string
 
   @ApiProperty({ description: 'Email address of the user' })
   @Column({ type: 'varchar', length: 100, unique: true })
@@ -40,6 +39,10 @@ export class User {
   @ApiProperty({ description: 'Role of the user', enum: Role })
   @Column({ type: 'enum', enum: Role, default: Role.User })
   role: Role
+
+  @ApiProperty({ description: 'Balance of the user account in cases of order refunds' })
+  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  balance: number
 
   @ApiProperty({ description: 'Indicates if the user is banned' })
   @Column({ type: 'tinyint', default: 0 })

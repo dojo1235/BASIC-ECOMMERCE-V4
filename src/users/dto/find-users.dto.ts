@@ -12,11 +12,6 @@ export class FindUsersDto {
   search?: string
 
   @IsOptional()
-  @IsString()
-  @ApiPropertyOptional({ description: 'Filter by email address' })
-  email?: string
-
-  @IsOptional()
   @IsEnum(Role)
   @ApiPropertyOptional({ description: 'Filter by role', enum: Role })
   role?: Role

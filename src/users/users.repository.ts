@@ -20,8 +20,7 @@ export class UsersRepository {
 
   async findAllAdmins(query: FindUsersDto) {
     const where: FindOptionsWhere<User> = {}
-    if (query.search) where.name = ILike(`%${query.search}%`)
-    if (query.email) where.email = ILike(`%${query.email}%`)
+    if (query.search) where.email = ILike(`%${query.search}%`)
     if (query.role) where.role = query.role
     if (!query.role) where.role = Not(Role.User)
     if ('isBanned' in query) where.isBanned = query.isBanned
@@ -32,8 +31,7 @@ export class UsersRepository {
 
   async findAllUsers(query: FindUsersDto) {
     const where: FindOptionsWhere<User> = { role: Role.User }
-    if (query.search) where.name = ILike(`%${query.search}%`)
-    if (query.email) where.email = ILike(`%${query.email}%`)
+    if (query.search) where.email = ILike(`%${query.search}%`)
     if ('isBanned' in query) where.isBanned = query.isBanned
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
     const result = await paginate(this.repository, query, { where })

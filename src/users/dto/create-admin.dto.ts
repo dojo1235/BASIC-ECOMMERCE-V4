@@ -3,12 +3,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Role } from '../entities/user.entity'
 
 export class CreateAdminDto {
-  @IsString()
-  @IsNotEmpty({ message: 'Name is required' })
-  @Length(3, 50, { message: 'Name must be between 3 and 50 characters long' })
-  @ApiProperty({ description: 'Full name of the admin', minLength: 3, maxLength: 50 })
-  name: string
-
   @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @ApiProperty({ description: 'Email address of the admin' })
