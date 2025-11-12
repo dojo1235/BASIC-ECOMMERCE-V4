@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  Unique,
 } from 'typeorm'
 import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
@@ -17,6 +18,7 @@ export enum Gender {
 }
 
 @Entity()
+@Unique(['userId'])
 export class Profile {
   @ApiProperty({ description: 'Unique identifier for the profile' })
   @PrimaryGeneratedColumn()
