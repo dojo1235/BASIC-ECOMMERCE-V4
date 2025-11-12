@@ -160,7 +160,8 @@ export class UsersService {
 
   // Create profile(both)
   async createProfile(data: Partial<Profile>) {
-    const existing = await this.usersRepository.findProfile(data.userId!)
+    if (!data.userId) throw new AppError(ErrorCode.VALIDATION_ERROR, 'User ID is required')
+    const existing = await this.usersRepository.findProfile(data.userId)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Profile already exists')
     const created = await this.usersRepository.createProfile(data)
     return { profile: created }
