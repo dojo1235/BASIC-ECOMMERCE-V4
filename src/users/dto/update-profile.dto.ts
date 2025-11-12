@@ -17,7 +17,6 @@ export class UpdateProfileDto {
   @IsString()
   @Length(3, 50, { message: 'Middle Name must be between 3 and 50 characters long' })
   @IsOptional()
-  @IsOptional()
   @ApiPropertyOptional({
     description: 'Middle name of the user',
     minLength: 3,
