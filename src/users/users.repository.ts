@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, Not, ILike, FindOptionsWhere } from 'typeorm'
 import { User } from './entities/user.entity'
+import { Profile } from './entities/profile.entity'
+import { Address } from './entities/address.entity'
 import { Role } from './entities/user.entity'
 import { paginate } from 'src/common/utils/pagination.util'
 import { FindUsersDto } from './dto/find-users.dto'
@@ -10,12 +12,16 @@ import { FindUsersDto } from './dto/find-users.dto'
 export class UsersRepository {
   constructor(
     @InjectRepository(User)
-    private readonly repository: Repository<User>,
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(Profile)
+    private readonly profileRepository: Repository<Profile>,
+    @InjectRepository(Address)
+    private readonly addressRepository: Repository<Address>,
   ) {}
 
   async createUser(data: Partial<User>) {
-    const entity = this.repository.create(data)
-    return this.repository.save(entity)
+    const entity = this.userRepository.create(data)
+    return this.userRepository.save(entity)
   }
 
   async findAllAdmins(query: FindUsersDto) {
@@ -25,7 +31,7 @@ export class UsersRepository {
     if (!query.role) where.role = Not(Role.User)
     if ('isBanned' in query) where.isBanned = query.isBanned
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
-    const result = await paginate(this.repository, query, { where })
+    const result = await paginate(this.userRepository, query, { where })
     return { users: result.items, meta: result.meta }
   }
 
@@ -34,19 +40,56 @@ export class UsersRepository {
     if (query.search) where.email = ILike(`%${query.search}%`)
     if ('isBanned' in query) where.isBanned = query.isBanned
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
-    const result = await paginate(this.repository, query, { where })
+    const result = await paginate(this.userRepository, query, { where })
     return { users: result.items, meta: result.meta }
   }
 
   async findUserById(userId: number) {
-    return this.repository.findOne({ where: { id: userId } })
+    return this.userRepository.findOne({ where: { id: userId } })
   }
 
   async findUserByEmail(email: string) {
-    return this.repository.findOne({ where: { email } })
+    return this.userRepository.findOne({ where: { email } })
   }
 
   async updateUser(userId: number, data: Partial<User>) {
-    return this.repository.update({ id: userId }, data)
+    return this.userRepository.update({ id: userId }, data)
+  }
+
+  async createProfile(data: Partial<Profile>) {
+    const entity = this.profileRepository.create(data)
+    return this.profileRepository.save(entity)
+  }
+
+  async findProfile(userId: number) {
+    return this.profileRepository.findOne({ where: { userId } })
+  }
+
+  async updateProfile(userId: number, data: Partial<Profile>) {
+    return this.profileRepository.update({ userId }, data)
+  }
+
+  async createAddress(data: Partial<Address>) {
+    const entity = this.addressRepository.create(data)
+    return this.addressRepository.save(entity)
+  }
+
+  async findAddresses(userId: number) {
+    return await this.addressRepository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    })
+  }
+
+  async findAddressById(addressId: number, userId: number) {
+    return this.addressRepository.findOne({ where: { id: addressId, userId } })
+  }
+
+  async updateAddress(addressId: number, userId: number, data: Partial<Address>) {
+    return this.addressRepository.update({ id: addressId, userId }, data)
+  }
+
+  async deleteAddress(addressId: number, userId: number) {
+    await this.addressRepository.delete({ id: addressId, userId })
   }
 }

@@ -6,5 +6,5 @@ export class AddressesListResponseDto {
     description: 'List of addresses a user have',
     type: [Address],
   })
-  Address: Address[]
+  addresses: Address[]
 }

@@ -41,9 +41,9 @@ export class Profile {
   @Column({ type: 'varchar', length: 50 })
   lastName: string
 
-  @ApiProperty({ description: 'Date of birth of the user', type: Date, nullable: true })
+  @ApiProperty({ description: 'Date of birth of the user', type: String, nullable: true })
   @Column({ type: 'date', nullable: true })
-  dob: Date | null
+  dob: string | null
 
   @ApiProperty({ description: 'Primary contact number', type: String, nullable: true })
   @Column({ type: 'varchar', length: 20, nullable: true })

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { User } from './entities/user.entity'
+import { Profile } from './entities/profile.entity'
+import { Address } from './entities/address.entity'
 import { AuthRepository } from '../auth/auth.repository'
 import { UsersRepository } from './users.repository'
 import { hash, compare } from 'src/common/utils/crypto.util'
@@ -152,6 +154,55 @@ export class UsersService {
       revokedById: adminId,
       revokedAt: new Date(),
     })
+  }
+
+  async createProfile(data: Partial<Profile>) {
+    const created = await this.usersRepository.createProfile(data)
+    return { profile: created }
+  }
+
+  async findProfile(userId: number) {
+    const profile = await this.usersRepository.findProfile(userId)
+    if (!profile) throw new AppError(ErrorCode.NOT_FOUND, 'Profile not found')
+    return { profile }
+  }
+
+  async updateProfile(userId: number, data: Partial<Profile>) {
+    const existing = await this.usersRepository.findProfile(userId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Profile not found')
+    await this.usersRepository.updateProfile(userId, data)
+    const updated = await this.usersRepository.findProfile(userId)
+    return { profile: updated }
+  }
+
+  async createAddress(data: Partial<Address>) {
+    const created = await this.usersRepository.createAddress(data)
+    return { address: created }
+  }
+
+  async findAddresses(userId: number) {
+    const addresses = await this.usersRepository.findAddresses(userId)
+    return { addresses }
+  }
+
+  async findAddressById(addressId: number, userId: number) {
+    const address = await this.usersRepository.findAddressById(addressId, userId)
+    if (!address) throw new AppError(ErrorCode.NOT_FOUND, 'Address not found')
+    return { address }
+  }
+
+  async updateAddress(addressId: number, userId: number, data: Partial<Address>) {
+    const existing = await this.usersRepository.findAddressById(addressId, userId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Address not found')
+    await this.usersRepository.updateAddress(addressId, userId, data)
+    const updated = await this.usersRepository.findAddressById(addressId, userId)
+    return { address: updated }
+  }
+
+  async deleteAddress(addressId: number, userId: number) {
+    const existing = await this.usersRepository.findAddressById(addressId, userId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Address not found')
+    await this.usersRepository.deleteAddress(addressId, userId)
   }
 
   private ensureIsAdmin(admin: User | null) {
