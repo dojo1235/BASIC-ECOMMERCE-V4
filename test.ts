@@ -43,7 +43,7 @@ const main = async () => {
     console.log('Found user:', found)
 
     // UPDATE
-    const updated = await usersRepo.save({ id: found.id, password: 'Alice Password Updated' })
+    const updated = await usersRepo.save({ id: found.id, passwordHash: 'Alice Password Updated' })
     console.log('Updated user password:', updated)
 
     // DELETE
