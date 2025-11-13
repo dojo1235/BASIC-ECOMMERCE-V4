@@ -4,7 +4,7 @@ import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.d
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UsersService } from './users.service'
-import { UpdateAdminDto } from './dto/update-admin.dto'
+import { UpdateEmailDto } from './dto/update-email.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { UserResponseDto } from './dto/user-response.dto'
 import { Role } from 'src/users/entities/user.entity'
@@ -21,18 +21,14 @@ export class AdminsController {
     return await this.usersService.findOneAdmin(user.id)
   }
 
-  @Patch()
-  @ApiOperation({ summary: 'Update admin profile' })
-  @ApiSuccessResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  @Patch('email')
+  @ApiOperation({ summary: 'Update admin email' })
+  @ApiSuccessResponse({ description: 'Email updated successfully', type: UserResponseDto })
   async updateAdminProfile(
-    @Body() dto: UpdateAdminDto,
+    @Body() updateEmailDto: UpdateEmailDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<UserResponseDto> {
-    return await this.usersService.updateAdmin(user.id, {
-      ...dto,
-      updatedById: user.id,
-      updatedAt: new Date(),
-    })
+    return await this.usersService.updateEmail(user.id, updateEmailDto)
   }
 
   @Patch('password')

@@ -78,20 +78,6 @@ export class UsersService {
     return { user: updated }
   }
 
-  // Update admin (admin)
-  async updateAdmin(userId: number, { password, ...data }: UpdateUserInput) {
-    if (password) throw new AppError(ErrorCode.INVALID_STATE, 'Use the change password endpoint')
-    const admin = await this.usersRepository.findUserById(userId)
-    this.ensureIsAdmin(admin)
-    if (data.email) {
-      const existing = await this.usersRepository.findUserByEmail(data.email)
-      if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
-    }
-    await this.usersRepository.updateUser(userId, data)
-    const updated = await this.usersRepository.findUserById(userId)
-    return { user: updated }
-  }
-
   // Update user (admin)
   async updateUserForAdmin(userId: number, { password, ...data }: UpdateUserInput) {
     const user = await this.usersRepository.findUserById(userId)
@@ -107,21 +93,23 @@ export class UsersService {
     return { user: updated }
   }
 
-  // Update user (user)
-  async updateUser(userId: number, { password, ...data }: UpdateUserInput) {
-    if (password) throw new AppError(ErrorCode.INVALID_STATE, 'Use the change password endpoint')
+  // Update email (both)
+  async updateEmail(userId: number, { email }: Partial<User>) {
+    if (!email) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Email is required')
     const user = await this.usersRepository.findUserById(userId)
-    this.ensureIsUser(user)
-    if (data.email) {
-      const existing = await this.usersRepository.findUserByEmail(data.email)
-      if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
-    }
-    await this.usersRepository.updateUser(userId, data)
+    if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
+    const existing = await this.usersRepository.findUserByEmail(email)
+    if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
+    await this.usersRepository.updateUser(userId, {
+      email,
+      updatedById: userId,
+      updatedAt: new Date(),
+    })
     const updated = await this.usersRepository.findUserById(userId)
     return { user: updated }
   }
 
-  // Update password
+  // Update password (both)
   async updatePassword(userId: number, { oldPassword, newPassword }: UpdatePasswordDto) {
     if (newPassword === oldPassword)
       throw new AppError(ErrorCode.INVALID_STATE, 'Cannot update to same password')
@@ -133,6 +121,21 @@ export class UsersService {
     await this.usersRepository.updateUser(userId, {
       passwordHash,
       updatedAt: new Date(),
+    })
+  }
+
+  async deleteUserAccount(userId: number) {
+    const existing = await this.usersRepository.findUserById(userId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
+    await this.usersRepository.updateUser(userId, {
+      isDeleted: true,
+      deletedById: userId,
+      deletedAt: new Date(),
+    })
+    await this.authRepository.revokeAllTokensForUser(userId, {
+      revoked: true,
+      revokedById: userId,
+      revokedAt: new Date(),
     })
   }
 

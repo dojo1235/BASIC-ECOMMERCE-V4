@@ -1,11 +1,13 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
+import { Transform } from 'class-transformer'
 import { Role } from '../entities/user.entity'
 
 export class CreateAdminDto {
   @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
   @ApiProperty({ description: 'Email address of the admin' })
+  @Transform(({ value }: { value: string }) => value.trim().toLowerCase())
   email: string
 
   @IsString()

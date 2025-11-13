@@ -15,6 +15,7 @@ import { OrdersModule } from './orders/orders.module'
 import { ReviewsModule } from './reviews/reviews.module'
 import { WishlistModule } from './wishlist/wishlist.module'
 import { CountriesModule } from './countries/countries.module'
+import { SellersModule } from './sellers/sellers.module'
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CountriesModule } from './countries/countries.module'
     ReviewsModule,
     WishlistModule,
     CountriesModule,
+    SellersModule,
   ],
   controllers: [AppController],
   providers: [

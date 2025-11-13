@@ -4,7 +4,7 @@ import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.d
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
 import { UsersService } from './users.service'
-import { UpdateUserDto } from './dto/update-user.dto'
+import { UpdateEmailDto } from './dto/update-email.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { UserResponseDto } from './dto/user-response.dto'
 
@@ -20,18 +20,14 @@ export class UsersController {
     return await this.usersService.findOneUser(user.id)
   }
 
-  @Patch()
-  @ApiOperation({ summary: 'Update user profile' })
-  @ApiSuccessResponse({ description: 'Profile updated successfully', type: UserResponseDto })
+  @Patch('email')
+  @ApiOperation({ summary: 'Update user email' })
+  @ApiSuccessResponse({ description: 'Email updated successfully', type: UserResponseDto })
   async updateUserProfile(
-    @Body() dto: UpdateUserDto,
+    @Body() updateEmailDto: UpdateEmailDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<UserResponseDto> {
-    return await this.usersService.updateUser(user.id, {
-      ...dto,
-      updatedById: user.id,
-      updatedAt: new Date(),
-    })
+    return await this.usersService.updateEmail(user.id, updateEmailDto)
   }
 
   @Patch('password')
@@ -48,12 +44,8 @@ export class UsersController {
 
   @Delete()
   @ApiOperation({ summary: 'Soft-delete user account' })
-  @ApiSuccessResponse({ description: 'Account deleted successfully', type: UserResponseDto })
-  async deleteUser(@CurrentUser() user: CurrentUserPayload): Promise<UserResponseDto> {
-    return await this.usersService.updateUser(user.id, {
-      isDeleted: true,
-      deletedById: user.id,
-      deletedAt: new Date(),
-    })
+  @ApiSuccessResponse({ description: 'Account deleted successfully' })
+  async deleteUser(@CurrentUser() user: CurrentUserPayload): Promise<void> {
+    await this.usersService.deleteUserAccount(user.id)
   }
 }

@@ -11,12 +11,12 @@ import { CountriesListResponseDto } from './dto/countries-list-response.dto'
 import { CountryIdParamDto } from 'src/common/dto/country-id-param.dto'
 import { Role } from 'src/users/entities/user.entity'
 
-@Auth(Role.SuperAdmin)
 @Controller('countries')
 export class CountriesController {
   constructor(private readonly countriesService: CountriesService) {}
 
   @Post()
+  @Auth(Role.SuperAdmin)
   @ApiOperation({ summary: 'Create a new country' })
   @ApiSuccessResponse({
     description: 'Country created successfully',
@@ -53,6 +53,7 @@ export class CountriesController {
   }
 
   @Patch(':countryId')
+  @Auth(Role.SuperAdmin)
   @ApiOperation({ summary: 'Update a country' })
   @ApiSuccessResponse({
     description: 'Country updated successfully',

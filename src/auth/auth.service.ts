@@ -37,6 +37,8 @@ export class AuthService {
   }
 
   async login(data: LoginDto) {
+    if (!data.email) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Email is required')
+    if (!data.password) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Password is required')
     const user = await this.usersRepository.findUserByEmail(data.email)
     if (!user || user.isDeleted)
       throw new AppError(ErrorCode.INVALID_CREDENTIALS, 'Invalid credentials')

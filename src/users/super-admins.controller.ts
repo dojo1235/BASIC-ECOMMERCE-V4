@@ -46,10 +46,7 @@ export class SuperAdminsController {
   @HttpCode(HttpStatus.OK)
   @Post(':adminId/revoke-sessions')
   @ApiOperation({ summary: 'Log out admin from all devices' })
-  @ApiSuccessResponse({
-    description: 'Admin logged out from all devices successfully',
-    status: HttpStatus.OK,
-  })
+  @ApiSuccessResponse({ description: 'Admin logged out from all devices successfully' })
   async revokeAllSessions(
     @Param() { adminId }: AdminIdParamDto,
     @CurrentUser() user: CurrentUserPayload,

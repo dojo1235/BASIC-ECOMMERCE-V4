@@ -23,13 +23,13 @@ import { UserResponseDto } from './dto/user-response.dto'
 import { UpdateUserRoleDto } from './dto/update-user-role.dto'
 import { UserIdParamDto } from 'src/common/dto/user-id-param.dto'
 
-@Auth(Role.UserManager)
 @Controller('admins/users')
 export class AdminsUsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @HttpCode(HttpStatus.OK)
   @Post(':userId/revoke-sessions')
+  @Auth(Role.UserManager)
   @ApiOperation({ summary: 'Log out user from all devices' })
   @ApiSuccessResponse({
     description: 'User logged out from all devices successfully',
@@ -58,6 +58,7 @@ export class AdminsUsersController {
   }
 
   @Patch(':userId')
+  @Auth(Role.UserManager)
   @ApiOperation({ summary: 'Update user details' })
   @ApiSuccessResponse({ description: 'User updated successfully', type: UserResponseDto })
   async updateUserDetails(
@@ -89,6 +90,7 @@ export class AdminsUsersController {
   }
 
   @Patch(':userId/ban')
+  @Auth(Role.UserManager)
   @ApiOperation({ summary: 'Ban user' })
   @ApiSuccessResponse({ description: 'User banned successfully', type: UserResponseDto })
   async banUser(
@@ -103,6 +105,7 @@ export class AdminsUsersController {
   }
 
   @Patch(':userId/restore')
+  @Auth(Role.UserManager)
   @ApiOperation({ summary: 'Restore user' })
   @ApiSuccessResponse({ description: 'User restored successfully', type: UserResponseDto })
   async restoreUser(
@@ -118,6 +121,7 @@ export class AdminsUsersController {
   }
 
   @Delete(':userId')
+  @Auth(Role.UserManager)
   @ApiOperation({ summary: 'Soft-delete user' })
   @ApiSuccessResponse({ description: 'User deleted successfully', type: UserResponseDto })
   async deleteUser(
