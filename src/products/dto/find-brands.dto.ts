@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator'
+import { IsOptional, IsString, IsNumber, IsBoolean, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
@@ -35,7 +35,7 @@ export class FindBrandsDto {
   limit?: number
 
   @IsOptional()
-  @IsBoolean()
+  @IsEnum(SortOrder)
   @ApiPropertyOptional({ description: 'Sort order', enum: SortOrder })
   orderBy?: SortOrder
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Param, Body, HttpStatus } from '@nestjs/common'
+import { Controller, Post, Get, Patch, Param, Query, Body, HttpStatus } from '@nestjs/common'
 import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { Auth } from 'src/common/decorators/auth.decorator'
@@ -35,7 +35,7 @@ export class BrandsController {
   @Auth()
   @ApiOperation({ summary: 'Get all brands' })
   @ApiSuccessResponse({ description: 'Brands fetched successfully', type: BrandsListResponseDto })
-  async findAllBrands(@Body() query: FindBrandsDto): Promise<BrandsListResponseDto> {
+  async findAllBrands(@Query() query: FindBrandsDto): Promise<BrandsListResponseDto> {
     return await this.productsService.findAllBrands(query)
   }
 

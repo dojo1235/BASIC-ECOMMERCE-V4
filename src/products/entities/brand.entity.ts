@@ -44,9 +44,9 @@ export class Brand {
   @Column({ type: 'tinyint', default: false })
   isRestricted: boolean
 
-  @ApiProperty({ description: 'User ID who created the brand' })
-  @Column({ type: 'int' })
-  createdById: number
+  @ApiProperty({ description: 'User ID who created the brand', type: Number, nullable: true })
+  @Column({ nullable: true })
+  createdById: number | null
 
   @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
@@ -58,7 +58,7 @@ export class Brand {
   createdAt: Date
 
   @ApiProperty({ description: 'User ID who last updated the brand', type: Number, nullable: true })
-  @Column({ type: 'int', nullable: true })
+  @Column({ nullable: true })
   updatedById: number | null
 
   @Exclude()

@@ -98,6 +98,8 @@ export class UsersService {
     if (!email) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Email is required')
     const user = await this.usersRepository.findUserById(userId)
     if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
+    if (user.email === email)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Cannot update to same email')
     const existing = await this.usersRepository.findUserByEmail(email)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
     await this.usersRepository.updateUser(userId, {

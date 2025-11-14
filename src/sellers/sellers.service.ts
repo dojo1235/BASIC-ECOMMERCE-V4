@@ -21,7 +21,10 @@ export class SellersService {
   async createSeller(userId: number, data: Partial<Seller>) {
     const existing = await this.sellersRepository.findSellerByUserId(userId)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Seller already exist')
-    const created = await this.sellersRepository.createSeller(data)
+    const created = await this.sellersRepository.createSeller({
+      ...data,
+      userId,
+    })
     await this.usersRepository.updateUser(userId, { role: Role.Seller })
     return { seller: created }
   }
@@ -96,7 +99,7 @@ export class SellersService {
       sellerId,
       ...data,
       priority,
-      createdById: sellerId,
+      createdById: userId,
     })
     return { product: created }
   }
