@@ -37,7 +37,7 @@ export class BrandAuthorization {
   isAuthorized: boolean
 
   @ApiProperty({ description: 'User ID who authorized this brand', type: Number, nullable: true })
-  @Column({ type: 'int', nullable: true })
+  @Column({ nullable: true })
   authorizedById: number | null
 
   @Exclude()
@@ -62,7 +62,7 @@ export class BrandAuthorization {
     type: Number,
     nullable: true,
   })
-  @Column({ type: 'int', nullable: true })
+  @Column({ nullable: true })
   updatedById: number | null
 
   @Exclude()
@@ -70,7 +70,11 @@ export class BrandAuthorization {
   @JoinColumn()
   updatedBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when this record was last updated' })
-  @Column({ type: 'timestamp' })
-  updatedAt: Date
+  @ApiProperty({
+    description: 'Timestamp when this record was last updated',
+    type: Date,
+    nullable: true,
+  })
+  @Column({ type: 'timestamp', nullable: true })
+  updatedAt: Date | null
 }

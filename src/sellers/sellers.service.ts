@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common'
+import { Transactional } from 'typeorm-transactional'
 import { SellersRepository } from './sellers.repository'
 import { ProductsRepository } from 'src/products/products.repository'
 import { UsersRepository } from 'src/users/users.repository'
@@ -18,6 +19,7 @@ export class SellersService {
   ) {}
 
   // Create seller store(user)
+  @Transactional()
   async createSeller(userId: number, data: Partial<Seller>) {
     const existing = await this.sellersRepository.findSellerByUserId(userId)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Seller already exist')
@@ -64,6 +66,7 @@ export class SellersService {
   }
 
   // Update sellers tier (admin)
+  @Transactional()
   async updateSellerTier(adminId: number, sellerId: number, { premiumTier }: Partial<Seller>) {
     const existing = await this.sellersRepository.findSellerById(sellerId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Seller not found')

@@ -65,6 +65,7 @@ export class ProductsService {
     if (data.isPrimary) await this.productsRepository.clearPrimaryImage(productId)
     const created = await this.productsRepository.createProductImage({
       ...data,
+      productId,
       createdById: adminId,
     })
     return { productImage: created }
@@ -97,7 +98,7 @@ export class ProductsService {
   async createBrand(adminId: number, data: Partial<Brand>) {
     if (!data.name) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Brand name is required')
     const existing = await this.productsRepository.findBrandByName(data.name)
-    if (existing) throw new AppError(ErrorCode.NOT_FOUND, 'Brand name already exists')
+    if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Brand name already exists')
     const created = await this.productsRepository.createBrand({
       ...data,
       createdById: adminId,

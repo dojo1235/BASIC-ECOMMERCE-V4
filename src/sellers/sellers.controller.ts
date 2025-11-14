@@ -43,7 +43,7 @@ export class SellersController {
     return await this.sellersService.findSellerById(user.id, sellerId)
   }
 
-  @Get('users')
+  @Get('users/me')
   @Auth()
   @ApiOperation({ summary: 'Get seller by user ID (cleck if seller exist)' })
   @ApiSuccessResponse({

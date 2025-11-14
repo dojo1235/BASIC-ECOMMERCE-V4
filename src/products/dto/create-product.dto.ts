@@ -11,7 +11,7 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ description: 'Product description', required: false })
+  @ApiProperty({ description: 'Product description' })
   description?: string
 
   @IsNotEmpty()
@@ -23,7 +23,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  @ApiProperty({ description: 'Original price before discount', required: false })
+  @ApiProperty({ description: 'Original price before discount' })
   originalPrice?: number
 
   @IsNotEmpty()
@@ -34,7 +34,7 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ description: 'Brand name associated with the product', required: false })
+  @ApiProperty({ description: 'Brand name associated with the product' })
   brandName?: string
 
   @IsNotEmpty()
@@ -46,7 +46,7 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  @ApiProperty({ description: 'Country ID where the product is available', required: false })
+  @ApiProperty({ description: 'Country ID where the product is available' })
   countryId?: number
 
   @IsOptional()

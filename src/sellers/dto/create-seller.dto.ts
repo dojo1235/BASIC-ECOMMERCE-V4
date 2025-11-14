@@ -9,17 +9,17 @@ export class CreateSellerDto {
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Store description', nullable: true })
+  @ApiPropertyOptional({ description: 'Store description' })
   storeDescription?: string
 
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional({ description: 'Store logo URL', nullable: true })
+  @ApiPropertyOptional({ description: 'Store logo URL' })
   logoUrl?: string
 
   @IsPhoneNumber(undefined)
   @IsOptional()
-  @ApiProperty({ description: 'Contact number for this store', nullable: true })
+  @ApiPropertyOptional({ description: 'Contact number for this store' })
   storePhone?: string
 
   @IsString()
