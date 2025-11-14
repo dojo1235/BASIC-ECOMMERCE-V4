@@ -23,10 +23,12 @@ export class CreateSellerDto {
   storePhone?: string
 
   @IsString()
+  @IsNotEmpty()
   @ApiProperty({ description: 'Store address' })
   storeAddress: string
 
   @IsString()
+  @IsNotEmpty()
   @ApiProperty({ description: 'Store city' })
   storeCity: string
 
