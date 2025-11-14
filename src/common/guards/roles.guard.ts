@@ -34,13 +34,18 @@ export class RolesGuard implements CanActivate {
       Role.GeneralAdmin,
       Role.ProductManager,
       Role.OrderManager,
+      Role.PaymentManager,
       Role.UserManager,
+      Role.SellerManager,
       Role.ViewOnlyAdmin,
     ],
     [Role.ProductManager]: [Role.ProductManager, Role.ViewOnlyAdmin],
     [Role.OrderManager]: [Role.OrderManager, Role.ViewOnlyAdmin],
+    [Role.PaymentManager]: [Role.PaymentManager, Role.ViewOnlyAdmin],
     [Role.UserManager]: [Role.UserManager, Role.ViewOnlyAdmin],
+    [Role.SellerManager]: [Role.SellerManager, Role.ViewOnlyAdmin],
     [Role.ViewOnlyAdmin]: [Role.ViewOnlyAdmin],
+    [Role.Seller]: [Role.Seller],
     [Role.User]: [],
   }
 }

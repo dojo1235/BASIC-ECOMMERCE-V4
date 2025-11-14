@@ -4,12 +4,24 @@ import { ApiPropertyOptional } from '@nestjs/swagger'
 import { ProductStatus } from '../entities/product.entity'
 import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
 import { SortOrder } from 'src/common/enums/sort-order.enum'
+import { SortBy } from 'src/common/enums/sort-by.enum'
 
 export class FindProductsDto {
   @IsOptional()
   @IsString()
   @ApiPropertyOptional({ description: 'Search term for product name' })
   search?: string
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @ApiPropertyOptional({ description: 'Filter by seller ID' })
+  sellerId?: number
+
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional({ description: 'Search term for products with this brand name' })
+  brandName?: string
 
   @IsOptional()
   @IsEnum(ProductStatus)
@@ -45,6 +57,11 @@ export class FindProductsDto {
   @IsNumber()
   @ApiPropertyOptional({ description: 'Page size for pagination' })
   limit?: number
+
+  @IsOptional()
+  @IsEnum(SortBy)
+  @ApiPropertyOptional({ description: 'Sort by eg. createdAt', enum: SortBy })
+  sortBy?: SortBy
 
   @IsOptional()
   @IsEnum(SortOrder)

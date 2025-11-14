@@ -8,13 +8,8 @@ import { SortOrder } from 'src/common/enums/sort-order.enum'
 export class FindUsersDto {
   @IsOptional()
   @IsString()
-  @ApiPropertyOptional({ description: 'Search term for user name' })
+  @ApiPropertyOptional({ description: 'Search term for user email' })
   search?: string
-
-  @IsOptional()
-  @IsString()
-  @ApiPropertyOptional({ description: 'Filter by email address' })
-  email?: string
 
   @IsOptional()
   @IsEnum(Role)

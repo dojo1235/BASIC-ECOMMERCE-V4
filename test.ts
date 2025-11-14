@@ -31,7 +31,6 @@ const main = async () => {
     // CREATE
     const inserted = await usersRepo.save(
       usersRepo.create({
-        name: 'Alice',
         email: 'alice@example.com',
         passwordHash: 'secret123',
       }),
@@ -44,8 +43,8 @@ const main = async () => {
     console.log('Found user:', found)
 
     // UPDATE
-    const updated = await usersRepo.save({ id: found.id, name: 'Alice Updated' })
-    console.log('Updated user:', updated)
+    const updated = await usersRepo.save({ id: found.id, passwordHash: 'Alice Password Updated' })
+    console.log('Updated user password:', updated)
 
     // DELETE
     const deleted = await usersRepo.delete(found.id)
