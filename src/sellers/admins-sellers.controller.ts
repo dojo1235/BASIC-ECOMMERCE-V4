@@ -58,10 +58,7 @@ export class AdminsSellersController {
     @Body() updateSellerTierDto: UpdateSellerTierDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<SellerResponseDto> {
-    return await this.sellersService.updateSellerForAdmin(sellerId, {
-      ...UpdateSellerTierDto,
-      updatedById: user.id,
-    })
+    return await this.sellersService.updateSellerTier(user.id, sellerId, updateSellerTierDto)
   }
 
   @Patch(':sellerId/suspended')

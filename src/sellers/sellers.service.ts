@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { SellersRepository } from './sellers.repository'
 import { ProductsRepository } from 'src/products/products.repository'
 import { UsersRepository } from 'src/users/users.repository'
-import { Seller } from './entities/seller.entity'
-import { Product } from 'src/products/entities/product.entity'
+import { Seller, PremiumTier } from './entities/seller.entity'
+import { Product, ProductPriority } from 'src/products/entities/product.entity'
 import { FindSellersDto } from './dto/find-sellers.dto'
 import { FindProductsDto } from 'src/products/dto/find-products.dto'
 import { Role } from 'src/users/entities/user.entity'
@@ -60,7 +60,24 @@ export class SellersService {
     return { seller: updated }
   }
 
-  // Update sellers details (user)
+  // Update sellers tier (admin)
+  async updateSellerTier(adminId: number, sellerId: number, { premiumTier }: Partial<Seller>) {
+    const existing = await this.sellersRepository.findSellerById(sellerId)
+    if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Seller not found')
+    await this.sellersRepository.updateSeller(sellerId, { premiumTier })
+    let priority = 0
+    if (premiumTier === PremiumTier.Silver) priority = ProductPriority.Low
+    if (premiumTier === PremiumTier.Gold) priority = ProductPriority.Medium
+    if (premiumTier === PremiumTier.Diamond) priority = ProductPriority.High
+    await this.productsRepository.updateSellerProducts(sellerId, {
+      priority,
+      updatedById: adminId,
+    })
+    const updated = await this.sellersRepository.findSellerById(sellerId)
+    return { seller: updated }
+  }
+
+  // Update seller details (user)
   async updateSeller(userId: number, sellerId: number, data: Partial<Seller>) {
     await this.ensureIsOwner(userId, sellerId)
     await this.sellersRepository.updateSeller(sellerId, data)
@@ -68,12 +85,17 @@ export class SellersService {
     return { seller: updated }
   }
 
-  // Create product (user)
+  // Create seller product (user)
   async createProduct(userId: number, sellerId: number, data: Partial<Product>) {
-    await this.ensureIsOwner(userId, sellerId)
+    const seller = await this.ensureIsOwner(userId, sellerId)
+    let priority = 0
+    if (seller.premiumTier === PremiumTier.Silver) priority = ProductPriority.Low
+    if (seller.premiumTier === PremiumTier.Gold) priority = ProductPriority.Medium
+    if (seller.premiumTier === PremiumTier.Diamond) priority = ProductPriority.High
     const created = await this.productsRepository.createProduct({
       sellerId,
       ...data,
+      priority,
       createdById: sellerId,
     })
     return { product: created }

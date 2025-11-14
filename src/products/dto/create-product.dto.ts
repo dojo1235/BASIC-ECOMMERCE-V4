@@ -1,32 +1,60 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
+import { ProductStatus } from '../entities/product.entity'
 
 export class CreateProductDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ description: 'Product name' })
+  @ApiProperty({ description: 'Name of the product' })
   name: string
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @ApiProperty({ description: 'Product description' })
-  description: string
+  @ApiProperty({ description: 'Product description', required: false })
+  description?: string
 
   @IsNotEmpty()
-  @Type(() => Number)
   @IsNumber()
-  @ApiProperty({ description: 'Product price' })
+  @Type(() => Number)
+  @ApiProperty({ description: 'Current selling price of the product' })
   price: number
 
-  @IsNotEmpty()
-  @IsString()
-  @ApiProperty({ description: 'Product image URL' })
-  image: string
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @ApiProperty({ description: 'Original price before discount', required: false })
+  originalPrice?: number
 
   @IsNotEmpty()
-  @Type(() => Number)
   @IsNumber()
+  @Type(() => Number)
   @ApiProperty({ description: 'Available stock quantity' })
   stock: number
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ description: 'Brand name associated with the product', required: false })
+  brandName?: string
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Type(() => Number)
+  @ApiProperty({ description: 'Category ID the product belongs to' })
+  categoryId: number
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @ApiProperty({ description: 'Country ID where the product is available', required: false })
+  countryId?: number
+
+  @IsOptional()
+  @IsEnum(ProductStatus)
+  @ApiProperty({
+    description: 'Current availability status of the product',
+    enum: ProductStatus,
+    default: ProductStatus.InStock,
+  })
+  status?: ProductStatus
 }
