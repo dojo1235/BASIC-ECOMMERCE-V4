@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
-import { Role } from 'src/users/entities/user.entity'
+import { AdminRole, UserRole, Role } from 'src/users/entities/user.entity'
 import { AppError, ErrorCode } from '../exceptions/app-error'
 
 @Injectable()
@@ -18,7 +18,7 @@ export class RolesGuard implements CanActivate {
     const user = request.user
     if (!user) throw new AppError(ErrorCode.NOT_ENOUGH_PERMISSIONS, 'User not authenticated')
 
-    if (user.role === Role.SuperAdmin) return true
+    if (user.role === AdminRole.SuperAdmin) return true
 
     const allowedRoles = this.RoleHierarchy[user.role] ?? []
 
@@ -29,23 +29,23 @@ export class RolesGuard implements CanActivate {
     return true
   }
 
-  private readonly RoleHierarchy: Record<Exclude<Role, Role.SuperAdmin>, Role[]> = {
-    [Role.GeneralAdmin]: [
-      Role.GeneralAdmin,
-      Role.ProductManager,
-      Role.OrderManager,
-      Role.PaymentManager,
-      Role.UserManager,
-      Role.SellerManager,
-      Role.ViewOnlyAdmin,
+  private readonly RoleHierarchy: Record<Exclude<Role, AdminRole.SuperAdmin>, Role[]> = {
+    [AdminRole.GeneralAdmin]: [
+      AdminRole.GeneralAdmin,
+      AdminRole.ProductManager,
+      AdminRole.OrderManager,
+      AdminRole.PaymentManager,
+      AdminRole.UserManager,
+      AdminRole.SellerManager,
+      AdminRole.ViewOnlyAdmin,
     ],
-    [Role.ProductManager]: [Role.ProductManager, Role.ViewOnlyAdmin],
-    [Role.OrderManager]: [Role.OrderManager, Role.ViewOnlyAdmin],
-    [Role.PaymentManager]: [Role.PaymentManager, Role.ViewOnlyAdmin],
-    [Role.UserManager]: [Role.UserManager, Role.ViewOnlyAdmin],
-    [Role.SellerManager]: [Role.SellerManager, Role.ViewOnlyAdmin],
-    [Role.ViewOnlyAdmin]: [Role.ViewOnlyAdmin],
-    [Role.Seller]: [Role.Seller],
-    [Role.User]: [],
+    [AdminRole.ProductManager]: [AdminRole.ProductManager, AdminRole.ViewOnlyAdmin],
+    [AdminRole.OrderManager]: [AdminRole.OrderManager, AdminRole.ViewOnlyAdmin],
+    [AdminRole.PaymentManager]: [AdminRole.PaymentManager, AdminRole.ViewOnlyAdmin],
+    [AdminRole.UserManager]: [AdminRole.UserManager, AdminRole.ViewOnlyAdmin],
+    [AdminRole.SellerManager]: [AdminRole.SellerManager, AdminRole.ViewOnlyAdmin],
+    [AdminRole.ViewOnlyAdmin]: [AdminRole.ViewOnlyAdmin],
+    [UserRole.Seller]: [UserRole.Seller],
+    [UserRole.User]: [],
   }
 }

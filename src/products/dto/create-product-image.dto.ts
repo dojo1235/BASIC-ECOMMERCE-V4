@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean } from 'class-validator'
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { IsNotEmpty, IsString, IsBoolean } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class CreateProductImageDto {
   @IsNotEmpty()
@@ -7,8 +7,8 @@ export class CreateProductImageDto {
   @ApiProperty({ description: 'URL of the product image' })
   imageUrl: string
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsBoolean()
-  @ApiPropertyOptional({ description: 'Whether this image is the primary image' })
-  isPrimary?: boolean
+  @ApiProperty({ description: 'Whether this image is the primary image' })
+  isPrimary: boolean
 }

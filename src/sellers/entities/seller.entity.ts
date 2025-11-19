@@ -26,7 +26,7 @@ export class Seller {
   id: number
 
   @ApiProperty({ description: 'User ID associated with this seller' })
-  @Column()
+  @Column({ type: 'int' })
   userId: number
 
   @Exclude()
@@ -71,7 +71,7 @@ export class Seller {
   storeCity: string
 
   @ApiProperty({ description: 'Store country ID' })
-  @Column()
+  @Column({ type: 'int' })
   storeCountryId: number
 
   @Exclude()

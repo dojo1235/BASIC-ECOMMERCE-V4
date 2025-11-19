@@ -9,7 +9,7 @@ import {
 import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 
-export enum Role {
+export enum AdminRole {
   SuperAdmin = 'superAdmin',
   GeneralAdmin = 'generalAdmin',
   UserManager = 'userManager',
@@ -18,9 +18,15 @@ export enum Role {
   SellerManager = 'sellerManager',
   PaymentManager = 'paymentManager',
   ViewOnlyAdmin = 'viewOnlyAdmin',
+}
+
+export enum UserRole {
   Seller = 'seller',
   User = 'user',
 }
+
+export type Role = AdminRole | UserRole
+export const Role = { ...AdminRole, ...UserRole }
 
 @Entity()
 export class User {
@@ -37,7 +43,7 @@ export class User {
   passwordHash: string
 
   @ApiProperty({ description: 'Role of the user', enum: Role })
-  @Column({ type: 'enum', enum: Role, default: Role.User })
+  @Column({ type: 'enum', enum: Role, default: UserRole.User })
   role: Role
 
   @ApiProperty({ description: 'Balance of the user account in cases of order refunds' })

@@ -8,8 +8,11 @@ export class CountriesService {
   constructor(private readonly countriesRepository: CountriesRepository) {}
 
   // Create country (super admin)
-  async createCountry(data: Partial<Country>) {
-    const country = await this.countriesRepository.createCountry(data)
+  async createCountry(userId: number, data: Partial<Country>) {
+    const country = await this.countriesRepository.createCountry({
+      ...data,
+      createdById: userId,
+    })
     return { country }
   }
 
@@ -26,7 +29,7 @@ export class CountriesService {
     return { country }
   }
 
-  // Update country details (both)
+  // Update country details (super admin)
   async updateCountry(countryId: number, data: Partial<Country>) {
     const existing = await this.countriesRepository.findCountryById(countryId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')

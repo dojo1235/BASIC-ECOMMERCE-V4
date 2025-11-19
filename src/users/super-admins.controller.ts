@@ -14,17 +14,17 @@ import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { Auth } from 'src/common/decorators/auth.decorator'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
+import { AdminRole } from 'src/users/entities/user.entity'
 import { UsersService } from './users.service'
 import { CreateAdminDto } from './dto/create-admin.dto'
 import { UpdateAdminDto } from './dto/update-admin.dto'
-import { UpdateUserRoleDto } from './dto/update-user-role.dto'
-import { FindUsersDto } from './dto/find-users.dto'
-import { UserResponseDto } from './dto/user-response.dto'
+import { UpdateAdminRoleDto } from './dto/update-admin-role.dto'
+import { FindAdminsDto } from './dto/find-admins.dto'
 import { UsersListResponseDto } from './dto/users-list-response.dto'
+import { UserResponseDto } from './dto/user-response.dto'
 import { AdminIdParamDto } from 'src/common/dto/admin-id-param.dto'
-import { Role } from 'src/users/entities/user.entity'
 
-@Auth(Role.SuperAdmin)
+@Auth(AdminRole.SuperAdmin)
 @Controller('admins/super')
 export class SuperAdminsController {
   constructor(private readonly usersService: UsersService) {}
@@ -40,7 +40,7 @@ export class SuperAdminsController {
     @Body() createAdminDto: CreateAdminDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<UserResponseDto> {
-    return await this.usersService.createAdmin(createAdminDto, user.id)
+    return await this.usersService.createAdmin(user.id, createAdminDto)
   }
 
   @HttpCode(HttpStatus.OK)
@@ -57,7 +57,7 @@ export class SuperAdminsController {
   @Get()
   @ApiOperation({ summary: 'Fetch all admins' })
   @ApiSuccessResponse({ description: 'Admins fetched successfully', type: UsersListResponseDto })
-  async findAllAdmins(@Query() query: FindUsersDto): Promise<UsersListResponseDto> {
+  async findAllAdmins(@Query() query: FindAdminsDto): Promise<UsersListResponseDto> {
     return await this.usersService.findAllAdmins(query)
   }
 
@@ -88,7 +88,7 @@ export class SuperAdminsController {
   @ApiSuccessResponse({ description: 'Admin role updated successfully', type: UserResponseDto })
   async updateAdminRole(
     @Param() { adminId }: AdminIdParamDto,
-    @Body() { role }: UpdateUserRoleDto,
+    @Body() { role }: UpdateAdminRoleDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<UserResponseDto> {
     return await this.usersService.updateAdminForSuperAdmin(adminId, {

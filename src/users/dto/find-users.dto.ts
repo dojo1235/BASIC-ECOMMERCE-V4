@@ -1,8 +1,8 @@
-import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator'
+import { IsEnum, IsOptional, IsString, IsBoolean, IsInt, Min } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
+import { UserRole } from '../entities/user.entity'
 import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
-import { Role } from '../entities/user.entity'
 import { SortOrder } from 'src/common/enums/sort-order.enum'
 
 export class FindUsersDto {
@@ -12,9 +12,9 @@ export class FindUsersDto {
   search?: string
 
   @IsOptional()
-  @IsEnum(Role)
-  @ApiPropertyOptional({ description: 'Filter by role', enum: Role })
-  role?: Role
+  @IsEnum(UserRole)
+  @ApiPropertyOptional({ description: 'Filter by role', enum: UserRole })
+  role?: UserRole
 
   @IsOptional()
   @QueryBoolean()
@@ -30,13 +30,15 @@ export class FindUsersDto {
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page number for pagination' })
   page?: number
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page size for pagination' })
   limit?: number
 

@@ -25,7 +25,7 @@ export class Profile {
   id: number
 
   @ApiProperty({ description: 'User ID associated with this profile' })
-  @Column()
+  @Column({ type: 'int' })
   userId: number
 
   @Exclude()

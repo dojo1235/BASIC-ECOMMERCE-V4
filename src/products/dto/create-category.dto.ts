@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsString, IsInt, Min } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
@@ -15,7 +15,8 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Parent category ID for nested categories' })
   parentId?: number
 }

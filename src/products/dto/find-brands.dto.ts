@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber, IsBoolean, IsEnum } from 'class-validator'
+import { IsOptional, IsString, IsBoolean, IsEnum, IsInt, Min } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { QueryBoolean } from 'src/common/decorators/query-boolean.decorator'
@@ -24,13 +24,15 @@ export class FindBrandsDto {
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page number for pagination' })
   page?: number
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page size for pagination' })
   limit?: number
 

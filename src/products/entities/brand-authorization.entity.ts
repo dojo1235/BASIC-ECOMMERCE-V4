@@ -13,18 +13,18 @@ import { Seller } from 'src/sellers/entities/seller.entity'
 import { User } from 'src/users/entities/user.entity'
 
 @Entity()
-@Unique(['brandName'])
+@Unique(['brandName', 'sellerId'])
 export class BrandAuthorization {
   @ApiProperty({ description: 'Unique identifier for the brand authorization' })
   @PrimaryGeneratedColumn()
   id: number
 
   @ApiProperty({ description: 'Name of the brand being authorized' })
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 50 })
   brandName: string
 
   @ApiProperty({ description: 'Seller ID associated with this authorization' })
-  @Column()
+  @Column({ type: 'int' })
   sellerId: number
 
   @Exclude()
@@ -37,7 +37,7 @@ export class BrandAuthorization {
   isAuthorized: boolean
 
   @ApiProperty({ description: 'User ID who authorized this brand', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   authorizedById: number | null
 
   @Exclude()
@@ -53,28 +53,28 @@ export class BrandAuthorization {
   @Column({ type: 'timestamp', nullable: true })
   authorizedAt: Date | null
 
-  @ApiProperty({ description: 'Timestamp when this record was created' })
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt: Date
-
   @ApiProperty({
-    description: 'User ID who last updated this record',
+    description: 'User ID who un-authorized this brand',
     type: Number,
     nullable: true,
   })
-  @Column({ nullable: true })
-  updatedById: number | null
+  @Column({ type: 'int', nullable: true })
+  unAuthorizedById: number | null
 
   @Exclude()
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn()
-  updatedBy: User | null
+  unAuthorizedBy: User | null
 
   @ApiProperty({
-    description: 'Timestamp when this record was last updated',
+    description: 'Timestamp when the brand was un-authorized',
     type: Date,
     nullable: true,
   })
   @Column({ type: 'timestamp', nullable: true })
-  updatedAt: Date | null
+  unAuthorizedAt: Date | null
+
+  @ApiProperty({ description: 'Timestamp when this record was created' })
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date
 }

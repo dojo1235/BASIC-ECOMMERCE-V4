@@ -24,7 +24,7 @@ export class ProfilesController {
     @Body() createProfileDto: CreateProfileDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<ProfileResponseDto> {
-    return await this.usersService.createProfile({ ...createProfileDto, userId: user.id })
+    return await this.usersService.createProfile(user.id, createProfileDto)
   }
 
   @Get()

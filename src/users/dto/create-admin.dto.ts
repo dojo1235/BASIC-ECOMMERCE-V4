@@ -1,17 +1,17 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, Length, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Transform } from 'class-transformer'
-import { Role } from '../entities/user.entity'
+import { AdminRole } from '../entities/user.entity'
 
 export class CreateAdminDto {
-  @IsEmail({}, { message: 'Email must be a valid email address' })
   @IsNotEmpty({ message: 'Email is required' })
+  @IsEmail({}, { message: 'Email must be a valid email address' })
   @ApiProperty({ description: 'Email address of the admin' })
   @Transform(({ value }: { value: string }) => value.trim().toLowerCase())
   email: string
 
-  @IsString()
   @IsNotEmpty({ message: 'Password is required' })
+  @IsString()
   @Length(8, 100, { message: 'Password must be between 8 and 100 characters long' })
   @Matches(/[A-Z]/, { message: 'Password must contain at least one uppercase letter' })
   @Matches(/[a-z]/, { message: 'Password must contain at least one lowercase letter' })
@@ -26,7 +26,7 @@ export class CreateAdminDto {
   password: string
 
   @IsNotEmpty({ message: 'Role is required' })
-  @IsEnum(Role, { message: `Role must be one of: ${Object.values(Role).join(', ')}` })
-  @ApiProperty({ description: 'Role assigned to the admin', enum: Role })
-  role: Role
+  @IsEnum(AdminRole, { message: `Role must be one of: ${Object.values(AdminRole).join(', ')}` })
+  @ApiProperty({ description: 'Role assigned to the admin', enum: AdminRole })
+  role: AdminRole
 }

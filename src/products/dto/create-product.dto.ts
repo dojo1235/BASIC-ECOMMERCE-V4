@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsEnum } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsString, IsEnum, IsInt, IsNumber, Min } from 'class-validator'
 import { Type } from 'class-transformer'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { ProductStatus } from '../entities/product.entity'
 
 export class CreateProductDto {
@@ -11,47 +11,52 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  @ApiProperty({ description: 'Product description' })
+  @ApiPropertyOptional({ description: 'Product description' })
   description?: string
 
   @IsNotEmpty()
-  @IsNumber()
   @Type(() => Number)
+  @IsNumber()
+  @Min(0)
   @ApiProperty({ description: 'Current selling price of the product' })
   price: number
 
-  @IsOptional()
-  @IsNumber()
+  @IsNotEmpty()
   @Type(() => Number)
+  @IsNumber()
+  @Min(0)
   @ApiProperty({ description: 'Original price before discount' })
-  originalPrice?: number
+  originalPrice: number
 
   @IsNotEmpty()
-  @IsNumber()
   @Type(() => Number)
+  @IsInt()
+  @Min(0)
   @ApiProperty({ description: 'Available stock quantity' })
   stock: number
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'Brand name associated with the product' })
-  brandName?: string
+  brandName: string
 
   @IsNotEmpty()
-  @IsNumber()
   @Type(() => Number)
+  @IsInt()
+  @Min(1)
   @ApiProperty({ description: 'Category ID the product belongs to' })
   categoryId: number
 
-  @IsOptional()
-  @IsNumber()
+  @IsNotEmpty()
   @Type(() => Number)
+  @IsInt()
+  @Min(1)
   @ApiProperty({ description: 'Country ID where the product is available' })
-  countryId?: number
+  countryId: number
 
   @IsOptional()
   @IsEnum(ProductStatus)
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Current availability status of the product',
     enum: ProductStatus,
     default: ProductStatus.InStock,

@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { Repository, Not, ILike, FindOptionsWhere } from 'typeorm'
+import { Repository, In, Not, ILike, FindOptionsWhere } from 'typeorm'
 import { User } from './entities/user.entity'
 import { Profile } from './entities/profile.entity'
 import { Address } from './entities/address.entity'
-import { Role } from './entities/user.entity'
-import { paginate } from 'src/common/utils/pagination.util'
+import { UserRole } from './entities/user.entity'
+import { FindAdminsDto } from './dto/find-admins.dto'
 import { FindUsersDto } from './dto/find-users.dto'
+import { paginate } from 'src/common/utils/pagination.util'
 
 @Injectable()
 export class UsersRepository {
@@ -24,11 +25,11 @@ export class UsersRepository {
     return await this.userRepository.save(entity)
   }
 
-  async findAllAdmins(query: FindUsersDto) {
+  async findAllAdmins(query: FindAdminsDto) {
     const where: FindOptionsWhere<User> = {}
     if (query.search) where.email = ILike(`%${query.search}%`)
     if (query.role) where.role = query.role
-    if (!query.role) where.role = Not(Role.User)
+    if (!query.role) where.role = Not(In([UserRole.User, UserRole.Seller]))
     if ('isBanned' in query) where.isBanned = query.isBanned
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
     const result = await paginate(this.userRepository, query, { where })
@@ -36,8 +37,10 @@ export class UsersRepository {
   }
 
   async findAllUsers(query: FindUsersDto) {
-    const where: FindOptionsWhere<User> = { role: Role.User }
+    const where: FindOptionsWhere<User> = {}
     if (query.search) where.email = ILike(`%${query.search}%`)
+    if (query.role) where.role = query.role
+    if (!query.role) where.role = In([UserRole.User, UserRole.Seller])
     if ('isBanned' in query) where.isBanned = query.isBanned
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
     const result = await paginate(this.userRepository, query, { where })

@@ -9,8 +9,8 @@ import {
 } from 'typeorm'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Seller } from './entities/seller.entity'
-import { paginate } from 'src/common/utils/pagination.util'
 import { FindSellersDto } from './dto/find-sellers.dto'
+import { paginate } from 'src/common/utils/pagination.util'
 
 @Injectable()
 export class SellersRepository {

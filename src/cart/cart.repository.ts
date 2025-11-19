@@ -11,15 +11,15 @@ export class CartRepository {
   ) {}
 
   async addToCart(userId: number, productId: number, quantity: number) {
-    const cartItem = this.repository.create({ userId, productId, quantity })
-    await this.repository.save(cartItem)
+    const entity = this.repository.create({ userId, productId, quantity })
+    await this.repository.save(entity)
   }
 
   async findCart(userId: number) {
     return await this.repository.find({
       where: { userId },
       order: { createdAt: 'DESC' },
-      relations: ['product'],
+      relations: ['product', 'product.productImages'],
     })
   }
 

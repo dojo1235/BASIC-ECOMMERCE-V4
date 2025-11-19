@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common'
+import { Transactional } from 'typeorm-transactional'
 import { ProductsRepository } from './products.repository'
-import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
+import { CountriesRepository } from 'src/countries/countries.repository'
+import { CreateProductDto } from './dto/create-product.dto'
+import { CreateProductImageDto } from './dto/create-product-image.dto'
+import { CreateBrandDto } from './dto/create-brand.dto'
+import { CreateCategoryDto } from './dto/create-category.dto'
 import { FindProductsDto } from './dto/find-products.dto'
 import { FindBrandsDto } from './dto/find-brands.dto'
 import { Product, ProductPriority } from './entities/product.entity'
@@ -8,16 +13,30 @@ import { ProductImage } from './entities/product-image.entity'
 import { Brand } from './entities/brand.entity'
 import { Category } from './entities/category.entity'
 import { SortBy } from 'src/common/enums/sort-by.enum'
+import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly productsRepository: ProductsRepository) {}
+  constructor(
+    private readonly productsRepository: ProductsRepository,
+    private readonly countriesRepository: CountriesRepository,
+  ) {}
 
   // Create product (admin)
-  async createProduct(data: Partial<Product>, adminId: number) {
+  async createProduct(adminId: number, data: CreateProductDto) {
+    const country = await this.countriesRepository.findCountryById(data.countryId)
+    if (!country) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')
+    const brand = await this.productsRepository.findBrandByName(data.brandName)
+    if (!brand) throw new AppError(ErrorCode.NOT_FOUND, 'Brand not found')
+    if (brand.isActive === false) throw new AppError(ErrorCode.INVALID_STATE, 'Brand is inactive')
+    const category = await this.productsRepository.findCategoryById(data.categoryId)
+    if (!category) throw new AppError(ErrorCode.NOT_FOUND, 'Category not found')
+    if (category.isActive === false)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Category is inactive')
     const created = await this.productsRepository.createProduct({
       ...data,
       priority: ProductPriority.High,
+      isSellerVerified: true,
       createdById: adminId,
     })
     return { product: created }
@@ -53,13 +72,28 @@ export class ProductsService {
   async updateProduct(productId: number, data: Partial<Product>) {
     const existing = await this.productsRepository.findProductById(productId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    if (data.countryId) {
+      const country = await this.countriesRepository.findCountryById(data.countryId)
+      if (!country) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')
+    }
+    if (data.brandName) {
+      const brand = await this.productsRepository.findBrandByName(data.brandName)
+      if (!brand) throw new AppError(ErrorCode.NOT_FOUND, 'Brand not found')
+      if (brand.isActive === false) throw new AppError(ErrorCode.INVALID_STATE, 'Brand is inactive')
+    }
+    if (data.categoryId) {
+      const category = await this.productsRepository.findCategoryById(data.categoryId)
+      if (!category) throw new AppError(ErrorCode.NOT_FOUND, 'Category not found')
+      if (category.isActive === false)
+        throw new AppError(ErrorCode.INVALID_STATE, 'Category is inactive')
+    }
     await this.productsRepository.updateProduct(productId, data)
     const updated = await this.productsRepository.findProductById(productId)
     return { product: updated }
   }
 
   // Create product image (admin)
-  async createProductImage(adminId: number, productId: number, data: Partial<ProductImage>) {
+  async createProductImage(adminId: number, productId: number, data: CreateProductImageDto) {
     const product = await this.productsRepository.findProductById(productId)
     if (!product) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
     if (data.isPrimary) await this.productsRepository.clearPrimaryImage(productId)
@@ -95,10 +129,9 @@ export class ProductsService {
   }
 
   // Create brand (admin)
-  async createBrand(adminId: number, data: Partial<Brand>) {
-    if (!data.name) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Brand name is required')
-    const existing = await this.productsRepository.findBrandByName(data.name)
-    if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Brand name already exists')
+  async createBrand(adminId: number, data: CreateBrandDto) {
+    const existingBrandName = await this.productsRepository.findBrandByName(data.name)
+    if (existingBrandName) throw new AppError(ErrorCode.INVALID_STATE, 'Brand name already exists')
     const created = await this.productsRepository.createBrand({
       ...data,
       createdById: adminId,
@@ -119,16 +152,32 @@ export class ProductsService {
   }
 
   // Update brand (admin)
+  @Transactional()
   async updateBrand(brandId: number, data: Partial<Brand>) {
     const existing = await this.productsRepository.findBrandById(brandId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Brand not found')
+    if (data.name) {
+      const existingBrandName = await this.productsRepository.findBrandByName(data.name)
+      if (existingBrandName)
+        throw new AppError(ErrorCode.INVALID_STATE, 'Brand name already exists')
+      await this.productsRepository.updateProductByBrandName(existing.name, {
+        brandName: data.name,
+      })
+      await this.productsRepository.updateBrandAuthorizationByBrandName(existing.name, {
+        brandName: data.name,
+      })
+    }
     await this.productsRepository.updateBrand(brandId, data)
     const updated = await this.productsRepository.findBrandById(brandId)
     return { brand: updated }
   }
 
   // Create category (admin)
-  async createCategory(adminId: number, data: Partial<Category>) {
+  async createCategory(adminId: number, data: CreateCategoryDto) {
+    if (data.parentId) {
+      const parentCategory = await this.productsRepository.findCategoryById(data.parentId)
+      if (!parentCategory) throw new AppError(ErrorCode.NOT_FOUND, 'Parent category not found')
+    }
     const created = await this.productsRepository.createCategory({
       ...data,
       createdById: adminId,
@@ -151,6 +200,10 @@ export class ProductsService {
 
   // Update category (admin)
   async updateCategory(categoryId: number, data: Partial<Category>) {
+    if (data.parentId) {
+      const parentCategory = await this.productsRepository.findCategoryById(data.parentId)
+      if (!parentCategory) throw new AppError(ErrorCode.NOT_FOUND, 'Parent category not found')
+    }
     const existing = await this.productsRepository.findCategoryById(categoryId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Category not found')
     await this.productsRepository.updateCategory(categoryId, data)

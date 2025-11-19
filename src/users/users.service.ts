@@ -1,16 +1,19 @@
 import { Injectable } from '@nestjs/common'
-import { User } from './entities/user.entity'
-import { Profile } from './entities/profile.entity'
-import { Address } from './entities/address.entity'
 import { AuthRepository } from '../auth/auth.repository'
 import { UsersRepository } from './users.repository'
 import { CountriesRepository } from 'src/countries/countries.repository'
-import { hash, compare } from 'src/common/utils/crypto.util'
-import { Role } from './entities/user.entity'
-import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 import { CreateAdminDto } from './dto/create-admin.dto'
+import { CreateProfileDto } from './dto/create-profile.dto'
+import { CreateAddressDto } from './dto/create-address.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
+import { FindAdminsDto } from './dto/find-admins.dto'
 import { FindUsersDto } from './dto/find-users.dto'
+import { User } from './entities/user.entity'
+import { Profile } from './entities/profile.entity'
+import { Address } from './entities/address.entity'
+import { UserRole } from 'src/users/entities/user.entity'
+import { hash, compare } from 'src/common/utils/crypto.util'
+import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 type UpdateUserInput = Partial<User> & { password?: string }
 
@@ -23,9 +26,7 @@ export class UsersService {
   ) {}
 
   // Create admin (super admin)
-  async createAdmin({ password, ...data }: CreateAdminDto, superAdminId: number) {
-    if (data.role === Role.User)
-      throw new AppError(ErrorCode.INVALID_STATE, 'Creating user not allowed')
+  async createAdmin(superAdminId: number, { password, ...data }: CreateAdminDto) {
     const existing = await this.usersRepository.findUserByEmail(data.email)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Email already exists')
     const passwordHash = await hash(password)
@@ -38,9 +39,7 @@ export class UsersService {
   }
 
   // Find all admins
-  async findAllAdmins(query: FindUsersDto) {
-    if (query.role && query.role === Role.User)
-      throw new AppError(ErrorCode.INVALID_STATE, 'Role is not an admin')
+  async findAllAdmins(query: FindAdminsDto) {
     return await this.usersRepository.findAllAdmins(query)
   }
 
@@ -163,11 +162,13 @@ export class UsersService {
   }
 
   // Create profile(both)
-  async createProfile(data: Partial<Profile>) {
-    if (!data.userId) throw new AppError(ErrorCode.VALIDATION_ERROR, 'User ID is required')
-    const existing = await this.usersRepository.findProfile(data.userId)
+  async createProfile(userId: number, data: CreateProfileDto) {
+    const existing = await this.usersRepository.findProfile(userId)
     if (existing) throw new AppError(ErrorCode.INVALID_STATE, 'Profile already exists')
-    const created = await this.usersRepository.createProfile(data)
+    const created = await this.usersRepository.createProfile({
+      ...data,
+      userId,
+    })
     return { profile: created }
   }
 
@@ -188,13 +189,14 @@ export class UsersService {
   }
 
   // Create new address (both)
-  async createAddress(data: Partial<Address>) {
-    if (!data.countryId) throw new AppError(ErrorCode.VALIDATION_ERROR, 'Country ID is required')
-    if (!data.userId) throw new AppError(ErrorCode.VALIDATION_ERROR, 'User ID is required')
+  async createAddress(userId: number, data: CreateAddressDto) {
     const country = await this.countriesRepository.findCountryById(data.countryId)
     if (!country) throw new AppError(ErrorCode.NOT_FOUND, 'Country not found')
-    if (data.isDefault) await this.usersRepository.clearDefaultAddress(data.userId)
-    const created = await this.usersRepository.createAddress(data)
+    if (data.isDefault) await this.usersRepository.clearDefaultAddress(userId)
+    const created = await this.usersRepository.createAddress({
+      ...data,
+      userId,
+    })
     return { address: created }
   }
 
@@ -234,11 +236,12 @@ export class UsersService {
 
   private ensureIsAdmin(admin: User | null) {
     if (!admin) throw new AppError(ErrorCode.NOT_FOUND, 'Admin not found')
-    if (admin.role === Role.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not an admin')
+    if (admin.role === UserRole.User || admin.role === UserRole.Seller)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Not an admin')
   }
 
   private ensureIsUser(user: User | null) {
     if (!user) throw new AppError(ErrorCode.NOT_FOUND, 'User not found')
-    if (user.role !== Role.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not a user')
+    if (user.role !== UserRole.User) throw new AppError(ErrorCode.INVALID_STATE, 'Not a user')
   }
 }

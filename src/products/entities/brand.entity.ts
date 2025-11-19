@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
+  UpdateDateColumn,
   JoinColumn,
   Unique,
 } from 'typeorm'
@@ -20,7 +21,7 @@ export class Brand {
   id: number
 
   @ApiProperty({ description: 'Seller ID that owns this brand' })
-  @Column()
+  @Column({ type: 'int' })
   sellerId: number
 
   @Exclude()
@@ -29,7 +30,7 @@ export class Brand {
   seller: Seller
 
   @ApiProperty({ description: 'Name of the brand' })
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 50 })
   name: string
 
   @ApiProperty({ description: 'Description of the brand', type: String, nullable: true })
@@ -45,7 +46,7 @@ export class Brand {
   isRestricted: boolean
 
   @ApiProperty({ description: 'User ID who created the brand', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   createdById: number | null
 
   @Exclude()
@@ -58,7 +59,7 @@ export class Brand {
   createdAt: Date
 
   @ApiProperty({ description: 'User ID who last updated the brand', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
   @Exclude()
@@ -67,6 +68,6 @@ export class Brand {
   updatedBy: User | null
 
   @ApiProperty({ description: 'Timestamp when the brand was last updated' })
-  @Column({ type: 'timestamp' })
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date
 }

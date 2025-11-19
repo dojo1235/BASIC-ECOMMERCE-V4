@@ -19,7 +19,7 @@ export class Cart {
   id: number
 
   @ApiProperty({ description: 'ID of the user who owns this cart item' })
-  @Column()
+  @Column({ type: 'int' })
   userId: number
 
   @Exclude()
@@ -28,7 +28,7 @@ export class Cart {
   user: User
 
   @ApiProperty({ description: 'ID of the product added to cart' })
-  @Column()
+  @Column({ type: 'int' })
   productId: number
 
   @ApiProperty({

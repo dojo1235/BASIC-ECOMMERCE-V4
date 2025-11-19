@@ -35,7 +35,7 @@ export class Product {
   id: number
 
   @ApiProperty({ description: 'Seller ID that owns this product' })
-  @Column()
+  @Column({ type: 'int' })
   sellerId: number
 
   @Exclude()
@@ -64,22 +64,22 @@ export class Product {
   brandName: string
 
   @ApiProperty({ description: 'Category ID of the product' })
-  @Column()
-  categoryId: number
+  @Column({ type: 'int', nullable: true })
+  categoryId: number | null
 
   @Exclude()
   @ManyToOne(() => Category, { onDelete: 'SET NULL' })
   @JoinColumn()
-  category: Category
+  category: Category | null
 
   @ApiProperty({ description: 'Country ID of the product origin' })
-  @Column()
-  countryId: number
+  @Column({ type: 'int', nullable: true })
+  countryId: number | null
 
   @Exclude()
   @ManyToOne(() => Country, { onDelete: 'SET NULL' })
   @JoinColumn()
-  country: Country
+  country: Country | null
 
   @ApiProperty({ description: 'Number of items currently in stock' })
   @Column({ type: 'int', default: 0 })
@@ -96,12 +96,16 @@ export class Product {
   @Column({ type: 'tinyint', default: ProductPriority.Low })
   priority: ProductPriority
 
+  @ApiProperty({ description: 'Indicates if the seller of the product is verified' })
+  @Column({ type: 'boolean', default: false })
+  isSellerVerified: boolean
+
   @ApiProperty({ description: 'Indicates if the product has been soft-deleted' })
   @Column({ type: 'tinyint', default: false })
   isDeleted: boolean
 
   @ApiProperty({ description: 'User ID of the creator', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   createdById: number | null
 
   @Exclude()
@@ -114,7 +118,7 @@ export class Product {
   createdAt: Date
 
   @ApiProperty({ description: 'User ID of the last updater', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
   @Exclude()
@@ -135,7 +139,7 @@ export class Product {
     type: Number,
     nullable: true,
   })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   deletedById: number | null
 
   @Exclude()
@@ -156,7 +160,7 @@ export class Product {
     type: Number,
     nullable: true,
   })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   restoredById: number | null
 
   @Exclude()
@@ -176,6 +180,6 @@ export class Product {
     description: 'List of images for this product',
     type: () => [ProductImage],
   })
-  @OneToMany(() => ProductImage, (image) => image.product, { cascade: true })
+  @OneToMany(() => ProductImage, (image) => image.product)
   productImages: ProductImage[]
 }

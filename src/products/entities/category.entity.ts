@@ -22,7 +22,7 @@ export class Category {
   id: number
 
   @ApiProperty({ description: 'Parent category ID', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   parentId: number | null
 
   @TreeParent()
@@ -30,15 +30,19 @@ export class Category {
   parent: Category | null
 
   @ApiProperty({ description: 'Name of the category' })
-  @Column({ length: 100 })
+  @Column({ type: 'varchar', length: 50 })
   name: string
 
   @ApiProperty({ description: 'Description of the category', type: String, nullable: true })
   @Column({ type: 'text', nullable: true })
   description: string | null
 
+  @ApiProperty({ description: 'Whether the category is active' })
+  @Column({ type: 'tinyint', default: true })
+  isActive: boolean
+
   @ApiProperty({ description: 'User ID who created the category', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   createdById: number | null
 
   @Exclude()
@@ -47,7 +51,7 @@ export class Category {
   createdBy: User | null
 
   @ApiProperty({ description: 'Timestamp when the category was created' })
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date
 
   @ApiProperty({
@@ -55,7 +59,7 @@ export class Category {
     type: Number,
     nullable: true,
   })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
   @Exclude()
@@ -64,52 +68,10 @@ export class Category {
   updatedBy: User | null
 
   @ApiProperty({ description: 'Timestamp when the category was last updated' })
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date
 
-  @ApiProperty({ description: 'User ID who deleted the category', type: Number, nullable: true })
-  @Column({ nullable: true })
-  deletedById: number | null
-
-  @Exclude()
-  @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn()
-  deletedBy: User | null
-
-  @ApiProperty({
-    description: 'Timestamp when the category was deleted',
-    type: Date,
-    nullable: true,
-  })
-  @Column({ type: 'timestamp', nullable: true })
-  deletedAt: Date | null
-
-  @ApiProperty({ description: 'User ID who restored the category', type: Number, nullable: true })
-  @Column({ nullable: true })
-  restoredById: number | null
-
-  @Exclude()
-  @ManyToOne(() => User, { onDelete: 'SET NULL' })
-  @JoinColumn()
-  restoredBy: User | null
-
-  @ApiProperty({
-    description: 'Timestamp when the category was restored',
-    type: Date,
-    nullable: true,
-  })
-  @Column({ type: 'timestamp', nullable: true })
-  restoredAt: Date | null
-
-  @ApiProperty({ description: 'Whether the category is active' })
-  @Column({ default: true, type: 'tinyint' })
-  isActive: boolean
-
-  @ApiProperty({ description: 'Whether the category is deleted' })
-  @Column({ default: false, type: 'tinyint' })
-  isDeleted: boolean
-
-  @TreeChildren()
   @ApiProperty({ description: 'Child categories', type: () => [Category] })
+  @TreeChildren()
   children: Category[]
 }

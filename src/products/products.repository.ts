@@ -12,10 +12,12 @@ import {
 import { Product } from './entities/product.entity'
 import { ProductImage } from './entities/product-image.entity'
 import { Brand } from './entities/brand.entity'
+import { BrandAuthorization } from './entities/brand-authorization.entity'
 import { Category } from './entities/category.entity'
-import { paginate } from 'src/common/utils/pagination.util'
 import { FindProductsDto } from './dto/find-products.dto'
 import { FindBrandsDto } from './dto/find-brands.dto'
+import { FindBrandAuthorizationsDto } from 'src/sellers/dto/find-brand-authorizations.dto'
+import { paginate } from 'src/common/utils/pagination.util'
 
 @Injectable()
 export class ProductsRepository {
@@ -26,6 +28,8 @@ export class ProductsRepository {
     private readonly productImageRepository: Repository<ProductImage>,
     @InjectRepository(Brand)
     private readonly brandRepository: Repository<Brand>,
+    @InjectRepository(BrandAuthorization)
+    private readonly brandAuthorizationRepository: Repository<BrandAuthorization>,
     @InjectRepository(Category)
     private readonly categoryRepository: TreeRepository<Category>,
   ) {}
@@ -40,6 +44,8 @@ export class ProductsRepository {
     if (query.search) where.name = ILike(`%${query.search}%`)
     if (query.sellerId) where.sellerId = query.sellerId
     if (query.brandName) where.brandName = query.brandName
+    if (query.categoryId) where.categoryId = query.categoryId
+    if (query.countryId) where.countryId = query.countryId
     if (query.status) where.status = query.status
     if (query.minPrice && query.maxPrice) {
       where.price = Between(query.minPrice, query.maxPrice)
@@ -48,6 +54,7 @@ export class ProductsRepository {
     } else if (query.maxPrice) {
       where.price = LessThanOrEqual(query.maxPrice)
     }
+    if ('isSellerVerified' in query) where.isSellerVerified = query.isSellerVerified
     if ('isDeleted' in query) where.isDeleted = query.isDeleted
     const relations = ['productImages']
     const result = await paginate(this.productRepository, query, { where, relations })
@@ -64,6 +71,10 @@ export class ProductsRepository {
 
   async updateSellerProducts(sellerId: number, data: Partial<Product>) {
     return await this.productRepository.update({ sellerId }, data)
+  }
+
+  async updateProductByBrandName(brandName: string, data: Partial<Product>) {
+    return await this.productRepository.update({ brandName }, data)
   }
 
   async createProductImage(data: Partial<ProductImage>) {
@@ -105,6 +116,10 @@ export class ProductsRepository {
     return await this.brandRepository.findOne({ where: { id: brandId } })
   }
 
+  async findBrandBySellerId(sellerId: number) {
+    return await this.brandRepository.findOne({ where: { sellerId } })
+  }
+
   async findBrandByName(brandName: string) {
     return await this.brandRepository.findOne({ where: { name: brandName } })
   }
@@ -113,17 +128,47 @@ export class ProductsRepository {
     return await this.brandRepository.update({ id: brandId }, data)
   }
 
+  async createBrandAuthorization(data: Partial<BrandAuthorization>) {
+    const entity = this.brandAuthorizationRepository.create(data)
+    return await this.brandAuthorizationRepository.save(entity)
+  }
+
+  async findAllBrandAuthorizations(query: FindBrandAuthorizationsDto) {
+    const where: FindOptionsWhere<BrandAuthorization> = {}
+    if (query.brandName) where.brandName = ILike(`%${query.brandName}%`)
+    if (query.sellerId) where.sellerId = query.sellerId
+    if ('isAuthorized' in query) where.isAuthorized = query.isAuthorized
+    const result = await paginate(this.brandAuthorizationRepository, query, { where })
+    return { brandAuthorizations: result.items, meta: result.meta }
+  }
+
+  async findBrandAuthorizationById(brandAuthorizationId: number) {
+    return await this.brandAuthorizationRepository.findOne({ where: { id: brandAuthorizationId } })
+  }
+
+  async findSellerBrandAuthorization(sellerId: number, brandName: string) {
+    return await this.brandAuthorizationRepository.findOne({ where: { sellerId, brandName } })
+  }
+
+  async updateBrandAuthorization(brandAuthorizationId: number, data: Partial<BrandAuthorization>) {
+    return await this.brandAuthorizationRepository.update({ id: brandAuthorizationId }, data)
+  }
+
+  async updateBrandAuthorizationByBrandName(brandName: string, data: Partial<BrandAuthorization>) {
+    return await this.brandAuthorizationRepository.update({ brandName }, data)
+  }
+
   async createCategory(data: Partial<Category>) {
     const entity = this.categoryRepository.create(data)
     return await this.categoryRepository.save(entity)
   }
 
-  async findCategoriesTree() {
-    return await this.categoryRepository.findTrees()
-  }
-
   async findCategoryById(categoryId: number) {
     return await this.categoryRepository.findOne({ where: { id: categoryId } })
+  }
+
+  async findCategoriesTree() {
+    return await this.categoryRepository.findTrees()
   }
 
   async updateCategory(categoryId: number, data: Partial<Category>) {

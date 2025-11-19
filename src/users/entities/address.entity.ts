@@ -19,7 +19,7 @@ export class Address {
   id: number
 
   @ApiProperty({ description: 'User ID associated with this address' })
-  @Column()
+  @Column({ type: 'int' })
   userId: number
 
   @Exclude()
@@ -44,7 +44,7 @@ export class Address {
   city: string
 
   @ApiProperty({ description: 'Country ID associated with this address' })
-  @Column()
+  @Column({ type: 'int' })
   countryId: number
 
   @Exclude()

@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean } from 'class-validator'
+import { IsEnum, IsOptional, IsString, IsNumber, IsBoolean, IsInt, Min } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { PremiumTier } from '../entities/seller.entity'
@@ -13,24 +13,30 @@ export class FindSellersDto {
 
   @IsOptional()
   @IsEnum(PremiumTier)
-  @ApiPropertyOptional({ description: 'Filter by seller premium tier', enum: PremiumTier })
+  @ApiPropertyOptional({
+    description: 'Filter by seller premium tier',
+    enum: PremiumTier,
+  })
   premiumTier?: PremiumTier
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
+  @Min(0)
   @ApiPropertyOptional({ description: 'Minimum balance' })
   minBalance?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
+  @Min(0)
   @ApiPropertyOptional({ description: 'Maximum balance' })
   maxBalance?: number
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Filter by store country ID' })
   storeCountryId?: number
 
@@ -48,13 +54,15 @@ export class FindSellersDto {
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page number for pagination' })
   page?: number
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page size for pagination' })
   limit?: number
 

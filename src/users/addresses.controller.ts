@@ -26,7 +26,7 @@ export class AddressesController {
     @Body() createAddressDto: CreateAddressDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<AddressResponseDto> {
-    return await this.usersService.createAddress({ ...createAddressDto, userId: user.id })
+    return await this.usersService.createAddress(user.id, createAddressDto)
   }
 
   @Get()

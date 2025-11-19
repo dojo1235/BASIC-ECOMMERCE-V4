@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository, FindOptionsWhere } from 'typeorm'
 import { Wishlist } from './entities/wishlist.entity'
-import { paginate } from 'src/common/utils/pagination.util'
 import { FindWishlistDto } from './dto/find-wishlist.dto'
+import { paginate } from 'src/common/utils/pagination.util'
 
 @Injectable()
 export class WishlistRepository {
@@ -19,7 +19,7 @@ export class WishlistRepository {
 
   async findWishlist(userId: number, query: FindWishlistDto) {
     const where: FindOptionsWhere<Wishlist> = { userId }
-    const relations = ['product']
+    const relations = ['product', 'product.productImages']
     const result = await paginate(this.repository, query, { where, relations })
     return { wishlist: result.items, meta: result.meta }
   }

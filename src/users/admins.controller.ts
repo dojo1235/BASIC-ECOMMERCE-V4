@@ -7,9 +7,9 @@ import { UsersService } from './users.service'
 import { UpdateEmailDto } from './dto/update-email.dto'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { UserResponseDto } from './dto/user-response.dto'
-import { Role } from 'src/users/entities/user.entity'
+import { AdminRole } from 'src/users/entities/user.entity'
 
-@Auth(Role.ViewOnlyAdmin)
+@Auth(AdminRole.ViewOnlyAdmin)
 @Controller('admins/me')
 export class AdminsController {
   constructor(private readonly usersService: UsersService) {}

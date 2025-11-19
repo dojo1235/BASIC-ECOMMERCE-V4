@@ -1,39 +1,50 @@
-import { IsString, IsOptional, IsInt, IsNotEmpty, Length, IsPhoneNumber } from 'class-validator'
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  IsNotEmpty,
+  Length,
+  IsPhoneNumber,
+  Min,
+} from 'class-validator'
+import { Type } from 'class-transformer'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class CreateSellerDto {
-  @IsString()
   @Length(3, 100)
+  @IsString()
   @ApiProperty({ description: 'Store name' })
   storeName: string
 
-  @IsString()
   @IsOptional()
+  @IsString()
   @ApiPropertyOptional({ description: 'Store description' })
   storeDescription?: string
 
-  @IsString()
   @IsOptional()
+  @IsString()
   @ApiPropertyOptional({ description: 'Store logo URL' })
   logoUrl?: string
 
-  @IsPhoneNumber(undefined)
   @IsOptional()
+  @IsPhoneNumber(undefined)
   @ApiPropertyOptional({ description: 'Contact number for this store' })
   storePhone?: string
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @ApiProperty({ description: 'Store address' })
   storeAddress: string
 
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   @ApiProperty({ description: 'Store city' })
   storeCity: string
 
-  @IsInt()
   @IsNotEmpty()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   @ApiProperty({
     description: 'Store country ID',
   })

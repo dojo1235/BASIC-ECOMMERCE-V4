@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Role } from 'src/users/entities/user.entity'
-import { IsEnum } from 'class-validator'
+import { IsNotEmpty, IsEnum } from 'class-validator'
+import { AdminRole } from '../entities/user.entity'
 
 export class UpdateUserRoleDto {
-  @ApiProperty({ description: 'New role to assign to the user', enum: Role })
-  @IsEnum(Role)
-  role: Role
+  @IsNotEmpty()
+  @IsEnum(AdminRole)
+  @ApiProperty({ description: 'New role to assign to the user', enum: AdminRole })
+  role: AdminRole
 }
