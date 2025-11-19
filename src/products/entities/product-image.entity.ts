@@ -19,13 +19,13 @@ export class ProductImage {
   id: number
 
   @ApiProperty({ description: 'Seller ID that owns this product image' })
-  @Column({ type: 'int' })
-  sellerId: number
+  @Column({ type: 'int', nullable: true })
+  sellerId: number | null
 
   @Exclude()
-  @ManyToOne(() => Seller, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Seller, { onDelete: 'SET NULL' })
   @JoinColumn()
-  seller: Seller
+  seller: Seller | null
 
   @ApiProperty({ description: 'ID of the product this image belongs to' })
   @Column({ type: 'int' })

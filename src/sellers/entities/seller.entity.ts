@@ -104,9 +104,13 @@ export class Seller {
   @JoinColumn()
   updatedBy: User | null
 
-  @ApiProperty({ description: 'Timestamp when the seller was last updated' })
-  @Column({ type: 'timestamp' })
-  updatedAt: Date
+  @ApiProperty({
+    description: 'Timestamp when the seller was last updated',
+    type: Date,
+    nullable: true,
+  })
+  @Column({ type: 'timestamp', nullable: true })
+  updatedAt: Date | null
 
   @ApiProperty({ description: 'User ID who suspended this seller', type: Number, nullable: true })
   @Column({ type: 'int', nullable: true })

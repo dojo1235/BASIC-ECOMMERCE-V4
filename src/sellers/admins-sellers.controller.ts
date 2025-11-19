@@ -91,7 +91,7 @@ export class AdminsSellersController {
     @Param() { sellerId }: SellerIdParamDto,
     @CurrentUser() user: CurrentUserPayload,
   ): Promise<SellerResponseDto> {
-    return await this.sellersService.restoreSeller(user.id, sellerId)
+    return await this.sellersService.suspendSeller(user.id, sellerId)
   }
 
   @Patch(':sellerId/restore')

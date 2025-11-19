@@ -393,6 +393,7 @@ export class SellersService {
     const created = await this.productsRepository.createProductImage({
       ...data,
       productId,
+      sellerId: seller.id,
       createdById: userId,
     })
     return { productImage: created }

@@ -200,14 +200,28 @@ export class ProductsService {
 
   // Update category (admin)
   async updateCategory(categoryId: number, data: Partial<Category>) {
-    if (data.parentId) {
-      const parentCategory = await this.productsRepository.findCategoryById(data.parentId)
-      if (!parentCategory) throw new AppError(ErrorCode.NOT_FOUND, 'Parent category not found')
-    }
     const existing = await this.productsRepository.findCategoryById(categoryId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Category not found')
+    if (data.parentId) {
+      if (data.parentId === categoryId)
+        throw new AppError(ErrorCode.INVALID_STATE, 'Category cannot be its own parent')
+      const parentCategory = await this.productsRepository.findCategoryById(data.parentId)
+      if (!parentCategory) throw new AppError(ErrorCode.NOT_FOUND, 'Parent category not found')
+      const isCreatesCycle = await this.isDescendant(categoryId, data.parentId)
+      if (isCreatesCycle)
+        throw new AppError(ErrorCode.INVALID_STATE, 'Cannot set a descendant as parent')
+    }
     await this.productsRepository.updateCategory(categoryId, data)
     const updated = await this.productsRepository.findCategoryById(categoryId)
     return { category: updated }
+  }
+
+  // Private helper to check if newParentId is a descendant of categoryId
+  private async isDescendant(categoryId: number, newParentId: number): Promise<boolean> {
+    const category = await this.productsRepository.findCategoryById(newParentId)
+    if (!category) return false
+    if (category.parentId === null) return false
+    if (category.parentId === categoryId) return true
+    return this.isDescendant(categoryId, category.parentId)
   }
 }
