@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { CartRepository } from './cart.repository'
 import { ProductsRepository } from 'src/products/products.repository'
+import { ProductStatus } from 'src/products/entities/product.entity'
 import { AppError, ErrorCode } from 'src/common/exceptions/app-error'
 
 @Injectable()
@@ -14,8 +15,11 @@ export class CartService {
   async addToCart(userId: number, productId: number, quantity: number) {
     const product = await this.productsRepository.findProductById(productId)
     if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    if (product.status === ProductStatus.OutOfStock)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Out of stock')
+    if (product.status !== ProductStatus.InStock)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Cannot add to cart')
     if (quantity > product.stock) throw new AppError(ErrorCode.INVALID_STATE, 'Insufficient stock')
-
     const existing = await this.cartRepository.findCartItem(userId, productId)
     if (existing) {
       const newQuantity = existing.quantity + quantity
@@ -25,7 +29,6 @@ export class CartService {
     } else {
       await this.cartRepository.addToCart(userId, productId, quantity)
     }
-
     const cartItem = await this.cartRepository.findCartItem(userId, productId)
     return { cartItem }
   }
@@ -64,11 +67,13 @@ export class CartService {
   async updateQuantity(userId: number, productId: number, quantity: number) {
     const existing = await this.cartRepository.findCartItem(userId, productId)
     if (!existing) throw new AppError(ErrorCode.NOT_FOUND, 'Cart item not found')
-
     const product = await this.productsRepository.findProductById(productId)
     if (!product || product.isDeleted) throw new AppError(ErrorCode.NOT_FOUND, 'Product not found')
+    if (product.status === ProductStatus.OutOfStock)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Out of stock')
+    if (product.status !== ProductStatus.InStock)
+      throw new AppError(ErrorCode.INVALID_STATE, 'Cannot add to cart')
     if (quantity > product.stock) throw new AppError(ErrorCode.INVALID_STATE, 'Insufficient stock')
-
     await this.cartRepository.updateCartItem(existing.id, quantity)
     const updated = await this.cartRepository.findCartItem(userId, productId)
     return { cartItem: updated }

@@ -3,7 +3,7 @@ import { ApiOperation } from '@nestjs/swagger'
 import { ApiSuccessResponse } from 'src/common/decorators/api-success-response.decorator'
 import { OrdersService } from './orders.service'
 import { Auth } from 'src/common/decorators/auth.decorator'
-import { Role } from 'src/users/entities/user.entity'
+import { AdminRole } from 'src/users/entities/user.entity'
 import { FindOrdersDto } from './dto/find-orders.dto'
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto'
 import { CurrentUser, type CurrentUserPayload } from 'src/common/decorators/current-user.decorator'
@@ -12,13 +12,12 @@ import { OrderIdParamDto } from 'src/common/dto/order-id-param.dto'
 import { OrderResponseDto } from './dto/order-response.dto'
 import { OrdersListResponseDto } from './dto/orders-list-response.dto'
 
-@Auth(Role.OrderManager)
 @Controller('admins/orders')
 export class AdminsOrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  @Auth(Role.ViewOnlyAdmin)
+  @Auth(AdminRole.ViewOnlyAdmin)
   @ApiOperation({ summary: 'Fetch all orders' })
   @ApiSuccessResponse({ description: 'Orders fetched successfully', type: OrdersListResponseDto })
   async findAllOrders(@Query() query: FindOrdersDto): Promise<OrdersListResponseDto> {
@@ -26,7 +25,7 @@ export class AdminsOrdersController {
   }
 
   @Get('users/:userId')
-  @Auth(Role.ViewOnlyAdmin)
+  @Auth(AdminRole.ViewOnlyAdmin)
   @ApiOperation({ summary: 'Fetch all orders for a specific user' })
   @ApiSuccessResponse({
     description: 'User orders fetched successfully',
@@ -40,7 +39,7 @@ export class AdminsOrdersController {
   }
 
   @Get(':orderId')
-  @Auth(Role.ViewOnlyAdmin)
+  @Auth(AdminRole.ViewOnlyAdmin)
   @ApiOperation({ summary: 'Fetch a single order' })
   @ApiSuccessResponse({ description: 'Order fetched successfully', type: OrderResponseDto })
   async findOneOrderForAdmin(@Param() { orderId }: OrderIdParamDto): Promise<OrderResponseDto> {
@@ -48,6 +47,7 @@ export class AdminsOrdersController {
   }
 
   @Patch(':orderId/status')
+  @Auth(AdminRole.OrderManager)
   @ApiOperation({ summary: 'Update order status' })
   @ApiSuccessResponse({ description: 'Order status updated successfully', type: OrderResponseDto })
   async updateOrderStatus(
@@ -63,6 +63,7 @@ export class AdminsOrdersController {
   }
 
   @Patch(':orderId/restore')
+  @Auth(AdminRole.OrderManager)
   @ApiOperation({ summary: 'Restore order' })
   @ApiSuccessResponse({ description: 'Order restored successfully', type: OrderResponseDto })
   async restoreOrder(
@@ -77,6 +78,7 @@ export class AdminsOrdersController {
   }
 
   @Delete(':orderId')
+  @Auth(AdminRole.OrderManager)
   @ApiOperation({ summary: 'Soft-delete order' })
   @ApiSuccessResponse({ description: 'Order deleted successfully', type: OrderResponseDto })
   async deleteOrder(

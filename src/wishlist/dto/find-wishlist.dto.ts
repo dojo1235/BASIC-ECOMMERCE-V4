@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsNumber } from 'class-validator'
+import { IsEnum, IsOptional, IsInt, Min } from 'class-validator'
 import { Type } from 'class-transformer'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { SortOrder } from 'src/common/enums/sort-order.enum'
@@ -6,13 +6,15 @@ import { SortOrder } from 'src/common/enums/sort-order.enum'
 export class FindWishlistDto {
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page number for pagination' })
   page?: number
 
   @IsOptional()
   @Type(() => Number)
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   @ApiPropertyOptional({ description: 'Page size for pagination' })
   limit?: number
 

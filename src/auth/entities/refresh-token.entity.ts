@@ -13,7 +13,7 @@ export class RefreshToken {
   @PrimaryGeneratedColumn()
   id: number
 
-  @Column()
+  @Column({ type: 'int' })
   userId: number
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })

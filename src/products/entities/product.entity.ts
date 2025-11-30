@@ -3,12 +3,17 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm'
 import { Exclude } from 'class-transformer'
 import { ApiProperty } from '@nestjs/swagger'
 import { User } from 'src/users/entities/user.entity'
+import { Seller } from 'src/sellers/entities/seller.entity'
+import { Country } from 'src/countries/entities/country.entity'
+import { Category } from './category.entity'
+import { ProductImage } from './product-image.entity'
 
 export enum ProductStatus {
   InStock = 'inStock',
@@ -16,11 +21,27 @@ export enum ProductStatus {
   OutOfStock = 'outOfStock',
 }
 
+export enum ProductPriority {
+  Low = 1,
+  Medium = 2,
+  High = 3,
+  Featured = 4,
+}
+
 @Entity()
 export class Product {
   @ApiProperty({ description: 'Unique identifier for the product' })
   @PrimaryGeneratedColumn()
   id: number
+
+  @ApiProperty({ description: 'Seller ID that owns this product' })
+  @Column({ type: 'int' })
+  sellerId: number
+
+  @Exclude()
+  @ManyToOne(() => Seller, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  seller: Seller
 
   @ApiProperty({ description: 'Name of the product' })
   @Column({ type: 'varchar', length: 150 })
@@ -31,12 +52,34 @@ export class Product {
   description: string | null
 
   @ApiProperty({ description: 'Product price in USD' })
-  @Column({ type: 'numeric', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number
 
-  @ApiProperty({ description: 'URL of the product image' })
-  @Column({ type: 'varchar', length: 255 })
-  image: string
+  @ApiProperty({ description: 'Original price before discount', type: Number, nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  originalPrice: number | null
+
+  @ApiProperty({ description: 'Name of the brand' })
+  @Column({ type: 'varchar', length: 100 })
+  brandName: string
+
+  @ApiProperty({ description: 'Category ID of the product' })
+  @Column({ type: 'int', nullable: true })
+  categoryId: number | null
+
+  @Exclude()
+  @ManyToOne(() => Category, { onDelete: 'SET NULL' })
+  @JoinColumn()
+  category: Category | null
+
+  @ApiProperty({ description: 'Country ID of the product origin' })
+  @Column({ type: 'int', nullable: true })
+  countryId: number | null
+
+  @Exclude()
+  @ManyToOne(() => Country, { onDelete: 'SET NULL' })
+  @JoinColumn()
+  country: Country | null
 
   @ApiProperty({ description: 'Number of items currently in stock' })
   @Column({ type: 'int', default: 0 })
@@ -49,12 +92,20 @@ export class Product {
   @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.InStock })
   status: ProductStatus
 
+  @ApiProperty({ description: 'Indicates the visibility level of the product when listing' })
+  @Column({ type: 'tinyint', default: ProductPriority.Low })
+  priority: ProductPriority
+
+  @ApiProperty({ description: 'Indicates if the seller of the product is verified' })
+  @Column({ type: 'boolean', default: false })
+  isSellerVerified: boolean
+
   @ApiProperty({ description: 'Indicates if the product has been soft-deleted' })
   @Column({ type: 'tinyint', default: false })
   isDeleted: boolean
 
   @ApiProperty({ description: 'User ID of the creator', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   createdById: number | null
 
   @Exclude()
@@ -67,7 +118,7 @@ export class Product {
   createdAt: Date
 
   @ApiProperty({ description: 'User ID of the last updater', type: Number, nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   updatedById: number | null
 
   @Exclude()
@@ -88,7 +139,7 @@ export class Product {
     type: Number,
     nullable: true,
   })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   deletedById: number | null
 
   @Exclude()
@@ -109,7 +160,7 @@ export class Product {
     type: Number,
     nullable: true,
   })
-  @Column({ nullable: true })
+  @Column({ type: 'int', nullable: true })
   restoredById: number | null
 
   @Exclude()
@@ -124,4 +175,11 @@ export class Product {
   })
   @Column({ type: 'timestamp', nullable: true })
   restoredAt: Date | null
+
+  @ApiProperty({
+    description: 'List of images for this product',
+    type: () => [ProductImage],
+  })
+  @OneToMany(() => ProductImage, (image) => image.product)
+  productImages: ProductImage[]
 }

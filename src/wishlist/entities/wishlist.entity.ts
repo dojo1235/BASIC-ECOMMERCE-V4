@@ -20,7 +20,7 @@ export class Wishlist {
   id: number
 
   @ApiProperty({ description: 'ID of the user who added the product to wishlist' })
-  @Column()
+  @Column({ type: 'int' })
   userId: number
 
   @Exclude()
@@ -29,7 +29,7 @@ export class Wishlist {
   user: User
 
   @ApiProperty({ description: 'ID of the product added to the wishlist' })
-  @Column()
+  @Column({ type: 'int' })
   productId: number
 
   @ApiProperty({

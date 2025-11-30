@@ -5,7 +5,7 @@ import { ProductsService } from './products.service'
 import { FindProductsDto } from './dto/find-products.dto'
 import { ProductsListResponseDto } from './dto/products-list-response.dto'
 import { ProductResponseDto } from './dto/product-response.dto'
-import { ProductIdParamDto } from '../common/dto/product-id-param.dto'
+import { ProductIdParamDto } from 'src/common/dto/product-id-param.dto'
 
 @Controller('products')
 export class ProductsController {
